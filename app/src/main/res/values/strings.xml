@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">bluetoothTest</string>
+    <string name="title_activity_communicate">Communicate</string>
+</resources>
