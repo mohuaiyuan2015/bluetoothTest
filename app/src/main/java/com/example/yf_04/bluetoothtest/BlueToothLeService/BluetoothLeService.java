@@ -32,6 +32,7 @@
 
 package com.example.yf_04.bluetoothtest.BlueToothLeService;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -45,10 +46,13 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.example.yf_04.bluetoothtest.BLEProfileDataParserClasses.BloodPressureParser;
@@ -152,7 +156,11 @@ public class BluetoothLeService extends Service {
                 Log.d(TAG, "----------------------------> STATE_CONNECTED");
                 intentAction = ACTION_GATT_CONNECTED;
                 mConnectionState = STATE_CONNECTED;
-                broadcastConnectionUpdate(intentAction);
+
+                //mohuaiyuan 201707  多此一举 注释掉
+//                broadcastConnectionUpdate(intentAction);
+
+                discoverServices();
 
             }
             // GATT Server disconnected
@@ -760,19 +768,26 @@ public class BluetoothLeService extends Service {
      * callback.
      */
     public static void connect(final String address, final String devicename, Context context) {
+        Log.d(TAG, "connect: ");
         mContext = context;
 
-        if(mBluetoothAdapter==null){
-             BluetoothManager   blueMessage= (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+//        if(mBluetoothAdapter==null){
+//            BluetoothManager   blueMessage= (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+//
+//            mBluetoothAdapter = blueMessage.getAdapter();
+//        }
 
-            mBluetoothAdapter = blueMessage.getAdapter();
-        }
 
         if (mBluetoothAdapter == null || address == null) {
             Log.d(TAG, "mBluetoothAdapter==null || address ==null ");
-            Log.d(TAG, "mBluetoothAdapter==null: "+(mBluetoothAdapter==null ));
-            Log.d(TAG, "address==null: "+(address==null ));
             return;
+        }
+
+        if(mBluetoothGatt != null && mBluetoothGatt.getDevice().getAddress().equals(address)) {
+            // just reconnect
+             mBluetoothGatt.connect();
+
+            return ;
         }
 
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
@@ -781,10 +796,13 @@ public class BluetoothLeService extends Service {
             Log.w(TAG, "Device not found.Unable to connect.");
             return;
         }
+
+
         // We want to directly connect to the device, so we are setting the
         // autoConnect
         // parameter to false.
         mBluetoothGatt = device.connectGatt(context, false, mGattCallback);
+        Log.d(TAG, " device.connectGatt--------------------->");
         //  refreshDeviceCache(mBluetoothGatt);
         mBluetoothDeviceAddress = address;
         mBluetoothDeviceName = devicename;
@@ -812,10 +830,12 @@ public class BluetoothLeService extends Service {
      * callback.
      */
     public static void disconnect() {
+        Log.d(TAG, "disconnect()... ");
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             return;
         }
 
+        Log.d(TAG, "mConnectionState: "+mConnectionState);
         if (mConnectionState == STATE_CONNECTED){
             //  Logger.datalog(mContext.getResources().getString(R.string.dl_device_connecting));
             mBluetoothGatt.disconnect();
@@ -824,10 +844,15 @@ public class BluetoothLeService extends Service {
     }
 
     public static void discoverServices() {
-        // Logger.datalog(mContext.getResources().getString(R.string.dl_service_discover_request));
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            return;
-        } else {
+        //mohuaiyuan 201707
+//        // Logger.datalog(mContext.getResources().getString(R.string.dl_service_discover_request));
+//        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+//            return;
+//        } else {
+//            mBluetoothGatt.discoverServices();
+//        }
+
+        if(mBluetoothGatt!=null){
             mBluetoothGatt.discoverServices();
         }
 
@@ -1015,7 +1040,9 @@ public class BluetoothLeService extends Service {
      * @return Return true if the initialization is successful.
      */
     public boolean initialize() {
-        System.out.println("BLEService----------------->initialize");
+//        System.out.println("BLEService----------------->initialize");
+        Log.d(TAG, "BluetoothLeService---------------------->initialize: ");
+        Log.d(TAG, ": ");
         // For API level 18 and above, get a reference to BluetoothAdapter
         // through
         // BluetoothManager.
@@ -1043,12 +1070,28 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt = null;
     }
 
+    private Context context;
+    private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+
+
     @Override
     public void onCreate() {
-        // Initializing the service
-        if (!initialize()) {
-            System.out.println("Service not initialized");
+        Log.d(TAG, "onCreate: ");
+//         // Initializing the service
+//            if (!initialize()) {
+//                System.out.println("Service not initialized");
+//        }
+
+        context=this;
+
+        boolean initResult= initialize();
+        if(initResult){
+            Log.d(TAG, "Service has initialized------------------------>");
+        }else{
+            Log.e(TAG, "Service not initialized------------------------>" );
         }
+
+
     }
 
     /**

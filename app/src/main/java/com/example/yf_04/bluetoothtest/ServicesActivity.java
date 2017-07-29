@@ -39,7 +39,7 @@ public class ServicesActivity extends AppCompatActivity {
     private static final String TAG = "ServicesActivity";
 
     private final List<MService> list = new ArrayList<>();
-    /*
+
     //mohuaiyuan 201707
 //    @Bind(R.id.rl_top)
     RelativeLayout rlTop;
@@ -65,8 +65,8 @@ public class ServicesActivity extends AppCompatActivity {
 //    @Bind(R.id.tv_service_count)
     TextView tvServiceCount;
 
-//    private ServicesAdapter adapter;
-*/
+    private ServicesAdapter adapter;
+
 
     private MyApplication myApplication;
     private Context context;
@@ -79,7 +79,7 @@ public class ServicesActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate: ");
         context=this;
         
-//        initUI();
+        initUI();
 
         //mohuaiyuan 201707
 //        bindToolBar();
@@ -90,35 +90,35 @@ public class ServicesActivity extends AppCompatActivity {
 
 
         //mohuaiyuan 201707
-//        adapter = new ServicesAdapter(this, list);
-//        lvServices.setAdapter(adapter);
-//
-//        Intent intent = getIntent();
-//        tvServiceName.setText("NAME:"+intent.getStringExtra("dev_name"));
-//        tvServiceMac.setText("MAC:"+intent.getStringExtra("dev_mac"));
-//        tvServiceCount.setText("SERVICES:"+ String.valueOf(list.size()));
-//
-//
-//        initListener();
-//
-//
-//        if (savedInstanceState == null) {
-//            filterView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-//                @Override
-//                public boolean onPreDraw() {
-//                    filterView.getViewTreeObserver().removeOnPreDrawListener(this);
-//                    startAnimation();
-//                    return true;
-//                }
-//            });
-//        }
+        adapter = new ServicesAdapter(this, list);
+        lvServices.setAdapter(adapter);
 
-        itemClick();
+        Intent intent = getIntent();
+        tvServiceName.setText("NAME:"+intent.getStringExtra("dev_name"));
+        tvServiceMac.setText("MAC:"+intent.getStringExtra("dev_mac"));
+        tvServiceCount.setText("SERVICES:"+ String.valueOf(list.size()));
+
+
+        initListener();
+
+
+        if (savedInstanceState == null) {
+            filterView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    filterView.getViewTreeObserver().removeOnPreDrawListener(this);
+//                    startAnimation();
+                    return true;
+                }
+            });
+        }
+
+//        itemClick();
 
 
     }
 
-/*    private void initListener() {
+   private void initListener() {
 
         lvServices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -153,9 +153,9 @@ public class ServicesActivity extends AppCompatActivity {
             }
         });
 
-    }*/
+    }
 
-/*
+
     private void initUI() {
         rlTop= (RelativeLayout) findViewById(R.id.rl_top);
         filterView=  findViewById(R.id.view_filter);
@@ -165,7 +165,7 @@ public class ServicesActivity extends AppCompatActivity {
         tvServiceName= (TextView) findViewById(R.id.tv_service_name);
         tvServiceMac= (TextView) findViewById(R.id.tv_service_mac);
         tvServiceCount= (TextView) findViewById(R.id.tv_service_count);
-    }*/
+    }
 
     private void itemClick(){
         Log.d(TAG, "itemClick: ");

@@ -160,4 +160,45 @@
     <string name="transmittal_length">Max transmittal data is %s</string>
 
 
+    <!-- action orders-->
+    <string name="stand_in_situ">Stand in situ</string>
+    <string name="tread_on_the_ground">Tread on the ground</string>
+    <string name="walk_forward">Walk forward</string>
+    <string name="walk_backwards">Walk backwards</string>
+
+    <string name="the_side_walk">The side walk</string>
+    <string name="in_situ_squat_down">In situ squat down</string>
+    <string name="from_squat_down_to_stand">From squat down to stand</string>
+    <string name="place_to_sit_down">Place to sit down</string>
+
+    <string name="from_sitting_to_standing">From sitting to standing</string>
+    <string name="place_to_lie_down">Place to lie down</string>
+    <string name="from_lie_down_to_stand">From lie down to stand</string>
+    <string name="put_down">Put down</string>
+
+    <string name="from_the_ground_to_the_station">From the ground to the station</string>
+    <string name="bow_ones_head">Bow one\'s head</string>
+    <string name="a_word_horse">A word horse</string>
+    <string name="stance">Stance</string>
+
+    <string name="before_the_leg_press">Before the leg press</string>
+    <string name="side_leg_press">Side leg press</string>
+    <string name="chest_out">Chest out</string>
+    <string name="Stoop">Stoop</string>
+
+    <string name="look_up">Look up</string>
+    <string name="in_situ_turning">In situ turning</string>
+    <string name="take_a_right_turn">Take a right turn</string>
+    <string name="lie_on_your_stomach_and_do_push_ups">Lie on your stomach and do push-ups</string>
+
+    <string name="lift_my_left_arm">Lift my left arm</string>
+    <string name="lift_my_right_arm">Lift my right arm</string>
+    <string name="waving_your_left_arm">Waving your left arm</string>
+    <string name="waving_you_right_arm">Waving you right arm</string>
+
+    <string name="stretch_you_left_arm">Stretch you left arm</string>
+    <string name="stretch_you_right_arm">Stretch you right arm</string>
+    <string name="play_basketball">Play basketball</string>
+
+
 </resources>

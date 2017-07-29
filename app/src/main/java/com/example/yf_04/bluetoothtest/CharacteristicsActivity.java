@@ -84,16 +84,18 @@ public class CharacteristicsActivity extends AppCompatActivity {
         });
 
 
-        if (savedInstanceState == null) {
-            filterView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    filterView.getViewTreeObserver().removeOnPreDrawListener(this);
-                    startEndAnimation();
-                    return true;
-                }
-            });
-        }
+//        if (savedInstanceState == null) {
+//            filterView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+//                @Override
+//                public boolean onPreDraw() {
+//                    filterView.getViewTreeObserver().removeOnPreDrawListener(this);
+//                    startEndAnimation();
+//                    return true;
+//                }
+//            });
+//        }
+
+
     }
 
     private void initUI() {

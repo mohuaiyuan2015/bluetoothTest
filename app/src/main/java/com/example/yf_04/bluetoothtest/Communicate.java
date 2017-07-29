@@ -27,6 +27,10 @@ public class Communicate extends AppCompatActivity {
 
     private static final String TAG = "Communicate";
 
+    private Button standInSitu;
+    private Button treadOnTheGround;
+    private Button walkForward;
+    private Button walkBackwards;
     private Button playBasketball;
     private Button stoop;
 
@@ -51,11 +55,21 @@ public class Communicate extends AppCompatActivity {
     }
 
     private void initListener() {
+        standInSitu.setOnClickListener(myOnClickListener);
+        treadOnTheGround.setOnClickListener(myOnClickListener);
+        walkForward.setOnClickListener(myOnClickListener);
+        walkBackwards.setOnClickListener(myOnClickListener);
+
         playBasketball.setOnClickListener(myOnClickListener);
         stoop.setOnClickListener(myOnClickListener);
     }
 
     private void initUI() {
+        standInSitu= (Button) findViewById(R.id.standInSitu);
+        treadOnTheGround= (Button) findViewById(R.id.treadOnTheGround);
+        walkForward= (Button) findViewById(R.id.walkForward);
+        walkBackwards= (Button) findViewById(R.id.walkBackwards);
+
         playBasketball= (Button) findViewById(R.id.playBasketball);
         stoop= (Button) findViewById(R.id.stoop);
     }
@@ -64,10 +78,27 @@ public class Communicate extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()){
+
+                case R.id.standInSitu:
+                    writeOption(Orders.STAND_IN_SITU);
+                    break;
+
+                case R.id.treadOnTheGround:
+                    writeOption(Orders.TREAD_ON_THE_GROUND);
+                    break;
+
+                case R.id.walkForward:
+                    writeOption(Orders.WALK_FORWARD);
+                    break;
+
+                case R.id.walkBackwards:
+                    writeOption(Orders.WALK_BACKWARDS);
+                    break;
+
                 case R.id.stoop:
                     writeOption(Orders.STOOP);
-
                     break;
+
                 case R.id.playBasketball:
                     writeOption(Orders.PLAY_BASKETBALL);
                     break;
@@ -149,7 +180,6 @@ public class Communicate extends AppCompatActivity {
             Log.d(TAG, "Max transmittal data is 20 ");
 //            Toast.makeText(this,getString(R.string.transmittal_length,"20"),Toast.LENGTH_LONG).show();
         }
-
 
     }
 

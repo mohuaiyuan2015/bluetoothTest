@@ -5,18 +5,62 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
-    <Button
-        android:id="@+id/playBasketball"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Play Basket ball"
-        />
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
 
-    <Button
-        android:id="@+id/stoop"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Stoop"
-        />
+
+            <Button
+                android:id="@+id/standInSitu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/stand_in_situ"
+                />
+            <Button
+                android:id="@+id/treadOnTheGround"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tread_on_the_ground"
+                />
+            <Button
+                android:id="@+id/walkForward"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/walk_forward"
+                />
+            <Button
+                android:id="@+id/walkBackwards"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/walk_backwards"
+                />
+
+
+            <Button
+                android:id="@+id/stoop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/Stoop"
+                />
+
+            <Button
+                android:id="@+id/playBasketball"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/play_basketball"
+                />
+
+
+        </LinearLayout>
+
+
+
+    </ScrollView>
+
 
 </LinearLayout>

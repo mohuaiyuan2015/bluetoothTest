@@ -3,9 +3,11 @@ package com.example.yf_04.bluetoothtest;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+//    private static final int START_BLUETOOTHLESERVICE = 2;
 
     private Button scan;
     private Button stop;
@@ -101,10 +104,38 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(mGattUpdateReceiver, Utils.makeGattUpdateIntentFilter());
 
 
+
+
+            //mohuaiyuan 201707
+        //TODO  ask for Permission  ACCESS_COARSE_LOCATION   ACCESS_FINE_LOCATION
+//        String[] permissions=new String[]{Manifest.permission.ACCESS_COARSE_LOCATION
+//                , Manifest.permission.ACCESS_FINE_LOCATION    };
+//        //Android M Permission check
+//        Log.d(TAG, "Build.VERSION.SDK_INT: "+Build.VERSION.SDK_INT);
+//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+//                && ContextCompat.checkSelfPermission( context, Manifest.permission.ACCESS_COARSE_LOCATION )!= PackageManager.PERMISSION_GRANTED ){
+//            Log.d(TAG, "Android M Permission check ");
+//            Log.d(TAG, "ask for Permission... ");
+//            ActivityCompat.requestPermissions(this,permissions, START_BLUETOOTHLESERVICE);
+//
+//        }else{
+//            Intent gattServiceIntent = new Intent(context,BluetoothLeService.class);
+//            context.startService(gattServiceIntent);
+//        }
+
+        Log.d(TAG, " prepare init BluetoothLeService---------");
         Intent gattServiceIntent = new Intent(context,BluetoothLeService.class);
-        context.startService(gattServiceIntent);
+       ComponentName componentName= context.startService(gattServiceIntent);
+        Log.d(TAG, "componentName==null: "+(componentName==null));
+        if(componentName!=null){
+            Log.d(TAG, "componentName:"+componentName.toString());
+        }
+
+
 
     }
+
+
 
     private void initListener() {
         Log.d(TAG, "initListener: ");
@@ -133,12 +164,19 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "myAdapter onItemClick: ");
                 Log.d(TAG, "scanning: "+scaning);
 
-                if (!scaning) {
-//                    isShowingDialog = true;
-                    showProgressDialog();
-                    hander.postDelayed(dismssDialogRunnable, 20000);
-                    connectDevice(list.get(position).getDevice());
-                }
+//                if (!scaning) {
+////                    isShowingDialog = true;
+//                    showProgressDialog();
+//                    hander.postDelayed(dismssDialogRunnable, 20000);
+//                    connectDevice(list.get(position).getDevice());
+//                }else {
+//                    Toast.makeText(context, "Scanning bluetooth device", Toast.LENGTH_SHORT).show();
+//                }
+
+                showProgressDialog();
+                hander.postDelayed(dismssDialogRunnable, 20000);
+                connectDevice(list.get(position).getDevice());
+
             }
         });
 
@@ -164,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
             }
             //mohuaiyuan 201707
             if (mBluetoothAdapter != null){
-                mBluetoothAdapter.startLeScan(mLeScanCallback);
+                mBluetoothAdapter.stopLeScan(mLeScanCallback);
             }
 
 
@@ -279,7 +317,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
-
         Log.d(TAG, "onRequestPermissionsResult: "+requestCode);
 
         switch (requestCode) {
@@ -295,13 +332,13 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(context, "Bluetooth need some permisssions ,please grante permissions and try again !", Toast.LENGTH_SHORT).show();
                 }
                 break;
+
+//            case START_BLUETOOTHLESERVICE:
+//                Intent gattServiceIntent = new Intent(context,BluetoothLeService.class);
+//                context.startService(gattServiceIntent);
+//                break;
         }
     }
-
-
-
-
-
 
 
     /**
@@ -364,12 +401,16 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "connectDevice: ");
         currentDevAddress = device.getAddress();
         currentDevName = device.getName();
-        //如果是连接状态，断开，重新连接
-        if (BluetoothLeService.getConnectionState() != BluetoothLeService.STATE_DISCONNECTED){
-            BluetoothLeService.disconnect();
-        }
 
-        Log.d(TAG, "connect...: ");
+        Log.d(TAG, "connectDevice name: "+currentDevName);
+        Log.d(TAG, "connectDevice Mac: "+currentDevAddress);
+
+        //mohuaiyuan 201707
+        //如果是连接状态，断开，重新连接
+//        if (BluetoothLeService.getConnectionState() != BluetoothLeService.STATE_DISCONNECTED){
+//            BluetoothLeService.disconnect();
+//        }
+
         BluetoothLeService.connect(currentDevAddress, currentDevName, context);
     }
 
@@ -392,8 +433,10 @@ public class MainActivity extends AppCompatActivity {
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
 //                System.out.println("--------------------->连接成功");
                 Log.d(TAG, "connnected --------------------->connected success");
-                //搜索服务
-                BluetoothLeService.discoverServices();
+
+                //mohuaiyuan 201707  多此一举  注释
+//                //搜索服务
+//                BluetoothLeService.discoverServices();
             }
             // Services Discovered from GATT Server
             else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
@@ -423,8 +466,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "prepareGattServices: ");
         prepareData(gattServices);
 
-
-
         //mohuaiyuan 201707
 //        Intent intent = new Intent(this, ServicesActivity.class);
 //        intent.putExtra("dev_name",currentDevName);
@@ -434,7 +475,7 @@ public class MainActivity extends AppCompatActivity {
 
         //直接跳转到 CharacteristicsActivity
 
-
+            //mohuaiyuan 201707  暂时注释
         List<MService> services =myApplication.getServices();
         Log.d(TAG, "services.size(): "+services.size());
         jumpToCharacteristicActivity(services);
@@ -458,10 +499,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-//        if (!isContains){
-//            Toast.makeText(context, "There is not USR_SERVICE,please try another device!", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
+        //mohuaiyuan 201707  暂时注释
+        if (!isContains){
+            Toast.makeText(context, "There is not USR_SERVICE,please try another device!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         MService mService = list.get(position);
         BluetoothGattService service = mService.getService();
@@ -469,10 +511,42 @@ public class MainActivity extends AppCompatActivity {
 
         MyApplication.serviceType = MyApplication.SERVICE_TYPE.TYPE_USR_DEBUG;
 
-        Intent intent = new Intent(context, CharacteristicsActivity.class);
-        intent.putExtra("is_usr_service", true);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-        context.startActivity(intent);
+        // jump to CharacteristicsActivity
+//        Intent intent = new Intent(context, CharacteristicsActivity.class);
+//        intent.putExtra("is_usr_service", true);
+//        context.startActivity(intent);
+
+        jumpToCommunicate();
+
+    }
+
+    private void jumpToCommunicate() {
+        List<BluetoothGattCharacteristic> characteristics = myApplication.getCharacteristics();
+        BluetoothGattCharacteristic usrVirtualCharacteristic =
+                new BluetoothGattCharacteristic(UUID.fromString(GattAttributes.USR_SERVICE),-1,-1);
+        characteristics.add(usrVirtualCharacteristic);
+
+        String write = context.getString(R.string.gatt_services_write);
+        int position=0;
+        boolean isHave=false;
+        for(int i=0;i<characteristics.size();i++){
+            BluetoothGattCharacteristic characteristic=characteristics.get(i);
+            String porperty= Utils.getPorperties(context,characteristic);
+            if(porperty.contains(write)){
+                position=i;
+                isHave=true;
+                break;
+            }
+        }
+
+        if(!isHave){
+            Toast.makeText(context, "This device can not be writed,please try another device!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        myApplication.setCharacteristic(characteristics.get(position));
+        Intent intent = new Intent(context,Communicate.class);
+        startActivity(intent);
 
     }
 
@@ -504,6 +578,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void showProgressDialog() {
+        Log.d(TAG, "showProgressDialog: ");
         progressDialog = new MaterialDialog(context);
         View view = LayoutInflater.from(context)
                 .inflate(R.layout.progressbar_item,

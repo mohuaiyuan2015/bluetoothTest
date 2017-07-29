@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- action orders-->
+    <string name="stand_in_situ">原地站立</string>
+    <string name="tread_on_the_ground">原地踏步走</string>
+    <string name="walk_forward">正着走</string>
+    <string name="walk_backwards">倒着走</string>
+
+    <string name="the_side_walk">侧着走</string>
+    <string name="in_situ_squat_down">原地蹲下</string>
+    <string name="from_squat_down_to_stand">原地从蹲下到站起</string>
+    <string name="place_to_sit_down">原地坐下</string>
+
+    <string name="from_sitting_to_standing">原地从坐着到站起</string>
+    <string name="place_to_lie_down">原地躺下</string>
+    <string name="from_lie_down_to_stand">原地从躺下到站起</string>
+    <string name="put_down">原地趴下</string>
+
+    <string name="from_the_ground_to_the_station">原地从趴下到站起</string>
+    <string name="bow_ones_head">低头</string>
+    <string name="a_word_horse">一字马</string>
+    <string name="stance">马步</string>
+
+    <string name="before_the_leg_press">前压腿</string>
+    <string name="side_leg_press">侧压腿</string>
+    <string name="chest_out">挺胸</string>
+    <string name="Stoop">弯腰</string>
+
+    <string name="look_up">抬头</string>
+    <string name="in_situ_turning">原地站着转弯</string>
+    <string name="take_a_right_turn">原地站着右转弯</string>
+    <string name="lie_on_your_stomach_and_do_push_ups">原地趴着做俯卧撑</string>
+
+    <string name="lift_my_left_arm">左抬胳膊</string>
+    <string name="lift_my_right_arm">右抬胳膊</string>
+    <string name="waving_your_left_arm">左抡胳膊</string>
+    <string name="waving_you_right_arm">右抡胳膊</string>
+
+    <string name="stretch_you_left_arm">左伸胳膊</string>
+    <string name="stretch_you_right_arm">右伸胳膊</string>
+    <string name="play_basketball">打篮球</string>
+
+</resources>
