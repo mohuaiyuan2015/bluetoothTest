@@ -24,10 +24,23 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private Context context;
     private List<MDevice> list;
 
+
+    private OnItemClickListener onItemClickListener;
+
+
+
     public MyAdapter(Context context,List<MDevice>list){
         this.context=context;
         this.list=list;
 
+    }
+
+    public interface OnItemClickListener {
+        public void onItemClick(View itemView, int position);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder{
@@ -54,7 +67,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         viewHolder.bluetoothView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(context, Communicate.class);
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(v, (Integer) v.getTag());
+                }
+
             }
         });
 
