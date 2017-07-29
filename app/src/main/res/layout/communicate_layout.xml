@@ -3,12 +3,20 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     >
     <Button
         android:id="@+id/playBasketball"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Play Basket ball"
+        />
+
+    <Button
+        android:id="@+id/stoop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stoop"
         />
 
 </LinearLayout>

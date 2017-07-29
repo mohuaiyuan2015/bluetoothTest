@@ -1,6 +1,8 @@
 package com.example.yf_04.bluetoothtest;
 
+import android.annotation.TargetApi;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -8,11 +10,14 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.yf_04.bluetoothtest.BlueToothLeService.BluetoothLeService;
 import com.example.yf_04.bluetoothtest.Utils.GattAttributes;
+import com.example.yf_04.bluetoothtest.Utils.Orders;
 import com.example.yf_04.bluetoothtest.Utils.Utils;
 
 import java.io.UnsupportedEncodingException;
@@ -23,6 +28,7 @@ public class Communicate extends AppCompatActivity {
     private static final String TAG = "Communicate";
 
     private Button playBasketball;
+    private Button stoop;
 
 
     private BluetoothGattCharacteristic writeCharacteristic;
@@ -40,38 +46,55 @@ public class Communicate extends AppCompatActivity {
         initUI();
         initListener();
 
+        requestMtu();
 
     }
 
     private void initListener() {
-        playBasketball.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                writeOption();
-            }
-
-
-        });
+        playBasketball.setOnClickListener(myOnClickListener);
+        stoop.setOnClickListener(myOnClickListener);
     }
 
     private void initUI() {
         playBasketball= (Button) findViewById(R.id.playBasketball);
+        stoop= (Button) findViewById(R.id.stoop);
     }
 
-    private void writeOption(){
+    private View.OnClickListener myOnClickListener=new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()){
+                case R.id.stoop:
+                    writeOption(Orders.STOOP);
 
-        //play basket ball
-        String text = "01 10 20 00 00 0F 1E 00 00 00 79 00 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 48 DE";
-        if (TextUtils.isEmpty(text)){
+                    break;
+                case R.id.playBasketball:
+                    writeOption(Orders.PLAY_BASKETBALL);
+                    break;
+
+                default:
+
+            }
+        }
+    };
+    
+    
+    private void writeOption(String order){
+
+        Log.d(TAG, "writeOption: ");
+
+
+        if (TextUtils.isEmpty(order)){
+            Log.e(TAG, "writeOption:order is empty!!!" );
             return;
         }
 
         //对十六进制的数据进行处理
-        text = text.replace(" ","");
-        if (!Utils.isRightHexStr(text)){
+        order = order.replace(" ","");
+        if (!Utils.isRightHexStr(order)){
             return;
         }
-        byte[] array = Utils.hexStringToByteArray(text);
+        byte[] array = Utils.hexStringToByteArray(order);
         writeCharacteristic(writeCharacteristic, array);
     }
 
@@ -108,6 +131,29 @@ public class Communicate extends AppCompatActivity {
 //            indicateCharacteristic = characteristic;
         }
     }
+
+    private void requestMtu(){
+        int sdkInt = Build.VERSION.SDK_INT;
+        Log.d(TAG, "sdkInt------------>"+sdkInt);
+        if (sdkInt>=21){
+            //设置最大发包、收包的长度为512个字节
+            if(BluetoothLeService.requestMtu(512)){
+                Log.d(TAG, "Max transmittal data is 512 ");
+//                Toast.makeText(this,getString(R.string.transmittal_length,"512"),Toast.LENGTH_LONG).show();
+            }else{
+                Log.d(TAG, "Max transmittal data is 20 ");
+//                Toast.makeText(this,getString(R.string.transmittal_length,"20"),Toast.LENGTH_LONG).show();
+            }
+
+        }else {
+            Log.d(TAG, "Max transmittal data is 20 ");
+//            Toast.makeText(this,getString(R.string.transmittal_length,"20"),Toast.LENGTH_LONG).show();
+        }
+
+
+    }
+
+
 
 
 }

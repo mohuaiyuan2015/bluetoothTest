@@ -17,6 +17,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -34,6 +35,9 @@ import com.example.yf_04.bluetoothtest.bean.MService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
+import me.drakeet.materialdialog.MaterialDialog;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -61,6 +65,14 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    private MaterialDialog progressDialog;
+
+//    boolean isShowingDialog = false;
+    private boolean scaning;
+
+    private MyApplication myApplication;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate: ");
 
         context=this;
-
+        myApplication=(MyApplication)getApplication();
 
         initUI();
 
@@ -92,8 +104,6 @@ public class MainActivity extends AppCompatActivity {
         Intent gattServiceIntent = new Intent(context,BluetoothLeService.class);
         context.startService(gattServiceIntent);
 
-
-
     }
 
     private void initListener() {
@@ -103,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "scan onClick: ");
+                searchDevice();
                 onRefresh();
             }
         });
@@ -111,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "stop onClick: ");
-                stopScan();
+                stopSearching();
 
             }
         });
@@ -119,9 +130,15 @@ public class MainActivity extends AppCompatActivity {
         myAdapter.setOnItemClickListener(new MyAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position) {
+                Log.d(TAG, "myAdapter onItemClick: ");
+                Log.d(TAG, "scanning: "+scaning);
 
-                hander.postDelayed(dismssDialogRunnable, 20000);
-                connectDevice(list.get(position).getDevice());
+                if (!scaning) {
+//                    isShowingDialog = true;
+                    showProgressDialog();
+                    hander.postDelayed(dismssDialogRunnable, 20000);
+                    connectDevice(list.get(position).getDevice());
+                }
             }
         });
 
@@ -141,8 +158,20 @@ public class MainActivity extends AppCompatActivity {
     private Runnable stopScanRunnable = new Runnable() {
         @Override
         public void run() {
-            if (mBluetoothAdapter != null)
+            Log.d(TAG, "Runnable stopScanRunnable: ");
+            if(scaning){
+                scaning=false;
+            }
+            //mohuaiyuan 201707
+            if (mBluetoothAdapter != null){
                 mBluetoothAdapter.startLeScan(mLeScanCallback);
+            }
+
+
+//            if(mBluetoothAdapter!=null){
+//                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+//            }
+
         }
     };
 
@@ -150,7 +179,10 @@ public class MainActivity extends AppCompatActivity {
     private Runnable dismssDialogRunnable = new Runnable() {
         @Override
         public void run() {
-
+            Log.d(TAG, "Runnable dismssDialogRunnable... ");
+            if(progressDialog !=null){
+                progressDialog.dismiss();
+            }
             disconnectDevice();
         }
     };
@@ -170,12 +202,16 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     MDevice mDev = new MDevice(device, rssi);
+
                     if (list.contains(mDev)){
                         return;
                     }
                     if(list==null){
                         list = new ArrayList<>();
                     }
+
+                    Log.d(TAG, "device name: "+mDev.getDevice().getName());
+                    Log.d(TAG, "device Mac: "+mDev.getDevice().getAddress());
                     list.add(mDev);
                    refreshBluetoothData();
                 }
@@ -185,12 +221,31 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    public void searchDevice() {
+        Log.d(TAG, "searchDevice: ");
+        if (!scaning) {
+            scaning = true;
+            //如果有连接先关闭连接
+            disconnectDevice();
+//            searchAnimate();
+        }
+    }
+
+    public void stopSearching(){
+        Log.d(TAG, "stopSearching: ");
+        scaning = false;
+        stopScan();
+    }
+
 
     public void onRefresh() {
         // Prepare list view and initiate scanning
         Log.d(TAG, "onRefresh: ");
 
-        refreshBluetoothData();
+        if (myAdapter != null) {
+            myAdapter.clear();
+            myAdapter.notifyDataSetChanged();
+        }
 
         //TODO  ask for Permission  ACCESS_COARSE_LOCATION   ACCESS_FINE_LOCATION
 
@@ -319,6 +374,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void disconnectDevice() {
+//        isShowingDialog=false;
         BluetoothLeService.disconnect();
     }
 
@@ -330,20 +386,24 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
+            Log.d(TAG, "BroadcastReceiver mGattUpdateReceiver action: "+action);
             // Status received when connected to GATT Server
             //连接成功
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                System.out.println("--------------------->连接成功");
-
+//                System.out.println("--------------------->连接成功");
+                Log.d(TAG, "connnected --------------------->connected success");
                 //搜索服务
                 BluetoothLeService.discoverServices();
             }
             // Services Discovered from GATT Server
-            else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED
-                    .equals(action)) {
+            else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                Log.d(TAG, "discovered services------------------>discovered services ");
                 hander.removeCallbacks(dismssDialogRunnable);
+                progressDialog.dismiss();
                 prepareGattServices(BluetoothLeService.getSupportedGattServices());
             } else if (action.equals(BluetoothLeService.ACTION_GATT_DISCONNECTED)) {
+                Log.d(TAG, "disconnected----------------------->connected fail ");
+                progressDialog.dismiss();
                 //connect break (连接断开)
                 //mohuaiyuan 201707
 //                showDialog(getString(R.string.conn_disconnected_home));
@@ -363,12 +423,59 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "prepareGattServices: ");
         prepareData(gattServices);
 
-        Intent intent = new Intent(this, ServicesActivity.class);
-        intent.putExtra("dev_name",currentDevName);
-        intent.putExtra("dev_mac",currentDevAddress);
-        startActivity(intent);
-        overridePendingTransition(0, 0);
+
+
+        //mohuaiyuan 201707
+//        Intent intent = new Intent(this, ServicesActivity.class);
+//        intent.putExtra("dev_name",currentDevName);
+//        intent.putExtra("dev_mac",currentDevAddress);
+//        startActivity(intent);
+//        overridePendingTransition(0, 0);
+
+        //直接跳转到 CharacteristicsActivity
+
+
+        List<MService> services =myApplication.getServices();
+        Log.d(TAG, "services.size(): "+services.size());
+        jumpToCharacteristicActivity(services);
+
+
     }
+
+    private void jumpToCharacteristicActivity(List<MService> list){
+        Log.d(TAG, "itemClick: ");
+        int position=0;
+        boolean isContains=false;
+        for(int i=0;i<list.size();i++){
+            MService mService = list.get(i);
+            BluetoothGattService service = mService.getService();
+
+            UUID serviceUuid = service.getUuid();
+            if (serviceUuid.toString().equals(GattAttributes.USR_SERVICE)) {
+                position=i;
+                isContains=true;
+                break;
+            }
+        }
+
+//        if (!isContains){
+//            Toast.makeText(context, "There is not USR_SERVICE,please try another device!", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+
+        MService mService = list.get(position);
+        BluetoothGattService service = mService.getService();
+        myApplication.setCharacteristics(service.getCharacteristics());
+
+        MyApplication.serviceType = MyApplication.SERVICE_TYPE.TYPE_USR_DEBUG;
+
+        Intent intent = new Intent(context, CharacteristicsActivity.class);
+        intent.putExtra("is_usr_service", true);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        context.startActivity(intent);
+
+    }
+
 
     /**
      * Prepare GATTServices data.
@@ -392,15 +499,17 @@ public class MainActivity extends AppCompatActivity {
             list.add(mService);
         }
 
-
-
-        //mohuaiyuan 201707
-//        ((MyApplication) getApplication()).setServices(list);
-
-        MyApplication myApplication =(MyApplication)getApplication();
         myApplication.setServices(list);
     }
 
+
+    private void showProgressDialog() {
+        progressDialog = new MaterialDialog(context);
+        View view = LayoutInflater.from(context)
+                .inflate(R.layout.progressbar_item,
+                        null);
+        progressDialog.setView(view).show();
+    }
 
 
 

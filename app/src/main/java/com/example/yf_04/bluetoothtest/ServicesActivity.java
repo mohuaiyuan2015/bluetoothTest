@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.bluetooth.BluetoothGattService;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
@@ -18,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.yf_04.bluetoothtest.Utils.AnimateUtils;
 import com.example.yf_04.bluetoothtest.Utils.GattAttributes;
@@ -37,6 +39,7 @@ public class ServicesActivity extends AppCompatActivity {
     private static final String TAG = "ServicesActivity";
 
     private final List<MService> list = new ArrayList<>();
+    /*
     //mohuaiyuan 201707
 //    @Bind(R.id.rl_top)
     RelativeLayout rlTop;
@@ -62,9 +65,11 @@ public class ServicesActivity extends AppCompatActivity {
 //    @Bind(R.id.tv_service_count)
     TextView tvServiceCount;
 
-    private ServicesAdapter adapter;
-    private MyApplication myApplication;
+//    private ServicesAdapter adapter;
+*/
 
+    private MyApplication myApplication;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +77,9 @@ public class ServicesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_services);
 
         Log.d(TAG, "onCreate: ");
+        context=this;
         
-        initUI();
+//        initUI();
 
         //mohuaiyuan 201707
 //        bindToolBar();
@@ -81,46 +87,54 @@ public class ServicesActivity extends AppCompatActivity {
         List<MService> services =myApplication.getServices();
         Log.d(TAG, "services.size(): "+services.size());
         list.addAll(services);
-        adapter = new ServicesAdapter(this, list);
-        lvServices.setAdapter(adapter);
-
-        Intent intent = getIntent();
-        tvServiceName.setText("NAME:"+intent.getStringExtra("dev_name"));
-        tvServiceMac.setText("MAC:"+intent.getStringExtra("dev_mac"));
-        tvServiceCount.setText("SERVICES:"+ String.valueOf(list.size()));
 
 
-        initListener();
+        //mohuaiyuan 201707
+//        adapter = new ServicesAdapter(this, list);
+//        lvServices.setAdapter(adapter);
+//
+//        Intent intent = getIntent();
+//        tvServiceName.setText("NAME:"+intent.getStringExtra("dev_name"));
+//        tvServiceMac.setText("MAC:"+intent.getStringExtra("dev_mac"));
+//        tvServiceCount.setText("SERVICES:"+ String.valueOf(list.size()));
+//
+//
+//        initListener();
+//
+//
+//        if (savedInstanceState == null) {
+//            filterView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+//                @Override
+//                public boolean onPreDraw() {
+//                    filterView.getViewTreeObserver().removeOnPreDrawListener(this);
+//                    startAnimation();
+//                    return true;
+//                }
+//            });
+//        }
 
+        itemClick();
 
-        if (savedInstanceState == null) {
-            filterView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    filterView.getViewTreeObserver().removeOnPreDrawListener(this);
-                    startAnimation();
-                    return true;
-                }
-            });
-        }
 
     }
 
-    private void initListener() {
+/*    private void initListener() {
 
         lvServices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(TAG, "lvServices setOnItemClickListener: ");
                 MService mService = list.get(position);
                 BluetoothGattService service = mService.getService();
 
-                System.out.println("service---------------->"+service.getUuid().toString());
+//                System.out.println("service---------------->"+service.getUuid().toString());
 
                 myApplication.setCharacteristics(service.getCharacteristics());
 
                 Intent intent = new Intent(ServicesActivity.this, CharacteristicsActivity.class);
                 UUID serviceUuid = service.getUuid();
-                Log.d(TAG, "serviceUuid: "+serviceUuid.toString());
+                Log.d(TAG, "service---------------->uuid:"+service.getUuid().toString());
+//                Log.d(TAG, "serviceUuid: "+serviceUuid.toString());
                 if (serviceUuid.toString().equals(GattAttributes.USR_SERVICE)) {
                     intent.putExtra("is_usr_service", true);
 
@@ -139,8 +153,9 @@ public class ServicesActivity extends AppCompatActivity {
             }
         });
 
-    }
+    }*/
 
+/*
     private void initUI() {
         rlTop= (RelativeLayout) findViewById(R.id.rl_top);
         filterView=  findViewById(R.id.view_filter);
@@ -150,10 +165,43 @@ public class ServicesActivity extends AppCompatActivity {
         tvServiceName= (TextView) findViewById(R.id.tv_service_name);
         tvServiceMac= (TextView) findViewById(R.id.tv_service_mac);
         tvServiceCount= (TextView) findViewById(R.id.tv_service_count);
+    }*/
+
+    private void itemClick(){
+        Log.d(TAG, "itemClick: ");
+        int position=0;
+        boolean isContains=false;
+        for(int i=0;i<list.size();i++){
+            MService mService = list.get(i);
+            BluetoothGattService service = mService.getService();
+
+            UUID serviceUuid = service.getUuid();
+            if (serviceUuid.toString().equals(GattAttributes.USR_SERVICE)) {
+                position=i;
+                isContains=true;
+                break;
+            }
+        }
+
+        if (!isContains){
+            Toast.makeText(context, "There is not USR_SERVICE,please try another device!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        MService mService = list.get(position);
+        BluetoothGattService service = mService.getService();
+        myApplication.setCharacteristics(service.getCharacteristics());
+
+        MyApplication.serviceType = MyApplication.SERVICE_TYPE.TYPE_USR_DEBUG;
+
+        Intent intent = new Intent(context, CharacteristicsActivity.class);
+        intent.putExtra("is_usr_service", true);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        context.startActivity(intent);
+
     }
 
-
-    //mohuaiyuan 201707
+   /* //mohuaiyuan 201707
     private void startAnimation() {
         rlTop.setAlpha(0.0f);
         rlTop.setLayerType(View.LAYER_TYPE_HARDWARE, null);
@@ -193,9 +241,9 @@ public class ServicesActivity extends AppCompatActivity {
         animator1.start();
         AnimateUtils.alpha(rlTop,1.0f,400,0);
         startIntroAnimator();
-    }
+    }*/
 
-    private void startIntroAnimator(){
+   /* private void startIntroAnimator(){
         ivBle.setVisibility(View.VISIBLE);
         tvServiceName.setVisibility(View.VISIBLE);
         tvServiceMac.setVisibility(View.VISIBLE);
@@ -226,6 +274,6 @@ public class ServicesActivity extends AppCompatActivity {
         AnimateUtils.alpha(lvServices,1.0f,200,400);
         AnimateUtils.translationY(lvServices,0,400,400);
     }
-
+*/
 
 }
