@@ -768,7 +768,7 @@ public class BluetoothLeService extends Service {
      * callback.
      */
     public static void connect(final String address, final String devicename, Context context) {
-        Log.d(TAG, "connect: ");
+        Log.d(TAG, "BluetoothService connect......");
         mContext = context;
 
 //        if(mBluetoothAdapter==null){
@@ -779,30 +779,34 @@ public class BluetoothLeService extends Service {
 
 
         if (mBluetoothAdapter == null || address == null) {
-            Log.d(TAG, "mBluetoothAdapter==null || address ==null ");
+            Log.e(TAG, "mBluetoothAdapter==null || address ==null ");
             return;
         }
 
-        if(mBluetoothGatt != null && mBluetoothGatt.getDevice().getAddress().equals(address)) {
-            // just reconnect
-             mBluetoothGatt.connect();
-
-            return ;
-        }
+        //mohuaiyuan 201707
+//        if(mBluetoothGatt != null && mBluetoothGatt.getDevice().getAddress().equals(address)) {
+//            // just reconnect
+//             mBluetoothGatt.connect();
+//            Log.d(TAG, "just reconnect-------------------------> ");
+//
+//            return ;
+//        }
 
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
-            Log.d(TAG, "device == null: "+(device==null));
+            Log.e(TAG, "device == null: "+(device==null));
             Log.w(TAG, "Device not found.Unable to connect.");
             return;
         }
 
 
+
+        Log.d(TAG, " device.connectGatt-------------start connect-------->");
+
         // We want to directly connect to the device, so we are setting the
         // autoConnect
         // parameter to false.
         mBluetoothGatt = device.connectGatt(context, false, mGattCallback);
-        Log.d(TAG, " device.connectGatt--------------------->");
         //  refreshDeviceCache(mBluetoothGatt);
         mBluetoothDeviceAddress = address;
         mBluetoothDeviceName = devicename;
@@ -836,6 +840,7 @@ public class BluetoothLeService extends Service {
         }
 
         Log.d(TAG, "mConnectionState: "+mConnectionState);
+        Log.d(TAG, "mConnectionState == STATE_CONNECTED: "+(mConnectionState == STATE_CONNECTED));
         if (mConnectionState == STATE_CONNECTED){
             //  Logger.datalog(mContext.getResources().getString(R.string.dl_device_connecting));
             mBluetoothGatt.disconnect();
@@ -844,6 +849,7 @@ public class BluetoothLeService extends Service {
     }
 
     public static void discoverServices() {
+        Log.d(TAG, "discoverServices: ");
         //mohuaiyuan 201707
 //        // Logger.datalog(mContext.getResources().getString(R.string.dl_service_discover_request));
 //        if (mBluetoothAdapter == null || mBluetoothGatt == null) {

@@ -2,6 +2,7 @@ package com.example.yf_04.bluetoothtest;
 
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,6 +20,7 @@ import com.example.yf_04.bluetoothtest.BlueToothLeService.BluetoothLeService;
 import com.example.yf_04.bluetoothtest.Utils.GattAttributes;
 import com.example.yf_04.bluetoothtest.Utils.Orders;
 import com.example.yf_04.bluetoothtest.Utils.Utils;
+import com.example.yf_04.bluetoothtest.designpattern.SdkStateContext;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -31,18 +33,56 @@ public class Communicate extends AppCompatActivity {
     private Button treadOnTheGround;
     private Button walkForward;
     private Button walkBackwards;
-    private Button playBasketball;
+
+    private Button theSideWalk;
+    private Button inSituSquatDown;
+    private Button fromSquatDownToStand;
+    private Button placeToSitDown;
+
+    private Button fromSittingToStanding;
+    private Button placeToLieDown;
+    private Button fromLieDownToStand;
+    private Button putDown;
+
+    private Button fromTheGroundToTheStation;
+    private Button bowOnesHead;
+    private Button aWordHorse;
+    private Button stance;
+
+    private Button beforeTheLegPress;
+    private Button sideLegPress;
+    private Button chestOut;
     private Button stoop;
+
+    private Button lookUp;
+    private Button inSituTurning;
+    private Button takeARightTurn;
+    private Button lieOnYourStomachAndDoPushUps;
+
+    private Button liftMyLeftArm;
+    private Button liftMyRightArm;
+    private Button wavingYourLeftArm;
+    private Button wavingYouRightArm;
+
+    private Button stretchYouLeftArm;
+    private Button stretchYouRightArm;
+    private Button playBasketball;
+    private Button toBeContinue;
+
+
 
 
     private BluetoothGattCharacteristic writeCharacteristic;
     private MyApplication myApplication;
+    private Context context;
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.communicate_layout);
+
+        context=this;
 
         myApplication = (MyApplication) getApplication();
         initCharacteristics();
@@ -60,18 +100,86 @@ public class Communicate extends AppCompatActivity {
         walkForward.setOnClickListener(myOnClickListener);
         walkBackwards.setOnClickListener(myOnClickListener);
 
-        playBasketball.setOnClickListener(myOnClickListener);
+        theSideWalk.setOnClickListener(myOnClickListener);
+        inSituSquatDown.setOnClickListener(myOnClickListener);
+        fromSquatDownToStand.setOnClickListener(myOnClickListener);
+        placeToSitDown.setOnClickListener(myOnClickListener);
+
+        fromSittingToStanding.setOnClickListener(myOnClickListener);
+        placeToLieDown.setOnClickListener(myOnClickListener);
+        fromLieDownToStand.setOnClickListener(myOnClickListener);
+        putDown.setOnClickListener(myOnClickListener);
+
+        fromTheGroundToTheStation.setOnClickListener(myOnClickListener);
+        bowOnesHead.setOnClickListener(myOnClickListener);
+        aWordHorse.setOnClickListener(myOnClickListener);
+        stance.setOnClickListener(myOnClickListener);
+
+        beforeTheLegPress.setOnClickListener(myOnClickListener);
+        sideLegPress.setOnClickListener(myOnClickListener);
+        chestOut.setOnClickListener(myOnClickListener);
         stoop.setOnClickListener(myOnClickListener);
+
+        lookUp.setOnClickListener(myOnClickListener);
+        inSituTurning.setOnClickListener(myOnClickListener);
+        takeARightTurn.setOnClickListener(myOnClickListener);
+        lieOnYourStomachAndDoPushUps.setOnClickListener(myOnClickListener);
+
+        liftMyLeftArm.setOnClickListener(myOnClickListener);
+        liftMyRightArm.setOnClickListener(myOnClickListener);
+        wavingYourLeftArm.setOnClickListener(myOnClickListener);
+        wavingYouRightArm.setOnClickListener(myOnClickListener);
+
+        stretchYouLeftArm.setOnClickListener(myOnClickListener);
+        stretchYouRightArm.setOnClickListener(myOnClickListener);
+        playBasketball.setOnClickListener(myOnClickListener);
+        toBeContinue.setOnClickListener(myOnClickListener);
+
     }
 
     private void initUI() {
+
         standInSitu= (Button) findViewById(R.id.standInSitu);
         treadOnTheGround= (Button) findViewById(R.id.treadOnTheGround);
         walkForward= (Button) findViewById(R.id.walkForward);
         walkBackwards= (Button) findViewById(R.id.walkBackwards);
 
-        playBasketball= (Button) findViewById(R.id.playBasketball);
-        stoop= (Button) findViewById(R.id.stoop);
+        theSideWalk= (Button) findViewById(R.id.theSideWalk);
+        inSituSquatDown= (Button) findViewById(R.id.inSituSquatDown);
+        fromSquatDownToStand= (Button) findViewById(R.id.fromSquatDownToStand);
+        placeToSitDown= (Button) findViewById(R.id.placeToSitDown);
+
+        fromSittingToStanding=(Button) findViewById(R.id.fromSittingToStanding);
+        placeToLieDown=(Button) findViewById(R.id.placeToLieDown);
+        fromLieDownToStand=(Button) findViewById(R.id.fromLieDownToStand);
+        putDown=(Button) findViewById(R.id.putDown);
+
+        fromTheGroundToTheStation=(Button) findViewById(R.id.fromTheGroundToTheStation);
+        bowOnesHead=(Button) findViewById(R.id.bowOnesHead);
+        aWordHorse=(Button) findViewById(R.id.aWordHorse);
+        stance=(Button) findViewById(R.id.stance);
+
+        beforeTheLegPress=(Button) findViewById(R.id.beforeTheLegPress);
+        sideLegPress=(Button) findViewById(R.id.sideLegPress);
+        chestOut=(Button) findViewById(R.id.chestOut);
+        stoop=(Button) findViewById(R.id.stoop);
+
+        lookUp=(Button) findViewById(R.id.lookUp);
+        inSituTurning=(Button) findViewById(R.id.inSituTurning);
+        takeARightTurn=(Button) findViewById(R.id.takeARightTurn);
+        lieOnYourStomachAndDoPushUps=(Button) findViewById(R.id.lieOnYourStomachAndDoPushUps);
+
+        liftMyLeftArm=(Button) findViewById(R.id.liftMyLeftArm);
+        liftMyRightArm=(Button) findViewById(R.id.liftMyRightArm);
+        wavingYourLeftArm=(Button) findViewById(R.id.wavingYourLeftArm);
+        wavingYouRightArm=(Button) findViewById(R.id.wavingYouRightArm);
+
+        stretchYouLeftArm=(Button) findViewById(R.id.stretchYouLeftArm);
+        stretchYouRightArm=(Button) findViewById(R.id.stretchYouRightArm);
+        playBasketball=(Button) findViewById(R.id.playBasketball);
+        toBeContinue=(Button) findViewById(R.id.toBeContinue);
+
+
     }
 
     private View.OnClickListener myOnClickListener=new View.OnClickListener() {
@@ -95,12 +203,123 @@ public class Communicate extends AppCompatActivity {
                     writeOption(Orders.WALK_BACKWARDS);
                     break;
 
+
+                case R.id.theSideWalk:
+                    writeOption(Orders.THE_SIDE_WALK);
+                    break;
+
+                case R.id.inSituSquatDown:
+                    writeOption(Orders.IN_SITU_SQUAT_DOWN);
+                    break;
+
+                case R.id.fromSquatDownToStand:
+                    writeOption(Orders.FROM_SQAT_DOWN_TO_STAND);
+                    break;
+
+                case R.id.placeToSitDown:
+                    writeOption(Orders.PLACE_TO_SIT_DOWN);
+                    break;
+
+
+                case R.id.fromSittingToStanding:
+                    writeOption(Orders.FROM_SITTING_TO_STANDING);
+                    break;
+
+                case R.id.placeToLieDown:
+                    writeOption(Orders.PLACE_TO_LIE_DOWN);
+                    break;
+
+                case R.id.fromLieDownToStand:
+                    writeOption(Orders.FROM_LIE_DOWN_TO_STAND);
+                    break;
+
+                case R.id.putDown:
+                    writeOption(Orders.PUT_DOWN);
+                    break;
+
+
+                case R.id.fromTheGroundToTheStation:
+                    writeOption(Orders.FROM_THE_GROUND_TO_THE_STATION);
+                    break;
+
+                case R.id.bowOnesHead:
+                    writeOption(Orders.BOW_ONES_HEAD);
+                    break;
+
+                case R.id.aWordHorse:
+                    writeOption(Orders.A_WORD_HORSE);
+                    break;
+
+                case R.id.stance:
+                    writeOption(Orders.STANCE);
+                    break;
+
+
+                case R.id.beforeTheLegPress:
+                    writeOption(Orders.BEFORE_THE_LEG_PRESS);
+                    break;
+
+                case R.id.sideLegPress:
+                    writeOption(Orders.SIDE_LEG_PRESS);
+                    break;
+
+                case R.id.chestOut:
+                    writeOption(Orders.CHEST_OUT);
+                    break;
+
                 case R.id.stoop:
                     writeOption(Orders.STOOP);
                     break;
 
+
+                case R.id.lookUp:
+                    writeOption(Orders.LOOK_UP);
+                    break;
+
+                case R.id.inSituTurning:
+                    writeOption(Orders.IN_SITU_TURNING);
+                    break;
+
+                case R.id.takeARightTurn:
+                    writeOption(Orders.TAKE_A_RIGHT_TURN);
+                    break;
+
+                case R.id.lieOnYourStomachAndDoPushUps:
+                    writeOption(Orders.LIE_ON_YOU_STOMACH_AND_DO_PUSH_UPS);
+                    break;
+
+
+                case R.id.liftMyLeftArm:
+                    writeOption(Orders.LIFT_MY_LEFT_ARM);
+                    break;
+
+                case R.id.liftMyRightArm:
+                    writeOption(Orders.LIFT_MY_RIGHT_ARM);
+                    break;
+
+                case R.id.wavingYourLeftArm:
+                    writeOption(Orders.WAVING_YOU_LEFT_ARM);
+                    break;
+
+                case R.id.wavingYouRightArm:
+                    writeOption(Orders.WAVING_YOU_RIGHT_ARM);
+                    break;
+
+
+                case R.id.stretchYouLeftArm:
+                    writeOption(Orders.STRETCH_YOU_LEFT_ARM);
+                    break;
+
+                case R.id.stretchYouRightArm:
+                    writeOption(Orders.STRETCH_YOU_RIGHT_ARM);
+                    break;
+
                 case R.id.playBasketball:
                     writeOption(Orders.PLAY_BASKETBALL);
+                    break;
+
+                case R.id.toBeContinue:
+                    Toast.makeText(context, context.getString(R.string.to_be_continue), Toast.LENGTH_SHORT).show();
                     break;
 
                 default:
@@ -111,6 +330,10 @@ public class Communicate extends AppCompatActivity {
     
     
     private void writeOption(String order){
+
+        //TODO
+        SdkStateContext stateContext=new SdkStateContext();
+        stateContext.getState().doAction(writeCharacteristic,order);
 
         Log.d(TAG, "writeOption: ");
 
@@ -129,7 +352,7 @@ public class Communicate extends AppCompatActivity {
         writeCharacteristic(writeCharacteristic, array);
     }
 
-    private void writeCharacteristic(BluetoothGattCharacteristic characteristic, byte[] bytes) {
+    public void writeCharacteristic(BluetoothGattCharacteristic characteristic, byte[] bytes) {
         // Writing the hexValue to the characteristics
         try {
             BluetoothLeService.writeCharacteristicGattDb(characteristic, bytes);

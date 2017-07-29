@@ -45,11 +45,10 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
-//    private static final int START_BLUETOOTHLESERVICE = 2;
 
     private Button scan;
     private Button stop;
-    RecyclerView recyclerView;
+    private RecyclerView recyclerView;
     private Context context;
 
     private  List<MDevice> list = new ArrayList<>();
@@ -68,9 +67,10 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    private MaterialDialog alarmDialog;
     private MaterialDialog progressDialog;
 
-//    boolean isShowingDialog = false;
+    boolean isShowingDialog = false;
     private boolean scaning;
 
     private MyApplication myApplication;
@@ -103,27 +103,7 @@ public class MainActivity extends AppCompatActivity {
         //注册广播接收者，接收消息
         registerReceiver(mGattUpdateReceiver, Utils.makeGattUpdateIntentFilter());
 
-
-
-
-            //mohuaiyuan 201707
-        //TODO  ask for Permission  ACCESS_COARSE_LOCATION   ACCESS_FINE_LOCATION
-//        String[] permissions=new String[]{Manifest.permission.ACCESS_COARSE_LOCATION
-//                , Manifest.permission.ACCESS_FINE_LOCATION    };
-//        //Android M Permission check
-//        Log.d(TAG, "Build.VERSION.SDK_INT: "+Build.VERSION.SDK_INT);
-//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-//                && ContextCompat.checkSelfPermission( context, Manifest.permission.ACCESS_COARSE_LOCATION )!= PackageManager.PERMISSION_GRANTED ){
-//            Log.d(TAG, "Android M Permission check ");
-//            Log.d(TAG, "ask for Permission... ");
-//            ActivityCompat.requestPermissions(this,permissions, START_BLUETOOTHLESERVICE);
-//
-//        }else{
-//            Intent gattServiceIntent = new Intent(context,BluetoothLeService.class);
-//            context.startService(gattServiceIntent);
-//        }
-
-        Log.d(TAG, " prepare init BluetoothLeService---------");
+        Log.d(TAG, " prepare init BluetoothLeService--------->");
         Intent gattServiceIntent = new Intent(context,BluetoothLeService.class);
        ComponentName componentName= context.startService(gattServiceIntent);
         Log.d(TAG, "componentName==null: "+(componentName==null));
@@ -131,10 +111,22 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "componentName:"+componentName.toString());
         }
 
-
-
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop: ");
+
+    }
+    @Override
+    protected void onRestart(){
+        super.onRestart();
+        Log.d(TAG, "onRestart: ");
+        isShowingDialog=false;
+        disconnectDevice();
+
+    }
 
 
     private void initListener() {
@@ -173,14 +165,13 @@ public class MainActivity extends AppCompatActivity {
 //                    Toast.makeText(context, "Scanning bluetooth device", Toast.LENGTH_SHORT).show();
 //                }
 
+                isShowingDialog=true;
                 showProgressDialog();
                 hander.postDelayed(dismssDialogRunnable, 20000);
                 connectDevice(list.get(position).getDevice());
 
             }
         });
-
-
 
     }
 
@@ -221,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
             if(progressDialog !=null){
                 progressDialog.dismiss();
             }
+            //mohuaiyuan 201707  暂时注释
             disconnectDevice();
         }
     };
@@ -333,10 +325,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
 
-//            case START_BLUETOOTHLESERVICE:
-//                Intent gattServiceIntent = new Intent(context,BluetoothLeService.class);
-//                context.startService(gattServiceIntent);
-//                break;
         }
     }
 
@@ -415,7 +403,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void disconnectDevice() {
-//        isShowingDialog=false;
+        Log.d(TAG, "disconnectDevice()...");
+        isShowingDialog=false;
         BluetoothLeService.disconnect();
     }
 
@@ -448,8 +437,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "disconnected----------------------->connected fail ");
                 progressDialog.dismiss();
                 //connect break (连接断开)
-                //mohuaiyuan 201707
-//                showDialog(getString(R.string.conn_disconnected_home));
+//                mohuaiyuan 201707
+                showDialog(context.getString(R.string.conn_disconnected_home));
             }
         }
     };
@@ -485,6 +474,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void jumpToCharacteristicActivity(List<MService> list){
         Log.d(TAG, "itemClick: ");
+
+        if(list.isEmpty()){
+            Toast.makeText(context, "There is not SERVICE,please try another device!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         int position=0;
         boolean isContains=false;
         for(int i=0;i<list.size();i++){
@@ -500,10 +495,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //mohuaiyuan 201707  暂时注释
-        if (!isContains){
-            Toast.makeText(context, "There is not USR_SERVICE,please try another device!", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (!isContains){
+//            Toast.makeText(context, "There is not USR_SERVICE,please try another device!", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
 
         MService mService = list.get(position);
         BluetoothGattService service = mService.getService();
@@ -577,6 +572,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void showDialog(String info) {
+        if (!isShowingDialog){
+            return;
+        }
+        if (alarmDialog != null){
+            return;
+        }
+
+        alarmDialog = new MaterialDialog(this);
+        alarmDialog.setTitle(getString(R.string.alert))
+                .setMessage(info)
+                .setPositiveButton(R.string.ok, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        alarmDialog.dismiss();
+                        alarmDialog = null;
+                    }
+                });
+        alarmDialog.show();
+    }
+
     private void showProgressDialog() {
         Log.d(TAG, "showProgressDialog: ");
         progressDialog = new MaterialDialog(context);
@@ -592,6 +608,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mGattUpdateReceiver);
+        if(progressDialog!=null){
+            progressDialog.dismiss();
+        }
+
     }
 
 }
