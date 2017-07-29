@@ -33,9 +33,9 @@ package com.example.yf_04.bluetoothtest.BLEProfileDataParserClasses;
 
 import android.bluetooth.BluetoothGattDescriptor;
 
-import com.usr.usrsimplebleassistent.Utils.Constants;
-import com.usr.usrsimplebleassistent.Utils.GattAttributes;
-import com.usr.usrsimplebleassistent.Utils.ReportAttributes;
+import com.example.yf_04.bluetoothtest.Utils.Constants;
+import com.example.yf_04.bluetoothtest.Utils.GattAttributes;
+import com.example.yf_04.bluetoothtest.Utils.ReportAttributes;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;

@@ -72,8 +72,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         initUI();
-        initListener();
-
 
         hander = new Handler();
         LinearLayoutManager llm = new LinearLayoutManager(this);
@@ -83,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(myAdapter);
 
 
+        initListener();
 
         checkBleSupportAndInitialize();
 
@@ -90,8 +89,9 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(mGattUpdateReceiver, Utils.makeGattUpdateIntentFilter());
 
 
-        Intent gattServiceIntent = new Intent(getApplicationContext(),BluetoothLeService.class);
-        startService(gattServiceIntent);
+        Intent gattServiceIntent = new Intent(context,BluetoothLeService.class);
+        context.startService(gattServiceIntent);
+
 
 
     }
@@ -184,15 +184,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
-    /**
-     * refresh  the list of bluetooth data
-     */
-    private void refreshBluetoothData(){
-        if (myAdapter != null) {
-//            myAdapter.clear();
-            myAdapter.notifyDataSetChanged();
-        }
-    }
+
 
     public void onRefresh() {
         // Prepare list view and initiate scanning
@@ -217,6 +209,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    /**
+     * refresh  the list of bluetooth data
+     */
+    private void refreshBluetoothData(){
+        if (myAdapter != null) {
+            myAdapter.notifyDataSetChanged();
+        }
+    }
+
 
     //add API 23 Permission
     @Override
@@ -304,6 +306,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void connectDevice(BluetoothDevice device) {
+        Log.d(TAG, "connectDevice: ");
         currentDevAddress = device.getAddress();
         currentDevName = device.getName();
         //如果是连接状态，断开，重新连接
@@ -311,6 +314,7 @@ public class MainActivity extends AppCompatActivity {
             BluetoothLeService.disconnect();
         }
 
+        Log.d(TAG, "connect...: ");
         BluetoothLeService.connect(currentDevAddress, currentDevName, context);
     }
 
@@ -341,7 +345,7 @@ public class MainActivity extends AppCompatActivity {
                 prepareGattServices(BluetoothLeService.getSupportedGattServices());
             } else if (action.equals(BluetoothLeService.ACTION_GATT_DISCONNECTED)) {
                 //connect break (连接断开)
-                //mohuaiyuan 201707 注释掉
+                //mohuaiyuan 201707
 //                showDialog(getString(R.string.conn_disconnected_home));
             }
         }
@@ -356,6 +360,7 @@ public class MainActivity extends AppCompatActivity {
      * @param gattServices
      */
     private void prepareGattServices(List<BluetoothGattService> gattServices) {
+        Log.d(TAG, "prepareGattServices: ");
         prepareData(gattServices);
 
         Intent intent = new Intent(this, ServicesActivity.class);
@@ -372,6 +377,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void prepareData(List<BluetoothGattService> gattServices) {
 
+        Log.d(TAG, "prepareData: ");
         if (gattServices == null)
             return;
 
@@ -386,7 +392,13 @@ public class MainActivity extends AppCompatActivity {
             list.add(mService);
         }
 
-        ((MyApplication) getApplication()).setServices(list);
+
+
+        //mohuaiyuan 201707
+//        ((MyApplication) getApplication()).setServices(list);
+
+        MyApplication myApplication =(MyApplication)getApplication();
+        myApplication.setServices(list);
     }
 
 

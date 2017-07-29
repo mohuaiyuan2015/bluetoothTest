@@ -749,6 +749,13 @@ public class BluetoothLeService extends Service {
      */
     public static void connect(final String address, final String devicename, Context context) {
         mContext = context;
+
+        if(mBluetoothAdapter==null){
+             BluetoothManager   blueMessage= (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+
+            mBluetoothAdapter = blueMessage.getAdapter();
+        }
+
         if (mBluetoothAdapter == null || address == null) {
             Log.d(TAG, "mBluetoothAdapter==null || address ==null ");
             Log.d(TAG, "mBluetoothAdapter==null: "+(mBluetoothAdapter==null ));

@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class MyApplication extends Application {
 
+
     public enum SERVICE_TYPE{
         TYPE_USR_DEBUG,TYPE_NUMBER,TYPE_STR,TYPE_OTHER;
     }

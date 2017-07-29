@@ -3,6 +3,7 @@ package com.example.yf_04.bluetoothtest.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,19 +22,23 @@ import java.util.List;
  */
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
+    private static final String TAG = "MyAdapter";
     private Context context;
     private List<MDevice> list;
 
-
     private OnItemClickListener onItemClickListener;
-
-
 
     public MyAdapter(Context context,List<MDevice>list){
         this.context=context;
         this.list=list;
 
     }
+
+    public void clear() {
+        list.clear();
+    }
+
+
 
     public interface OnItemClickListener {
         public void onItemClick(View itemView, int position);
@@ -44,14 +49,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder{
-        View  bluetoothView;
+
         TextView tvDevName;
         TextView tvDevSignal;
         TextView tvDevMac;
 
         public ViewHolder(final View view) {
             super(view);
-            bluetoothView=view;
             tvDevName= (TextView) view.findViewById(R.id.tv_dev_name);
             tvDevSignal= (TextView) view.findViewById(R.id.tv_dev_signal);
             tvDevMac= (TextView) view.findViewById(R.id.tv_dev_mac);
@@ -64,16 +68,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
         View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.item_device,parent,false);
         ViewHolder viewHolder=new ViewHolder(view);
-        viewHolder.bluetoothView.setOnClickListener(new View.OnClickListener() {
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (onItemClickListener != null) {
                     onItemClickListener.onItemClick(v, (Integer) v.getTag());
                 }
-
             }
         });
-
 
         return viewHolder;
     }
@@ -81,6 +83,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(MyAdapter.ViewHolder holder, int position) {
 
+        ViewHolder cellViewHolder = (ViewHolder) holder;
+        cellViewHolder.itemView.setTag(position);
         MDevice mDevice=list.get(position);
         holder.tvDevName.setText(mDevice.getDevice().getName());
         holder.tvDevSignal.setText(mDevice.getRssi()+"dBm");

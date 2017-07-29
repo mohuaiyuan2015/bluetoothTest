@@ -34,7 +34,7 @@ package com.example.yf_04.bluetoothtest.BLEProfileDataParserClasses;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 
-import com.usr.usrsimplebleassistent.DataModelClasses.GlucoseDataModel;
+import com.example.yf_04.bluetoothtest.DataModelClasses.GlucoseDataModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
