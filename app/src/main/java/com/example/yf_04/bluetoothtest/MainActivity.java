@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private Context context;
 
-    private  List<MDevice> list = new ArrayList<>();
+    private  List<MDevice> list = new ArrayList<MDevice>();
 
     private Handler hander;
     /**
@@ -106,10 +106,10 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, " prepare init BluetoothLeService--------->");
         Intent gattServiceIntent = new Intent(context,BluetoothLeService.class);
        ComponentName componentName= context.startService(gattServiceIntent);
-        Log.d(TAG, "componentName==null: "+(componentName==null));
-        if(componentName!=null){
-            Log.d(TAG, "componentName:"+componentName.toString());
-        }
+//        Log.d(TAG, "componentName==null: "+(componentName==null));
+//        if(componentName!=null){
+//            Log.d(TAG, "componentName:"+componentName.toString());
+//        }
 
     }
 
@@ -124,8 +124,8 @@ public class MainActivity extends AppCompatActivity {
         super.onRestart();
         Log.d(TAG, "onRestart: ");
         //mohuaiyuan 201707  update: to be done at onResume method
-        isShowingDialog = false;
-        disconnectDevice();
+//        isShowingDialog = false;
+//        disconnectDevice();
 
     }
 
@@ -133,8 +133,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: ");
-//        isShowingDialog=false;
-//        disconnectDevice();
+        isShowingDialog=false;
+        disconnectDevice();
     }
 
     private void initListener() {
@@ -199,15 +199,10 @@ public class MainActivity extends AppCompatActivity {
             if(scaning){
                 scaning=false;
             }
-            //mohuaiyuan 201707
+
             if (mBluetoothAdapter != null){
-                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                mBluetoothAdapter.startLeScan(mLeScanCallback);
             }
-
-
-//            if(mBluetoothAdapter!=null){
-//                mBluetoothAdapter.stopLeScan(mLeScanCallback);
-//            }
 
         }
     };
@@ -244,9 +239,9 @@ public class MainActivity extends AppCompatActivity {
                     if (list.contains(mDev)){
                         return;
                     }
-                    if(list==null){
-                        list = new ArrayList<>();
-                    }
+//                    if(list==null){
+//                        list = new ArrayList<>();
+//                    }
 
                     Log.d(TAG, "device name: "+mDev.getDevice().getName());
                     Log.d(TAG, "device Mac: "+mDev.getDevice().getAddress());
@@ -322,7 +317,10 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case PERMISSION_REQUEST_COARSE_LOCATION:
                 Log.d(TAG, "grantResults.length: "+grantResults.length);
-                Log.d(TAG, "grantResults[0]: "+grantResults[0]);
+                if(grantResults.length>0){
+                    Log.d(TAG, "grantResults[0]: "+grantResults[0]);
+                }
+
 
                 if (grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // TODO request success
@@ -404,7 +402,7 @@ public class MainActivity extends AppCompatActivity {
         //mohuaiyuan 201707
         //如果是连接状态，断开，重新连接
 //        if (BluetoothLeService.getConnectionState() != BluetoothLeService.STATE_DISCONNECTED){
-//            BluetoothLeService.disconnect();
+//                BluetoothLeService.disconnect();
 //        }
 
         BluetoothLeService.connect(currentDevAddress, currentDevName, context);
@@ -569,8 +567,10 @@ public class MainActivity extends AppCompatActivity {
 
         for (BluetoothGattService gattService : gattServices) {
             String uuid = gattService.getUuid().toString();
-            if (uuid.equals(GattAttributes.GENERIC_ACCESS_SERVICE) || uuid.equals(GattAttributes.GENERIC_ATTRIBUTE_SERVICE))
+            if (uuid.equals(GattAttributes.GENERIC_ACCESS_SERVICE) || uuid.equals(GattAttributes.GENERIC_ATTRIBUTE_SERVICE)){
                 continue;
+            }
+
             String name = GattAttributes.lookup(gattService.getUuid().toString(), "UnkonwService");
             MService mService = new MService(name, gattService);
             list.add(mService);

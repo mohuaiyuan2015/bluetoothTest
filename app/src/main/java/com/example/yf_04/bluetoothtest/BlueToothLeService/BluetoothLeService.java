@@ -189,9 +189,10 @@ public class BluetoothLeService extends Service {
             Log.d(TAG, " BluetoothGattCallback mGattCallback onServicesDiscovered: ");
             if (status == BluetoothGatt.GATT_SUCCESS) {
 //                System.out.println("---------------------------->发现服务");
-                Log.d(TAG, "---------------------------->GATT_SUCCESS ");
+                Log.d(TAG, "---------------onServicesDiscovered------------->GATT_SUCCESS ");
                 broadcastConnectionUpdate(ACTION_GATT_SERVICES_DISCOVERED);
             } else {
+                Log.d(TAG, "--------------onServicesDiscovered-------------->fail  ");
                 Log.d(TAG, "onServicesDiscovered status: "+status);
             }
         }
@@ -850,17 +851,13 @@ public class BluetoothLeService extends Service {
 
     public static void discoverServices() {
         Log.d(TAG, "discoverServices: ");
-        //mohuaiyuan 201707
 //        // Logger.datalog(mContext.getResources().getString(R.string.dl_service_discover_request));
-//        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-//            return;
-//        } else {
-//            mBluetoothGatt.discoverServices();
-//        }
-
-        if(mBluetoothGatt!=null){
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            return;
+        } else {
             mBluetoothGatt.discoverServices();
         }
+
 
     }
 
@@ -1047,8 +1044,7 @@ public class BluetoothLeService extends Service {
      */
     public boolean initialize() {
 //        System.out.println("BLEService----------------->initialize");
-        Log.d(TAG, "BluetoothLeService---------------------->initialize: ");
-        Log.d(TAG, ": ");
+        Log.d(TAG, "initialize: ");
         // For API level 18 and above, get a reference to BluetoothAdapter
         // through
         // BluetoothManager.
@@ -1092,9 +1088,9 @@ public class BluetoothLeService extends Service {
 
         boolean initResult= initialize();
         if(initResult){
-            Log.d(TAG, "Service has initialized------------------------>");
+            Log.d(TAG, "------------------------>Service has initialized");
         }else{
-            Log.e(TAG, "Service not initialized------------------------>" );
+            Log.e(TAG, "------------------------>Service not initialized" );
         }
 
 
