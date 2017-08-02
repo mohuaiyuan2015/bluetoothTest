@@ -663,4 +663,16 @@ public class Utils {
         String regx = "^[0-9]{6},(at|AT)\\+.*";
         return text.matches(regx);
     }
+
+    public static String getStringByName(Context context,String name){
+        String result="";
+        int id=context.getResources().getIdentifier(name,"string",context.getPackageName());
+        result=context.getResources().getString(id);
+
+        return  result;
+    }
+
+
+
+
 }

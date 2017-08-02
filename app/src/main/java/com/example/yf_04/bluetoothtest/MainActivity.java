@@ -120,14 +120,22 @@ public class MainActivity extends AppCompatActivity {
 
     }
     @Override
-    protected void onRestart(){
+    protected void onRestart() {
         super.onRestart();
         Log.d(TAG, "onRestart: ");
-        isShowingDialog=false;
+        //mohuaiyuan 201707  update: to be done at onResume method
+        isShowingDialog = false;
         disconnectDevice();
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: ");
+//        isShowingDialog=false;
+//        disconnectDevice();
+    }
 
     private void initListener() {
         Log.d(TAG, "initListener: ");

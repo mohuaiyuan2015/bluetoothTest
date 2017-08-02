@@ -9,6 +9,9 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -20,16 +23,25 @@ import com.example.yf_04.bluetoothtest.BlueToothLeService.BluetoothLeService;
 import com.example.yf_04.bluetoothtest.Utils.GattAttributes;
 import com.example.yf_04.bluetoothtest.Utils.Orders;
 import com.example.yf_04.bluetoothtest.Utils.Utils;
-import com.example.yf_04.bluetoothtest.designpattern.SdkStateContext;
+import com.example.yf_04.bluetoothtest.adapter.ActionAdapter;
+import com.example.yf_04.bluetoothtest.bean.BasicAction;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import javax.security.auth.login.LoginException;
 
 public class Communicate extends AppCompatActivity {
 
     private static final String TAG = "Communicate";
 
-    private Button standInSitu;
+   /* private Button standInSitu;
     private Button treadOnTheGround;
     private Button walkForward;
     private Button walkBackwards;
@@ -67,7 +79,7 @@ public class Communicate extends AppCompatActivity {
     private Button stretchYouLeftArm;
     private Button stretchYouRightArm;
     private Button playBasketball;
-    private Button toBeContinue;
+    private Button toBeContinue;*/
 
 
 
@@ -76,26 +88,74 @@ public class Communicate extends AppCompatActivity {
     private MyApplication myApplication;
     private Context context;
 
+    private int sdkInt;
+
+    private List<BasicAction> list=new ArrayList<BasicAction>();
+
+    private RecyclerView recyclerView ;
+    private ActionAdapter adapter;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.communicate_layout);
+        setContentView(R.layout.communicate_recycle_layout);
 
+        Log.d(TAG, "onCreate: ");
         context=this;
 
         myApplication = (MyApplication) getApplication();
         initCharacteristics();
 
         initUI();
+
+        initData();
+
+//        LinearLayoutManager manager=new LinearLayoutManager(context);
+        StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(manager);
+        adapter=new ActionAdapter(context,list);
+        recyclerView.setAdapter(adapter);
+
+
         initListener();
 
         requestMtu();
 
     }
 
+    private void initData()  {
+        Log.d(TAG, "initData: ");
+
+        InputStream is=null;
+        BufferedReader br=null;
+
+        try {
+            is= context.getAssets().open("actionInfo");
+            br=new BufferedReader(new InputStreamReader(is));
+            String line="";
+            while ((line=br.readLine())!=null){
+                String[] array=line.split(",");
+                Log.d(TAG, "array: "+ Arrays.toString(array));
+                BasicAction basicAction=new BasicAction();
+                basicAction.setId(Integer.valueOf(array[0].trim()));
+                basicAction.setName(array[1].trim());
+                basicAction.setTextId(array[2].trim());
+                basicAction.setOrderId(array[3].trim());
+                list.add(basicAction);
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
     private void initListener() {
-        standInSitu.setOnClickListener(myOnClickListener);
+        Log.d(TAG, "initListener: ");
+       /* standInSitu.setOnClickListener(myOnClickListener);
         treadOnTheGround.setOnClickListener(myOnClickListener);
         walkForward.setOnClickListener(myOnClickListener);
         walkBackwards.setOnClickListener(myOnClickListener);
@@ -133,13 +193,29 @@ public class Communicate extends AppCompatActivity {
         stretchYouLeftArm.setOnClickListener(myOnClickListener);
         stretchYouRightArm.setOnClickListener(myOnClickListener);
         playBasketball.setOnClickListener(myOnClickListener);
-        toBeContinue.setOnClickListener(myOnClickListener);
+        toBeContinue.setOnClickListener(myOnClickListener);*/
+
+       adapter.setMyOnItemClickListener(new ActionAdapter.MyOnItemClickListener() {
+           @Override
+           public void OnItemClickListener(View view, int position) {
+               Log.d(TAG, "onItemClick: ");
+               BasicAction basicAction= list.get(position);
+               String name=basicAction.getOrderId();
+               Log.d(TAG, "name: "+name);
+               String order=Utils.getStringByName(context,name);
+               Log.d(TAG, "order: "+order);
+
+               writeOption(order);
+           }
+       });
+
 
     }
 
     private void initUI() {
+        Log.d(TAG, "initUI: ");
 
-        standInSitu= (Button) findViewById(R.id.standInSitu);
+  /*      standInSitu= (Button) findViewById(R.id.standInSitu);
         treadOnTheGround= (Button) findViewById(R.id.treadOnTheGround);
         walkForward= (Button) findViewById(R.id.walkForward);
         walkBackwards= (Button) findViewById(R.id.walkBackwards);
@@ -177,14 +253,17 @@ public class Communicate extends AppCompatActivity {
         stretchYouLeftArm=(Button) findViewById(R.id.stretchYouLeftArm);
         stretchYouRightArm=(Button) findViewById(R.id.stretchYouRightArm);
         playBasketball=(Button) findViewById(R.id.playBasketball);
-        toBeContinue=(Button) findViewById(R.id.toBeContinue);
+        toBeContinue=(Button) findViewById(R.id.toBeContinue);*/
 
+        recyclerView= (RecyclerView) findViewById(R.id.actionRecycleView);
 
     }
 
-    private View.OnClickListener myOnClickListener=new View.OnClickListener() {
+/*    private View.OnClickListener myOnClickListener=new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            Log.d(TAG, "myOnClickListener onClick: ");
+
             switch (v.getId()){
 
                 case R.id.standInSitu:
@@ -326,14 +405,11 @@ public class Communicate extends AppCompatActivity {
 
             }
         }
-    };
+    };*/
     
     
     private void writeOption(String order){
 
-        //TODO
-        SdkStateContext stateContext=new SdkStateContext();
-        stateContext.getState().doAction(writeCharacteristic,order);
 
         Log.d(TAG, "writeOption: ");
 
@@ -348,8 +424,123 @@ public class Communicate extends AppCompatActivity {
         if (!Utils.isRightHexStr(order)){
             return;
         }
-        byte[] array = Utils.hexStringToByteArray(order);
-        writeCharacteristic(writeCharacteristic, array);
+
+        if (sdkInt >= 21) {
+            byte[] array = Utils.hexStringToByteArray(order);
+            writeCharacteristic(writeCharacteristic, array);
+        } else {
+            MyRunnable myRunnable=new MyRunnable(order,writeCharacteristic);
+            Thread thread = new Thread(myRunnable);
+            thread.start();
+
+        }
+
+
+    }
+
+    /**
+     * Send data to bluetooth
+     */
+    class MyRunnable implements Runnable{
+        private volatile String data;
+        private volatile BluetoothGattCharacteristic characteristic;
+        /**
+         * the time interval of send data(ms)
+         */
+        private static final long SEND_INTERVAL=40;
+
+        /**
+         *
+         */
+        private static final int DATA_UNIT=20;
+
+        public MyRunnable(){
+
+        }
+        public MyRunnable(String data,BluetoothGattCharacteristic characteristic){
+            this.data=data;
+            this.characteristic=characteristic;
+        }
+
+        public String getData() {
+            return data;
+        }
+
+        public void setData(String data) {
+            this.data = data;
+        }
+
+        public BluetoothGattCharacteristic getCharacteristic() {
+            return characteristic;
+        }
+
+        public void setCharacteristic(BluetoothGattCharacteristic characteristic) {
+            this.characteristic = characteristic;
+        }
+
+        private boolean isLegal(){
+            boolean result=false;
+            if(characteristic==null){
+                Log.e(TAG, "characteristic==null: "+(characteristic==null) );
+                return result;
+            }
+            if(data==null || data.length()==0){
+                Log.e(TAG, "data==null :"+(data==null) );
+                Log.e(TAG, " data.length()==0:"+(data.length()==0) );
+
+                return result;
+            }
+
+            result=true;
+            return result;
+        }
+
+        @Override
+        public void run() {
+
+            synchronized (this){
+
+                if(!isLegal()){
+                    Log.e(TAG, "myRunnable init illegal" );
+                    return;
+                }
+                data=data.replace(" ","");
+
+                int length =data.length();
+                int sendCount=length / DATA_UNIT;
+                int remainde=length % DATA_UNIT;
+                if(remainde!=0){
+                    sendCount++;
+                }
+                for (int i=0;i<sendCount;i++){
+                    String currentData="";
+                    int beginIndex=i*DATA_UNIT;
+                    int endIndex=beginIndex+DATA_UNIT;
+                    if(endIndex>length){
+                        endIndex=length;
+                    }
+                    currentData=data.substring(beginIndex,endIndex);
+                    Log.d(TAG, "currentData: "+currentData);
+
+                    byte[] array = Utils.hexStringToByteArray(currentData);
+                    try {
+                        BluetoothLeService.writeCharacteristicGattDb(characteristic, array);
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        Thread.sleep(SEND_INTERVAL);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+
+            }
+
+        }
     }
 
     public void writeCharacteristic(BluetoothGattCharacteristic characteristic, byte[] bytes) {
@@ -362,6 +553,7 @@ public class Communicate extends AppCompatActivity {
     }
 
     private void initCharacteristics(){
+        Log.d(TAG, "initCharacteristics: ");
         BluetoothGattCharacteristic characteristic = myApplication.getCharacteristic();
         if (characteristic.getUuid().toString().equals(GattAttributes.USR_SERVICE)){
 
@@ -387,7 +579,8 @@ public class Communicate extends AppCompatActivity {
     }
 
     private void requestMtu(){
-        int sdkInt = Build.VERSION.SDK_INT;
+        Log.d(TAG, "requestMtu: ");
+         sdkInt = Build.VERSION.SDK_INT;
         Log.d(TAG, "sdkInt------------>"+sdkInt);
         if (sdkInt>=21){
             //设置最大发包、收包的长度为512个字节

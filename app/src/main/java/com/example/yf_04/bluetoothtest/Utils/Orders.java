@@ -30,7 +30,7 @@ public class Orders {
     /**
      *  6 In situ squat down
      */
-    public static final String IN_SITU_SQUAT_DOWN="01 10 20 00 00 0F 1E 00 00 00 06 00 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 B7 4A";
+        public static final String IN_SITU_SQUAT_DOWN="01 10 20 00 00 0F 1E 00 00 00 06 00 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 B7 4A";
     /**
      *  7 From squat down to stand
      */
