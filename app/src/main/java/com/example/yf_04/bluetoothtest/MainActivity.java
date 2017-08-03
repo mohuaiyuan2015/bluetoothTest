@@ -1,11 +1,16 @@
 package com.example.yf_04.bluetoothtest;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -45,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+    /**
+     * Scan cycle:(ms)
+     */
+    private static final long SCAN_CYCLE = 10*1000;
 
     private Button scan;
     private Button stop;
@@ -52,6 +61,10 @@ public class MainActivity extends AppCompatActivity {
     private Context context;
 
     private  List<MDevice> list = new ArrayList<MDevice>();
+
+
+    private boolean scaning;
+    private BluetoothLeScanner bleScanner;
 
     private Handler hander;
     /**
@@ -65,17 +78,13 @@ public class MainActivity extends AppCompatActivity {
     private String currentDevAddress;
     private String currentDevName;
 
-
-
     private MaterialDialog alarmDialog;
     private MaterialDialog progressDialog;
 
     boolean isShowingDialog = false;
-    private boolean scaning;
 
     private MyApplication myApplication;
-
-
+    private int sdkInt=-1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
         myAdapter = new MyAdapter(context,list);
         recyclerView.setAdapter(myAdapter);
 
+        sdkInt=Build.VERSION.SDK_INT;
+        Log.d(TAG, "sdkInt: "+sdkInt);
 
         initListener();
 
@@ -117,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "onStop: ");
+        isShowingDialog=false;
 
     }
     @Override
@@ -200,9 +212,24 @@ public class MainActivity extends AppCompatActivity {
                 scaning=false;
             }
 
-            if (mBluetoothAdapter != null){
-                mBluetoothAdapter.startLeScan(mLeScanCallback);
+            mBluetoothAdapter.startLeScan(mLeScanCallback);
+
+
+        }
+    };
+
+    @SuppressLint("NewApi")
+    private Runnable stopScanRunnableNew=new Runnable() {
+        @Override
+        public void run() {
+            Log.d(TAG, "Runnable stopScanRunnableNew: ");
+            if(scaning){
+                scaning=false;
             }
+            if (bleScanner == null){
+                bleScanner = mBluetoothAdapter.getBluetoothLeScanner();
+            }
+            bleScanner.stopScan(mScanCallback);
 
         }
     };
@@ -286,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
                 , Manifest.permission.ACCESS_FINE_LOCATION    };
         //Android M Permission check
         Log.d(TAG, "Build.VERSION.SDK_INT: "+Build.VERSION.SDK_INT);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+        if(sdkInt>= Build.VERSION_CODES.M
                 && ContextCompat.checkSelfPermission( context, Manifest.permission.ACCESS_COARSE_LOCATION )!=PackageManager.PERMISSION_GRANTED ){
             Log.d(TAG, "Android M Permission check ");
             Log.d(TAG, "ask for Permission... ");
@@ -367,11 +394,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void startScan() {
         Log.d(TAG, "startScan: ");
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-        scanPrevious21Version();
-//        } else {
-//            scanAfter21Version();
-//        }
+        if (sdkInt< Build.VERSION_CODES.LOLLIPOP) {
+            scanPrevious21Version();
+        } else {
+            scanAfter21Version();
+        }
     }
 
     /**
@@ -380,14 +407,69 @@ public class MainActivity extends AppCompatActivity {
     private void scanPrevious21Version() {
         Log.d(TAG, "scanPrevious21Version: ");
         //10秒后停止扫描
-        hander.postDelayed(stopScanRunnable,10000);
+        hander.postDelayed( stopScanRunnable , SCAN_CYCLE );
+        mBluetoothAdapter.stopLeScan(mLeScanCallback);
         mBluetoothAdapter.startLeScan(mLeScanCallback);
     }
 
+    /**
+     * 版本号21及之后的调用该方法扫描，该方法不是特别管用,因此demo中不再使用，仅供参考
+     */
+    @SuppressLint("NewApi")
+    private void scanAfter21Version() {
+        Log.d(TAG, "scanAfter21Version: ");
+
+        hander.postDelayed(stopScanRunnableNew ,SCAN_CYCLE );
+
+        if (bleScanner == null){
+            bleScanner = mBluetoothAdapter.getBluetoothLeScanner();
+        }
+
+        bleScanner.stopScan(mScanCallback);
+        bleScanner.startScan(mScanCallback);
+    }
+
+    @SuppressLint("NewApi")
+    private ScanCallback mScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            super.onScanResult(callbackType, result);
+
+            super.onScanResult(callbackType, result);
+            MDevice mDev = new MDevice(result.getDevice(), result.getRssi());
+            if (list.contains(mDev)){
+                return;
+            }
+
+            Log.d(TAG, "device name: "+mDev.getDevice().getName());
+            Log.d(TAG, "device Mac: "+mDev.getDevice().getAddress());
+            list.add(mDev);
+            refreshBluetoothData();
+        }
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            super.onBatchScanResults(results);
+            // 批量回调，一般不推荐使用，使用上面那个会更灵活
+        }
+        @Override
+        public void onScanFailed(int errorCode) {
+            super.onScanFailed(errorCode);
+            // 扫描失败，并且失败原因
+        }
+    };
+
+    @SuppressLint("NewApi")
     private void stopScan(){
         Log.d(TAG, "stopScan: ");
-        mBluetoothAdapter.stopLeScan(mLeScanCallback);
-        hander.removeCallbacks(stopScanRunnable);
+
+        if(sdkInt< Build.VERSION_CODES.LOLLIPOP){
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            hander.removeCallbacks(stopScanRunnable);
+        }else{
+            bleScanner.stopScan(mScanCallback);
+            hander.removeCallbacks(stopScanRunnableNew);
+        }
+
     }
 
 
@@ -398,6 +480,9 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, "connectDevice name: "+currentDevName);
         Log.d(TAG, "connectDevice Mac: "+currentDevAddress);
+
+        //mohuaiyuan 201708  add :stop scan
+//        stopSearching();
 
         //mohuaiyuan 201707
         //如果是连接状态，断开，重新连接
