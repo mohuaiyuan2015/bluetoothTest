@@ -318,10 +318,14 @@ public class BluetoothLeService extends Service {
                 final Intent intent = new Intent(ACTION_DATA_AVAILABLE);
                 Bundle mBundle = new Bundle();
                 // Putting the byte value read for GATT Db
+                byte[] value=characteristic.getValue();
+                UUID uuid=characteristic.getUuid();
                 mBundle.putByteArray(Constants.EXTRA_BYTE_VALUE,
-                        characteristic.getValue());
+                        value);
                 mBundle.putString(Constants.EXTRA_BYTE_UUID_VALUE,
-                        characteristic.getUuid().toString());
+                        uuid.toString());
+                Log.d(TAG, "value: "+String.valueOf(value));
+                Log.d(TAG, "uuid: "+String.valueOf(uuid));
 
                 System.out.println("onCharacteristicRead------------------->GATT_SUCC");
 
@@ -549,7 +553,9 @@ public class BluetoothLeService extends Service {
              * Sending lots of data is possible, but usually ends up being less efficient than classic
              * Bluetooth when trying to achieve maximum throughput.
              */
-            System.out.println("onCharacteristicChanged -------------------> changed");
+//            System.out.println("onCharacteristicChanged -------------------> changed");
+            Log.d(TAG, "onCharacteristicChanged------------------------>");
+            Log.d(TAG, "characteristic response data: "+characteristic.getValue().toString());
             //notify 会回调用此方法
             broadcastNotifyUpdate(characteristic);
         }
@@ -909,16 +915,28 @@ public class BluetoothLeService extends Service {
      * @param byteArray
      */
 
-    public static void writeCharacteristicGattDb(
-            BluetoothGattCharacteristic characteristic, byte[] byteArray) {
+//    public static void writeCharacteristicGattDb(
+//            BluetoothGattCharacteristic characteristic, byte[] byteArray) {
+//
+//        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+//            return;
+//        } else {
+//            byte[] valueByte = byteArray;
+//            characteristic.setValue(valueByte);
+//            mBluetoothGatt.writeCharacteristic(characteristic);
+//        }
+//    }
 
+    public static boolean writeCharacteristicGattDb(BluetoothGattCharacteristic characteristic, byte[] byteArray) {
+        boolean result=false;
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            return;
+            return result;
         } else {
             byte[] valueByte = byteArray;
             characteristic.setValue(valueByte);
-            mBluetoothGatt.writeCharacteristic(characteristic);
+           result= mBluetoothGatt.writeCharacteristic(characteristic);
         }
+        return  result;
     }
 
 
@@ -930,12 +948,13 @@ public class BluetoothLeService extends Service {
      * @param enabled        If true, enable notification. False otherwise.
      */
     public static void setCharacteristicNotification(BluetoothGattCharacteristic characteristic, boolean enabled) {
+        Log.d(TAG, "setCharacteristicNotification: ");
 
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             return;
         }
         if (characteristic.getDescriptor(UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG)) != null) {
-            if (enabled == true) {
+            if (enabled) {
                 BluetoothGattDescriptor descriptor = characteristic
                         .getDescriptor(UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
                 descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);

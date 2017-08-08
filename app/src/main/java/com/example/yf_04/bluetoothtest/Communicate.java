@@ -78,7 +78,7 @@ public class Communicate extends AppCompatActivity {
     private Button stretchYouLeftArm;
     private Button stretchYouRightArm;
     private Button playBasketball;
-    private Button toBeContinue;
+    private Button btnNotify;
 
 
 
@@ -87,8 +87,12 @@ public class Communicate extends AppCompatActivity {
     private Boolean isLieDown=false;
     private Boolean isPutDown=false;
 
+    private Boolean nofityEnable=false;
 
+
+    private BluetoothGattCharacteristic notifyCharacteristic;
     private BluetoothGattCharacteristic writeCharacteristic;
+    private BluetoothGattCharacteristic readCharacteristic;
     private MyApplication myApplication;
     private Context context;
 
@@ -210,7 +214,7 @@ public class Communicate extends AppCompatActivity {
         stretchYouLeftArm.setOnClickListener(myOnClickListener);
         stretchYouRightArm.setOnClickListener(myOnClickListener);
         playBasketball.setOnClickListener(myOnClickListener);
-        toBeContinue.setOnClickListener(myOnClickListener);
+        btnNotify.setOnClickListener(myOnClickListener);
 
 
         //mohuaiyuan 201707  Temporary annotation
@@ -275,7 +279,7 @@ public class Communicate extends AppCompatActivity {
         stretchYouLeftArm=(Button) findViewById(R.id.stretchYouLeftArm);
         stretchYouRightArm=(Button) findViewById(R.id.stretchYouRightArm);
         playBasketball=(Button) findViewById(R.id.playBasketball);
-        toBeContinue=(Button) findViewById(R.id.toBeContinue);
+        btnNotify=(Button) findViewById(R.id.btnNotify);
 
         //mohuaiyuan 201707  Temporary annotation
         //mode 二
@@ -286,7 +290,7 @@ public class Communicate extends AppCompatActivity {
     private String getStringById(int id ){
 
         String order=context.getResources().getString(id);
-        Log.d(TAG, "order: "+order);
+        Log.d(TAG, "string: "+order);
         return order;
     }
 
@@ -456,8 +460,9 @@ public class Communicate extends AppCompatActivity {
                     writeOption(getStringById(R.string.PLAY_BASKETBALL));
                     break;
 
-                case R.id.toBeContinue:
-                    Toast.makeText(context, context.getString(R.string.to_be_continue), Toast.LENGTH_SHORT).show();
+                case R.id.btnNotify:
+                    notifyOption();
+
                     break;
 
                 default:
@@ -466,7 +471,8 @@ public class Communicate extends AppCompatActivity {
         }
     };
     
-    
+
+
     private void writeOption(String order){
 
 
@@ -495,7 +501,48 @@ public class Communicate extends AppCompatActivity {
 
         }
 
+    }
 
+    private void notifyOption(){
+        Log.d(TAG, "notifyOption: ");
+        nofityEnable=!nofityEnable;
+
+        if (!nofityEnable){
+            btnNotify.setText(getStringById(R.string.notify));
+            stopBroadcastDataNotify(notifyCharacteristic);
+        }else {
+            btnNotify.setText(getStringById(R.string.stop_notify));
+            prepareBroadcastDataNotify(notifyCharacteristic);
+        }
+    }
+
+    /**
+     * Preparing Broadcast receiver to broadcast notify characteristics
+     *
+     * @param characteristic
+     */
+    void prepareBroadcastDataNotify(BluetoothGattCharacteristic characteristic) {
+        Log.d(TAG, "prepareBroadcastDataNotify: ");
+        final int charaProp = characteristic.getProperties();
+        Log.d(TAG, "charaProp: "+charaProp);
+        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+            BluetoothLeService.setCharacteristicNotification(characteristic, true);
+        }
+
+    }
+
+    /**
+     * Stopping Broadcast receiver to broadcast notify characteristics
+     *
+     * @param characteristic
+     */
+    void stopBroadcastDataNotify(BluetoothGattCharacteristic characteristic) {
+        Log.d(TAG, "stopBroadcastDataNotify: ");
+        final int charaProp = characteristic.getProperties();
+        Log.d(TAG, "charaProp: "+charaProp);
+        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+            BluetoothLeService.setCharacteristicNotification(characteristic, false);
+        }
     }
 
     /**
@@ -507,12 +554,15 @@ public class Communicate extends AppCompatActivity {
         /**
          * the time interval of send data(ms)
          */
-        private static final long SEND_INTERVAL=40;
+        private static final long SEND_INTERVAL= 0;
 
         /**
          *
          */
         private static final int DATA_UNIT=20;
+
+
+        boolean sendResult=true;
 
         public MyRunnable(){
 
@@ -561,6 +611,7 @@ public class Communicate extends AppCompatActivity {
 
                 if(!isLegal()){
                     Log.e(TAG, "myRunnable init illegal" );
+                    sendResult=false;
                     return;
                 }
                 data=data.replace(" ","");
@@ -571,6 +622,7 @@ public class Communicate extends AppCompatActivity {
                 if(remainde!=0){
                     sendCount++;
                 }
+
 
                 for (int i=0;i<sendCount;i++){
                     String currentData="";
@@ -583,23 +635,33 @@ public class Communicate extends AppCompatActivity {
                     Log.d(TAG, "currentData: "+currentData);
 
                     byte[] array = Utils.hexStringToByteArray(currentData);
+                    boolean result=false;
                     try {
-                        BluetoothLeService.writeCharacteristicGattDb(characteristic, array);
+                        result=BluetoothLeService.writeCharacteristicGattDb(characteristic, array);
                     } catch (NullPointerException e) {
                         e.printStackTrace();
                     }
 
+                    Log.d(TAG, "result: "+result);
+                    sendResult=result && sendResult;
+
                     //mohuaiyuan 201708
-                    try {
-                        Thread.sleep(SEND_INTERVAL);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    if(SEND_INTERVAL>0){
+                        try {
+                            Thread.sleep(SEND_INTERVAL);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
 
                 }
 
 
         }
+    }
+
+    public void readCharacteristic(BluetoothGattCharacteristic characteristic){
+        BluetoothLeService.readCharacteristic(characteristic);
     }
 
     public void writeCharacteristic(BluetoothGattCharacteristic characteristic, byte[] bytes) {
@@ -619,6 +681,11 @@ public class Communicate extends AppCompatActivity {
             List<BluetoothGattCharacteristic> characteristics = ((MyApplication)getApplication()).getCharacteristics();
 
             for (BluetoothGattCharacteristic c :characteristics){
+                if (Utils.getPorperties(this,c).equals("Notify")){
+                    notifyCharacteristic = c;
+                    continue;
+                }
+
                 if (Utils.getPorperties(this,c).equals("Write")){
                     writeCharacteristic = c;
                     continue;
@@ -630,8 +697,8 @@ public class Communicate extends AppCompatActivity {
         }else {
 //            properties = Utils.getPorperties(this, characteristic);
 //
-//            notifyCharacteristic = characteristic;
-//            readCharacteristic = characteristic;
+            notifyCharacteristic = characteristic;
+            readCharacteristic = characteristic;
             writeCharacteristic = characteristic;
 //            indicateCharacteristic = characteristic;
         }
