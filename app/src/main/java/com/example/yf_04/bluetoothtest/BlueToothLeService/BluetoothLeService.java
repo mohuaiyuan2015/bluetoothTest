@@ -593,14 +593,14 @@ public class BluetoothLeService extends Service {
     }
 
     private static void broadcastNotifyUpdate(final BluetoothGattCharacteristic characteristic) {
+        Log.d(TAG, "broadcastNotifyUpdate: ------------------------------>");
         final Intent intent = new Intent(BluetoothLeService.ACTION_DATA_AVAILABLE);
         Bundle mBundle = new Bundle();
         mBundle.putByteArray(Constants.EXTRA_BYTE_VALUE,
                 characteristic.getValue());
         mBundle.putString(Constants.EXTRA_BYTE_UUID_VALUE, characteristic.getUuid().toString());
         // Heart rate Measurement notify value
-        if (UUIDDatabase.UUID_HEART_RATE_MEASUREMENT.equals(characteristic
-                .getUuid())) {
+        if (UUIDDatabase.UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
             String heart_rate = HRMParser.getHeartRate(characteristic);
             String energy_expended = HRMParser
                     .getEnergyExpended(characteristic);
@@ -928,8 +928,10 @@ public class BluetoothLeService extends Service {
 //    }
 
     public static boolean writeCharacteristicGattDb(BluetoothGattCharacteristic characteristic, byte[] byteArray) {
+        Log.d(TAG, "writeCharacteristicGattDb: ");
         boolean result=false;
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.e(TAG, "mBluetoothAdapter == null || mBluetoothGatt == null");
             return result;
         } else {
             byte[] valueByte = byteArray;

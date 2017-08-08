@@ -86,6 +86,8 @@ public class MainActivity extends AppCompatActivity {
     private MyApplication myApplication;
     private int sdkInt=-1;
 
+    private  MyScanCallback myScanCallback;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +108,10 @@ public class MainActivity extends AppCompatActivity {
 
         sdkInt=Build.VERSION.SDK_INT;
         Log.d(TAG, "sdkInt: "+sdkInt);
+        if(sdkInt>=21){
+
+            myScanCallback =new MyScanCallback();
+        }
 
         initListener();
 
@@ -212,7 +218,10 @@ public class MainActivity extends AppCompatActivity {
                 scaning=false;
             }
 
-            mBluetoothAdapter.startLeScan(mLeScanCallback);
+            //mohuaiyuan 201708
+//            mBluetoothAdapter.startLeScan(mLeScanCallback);
+
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
 
 
         }
@@ -229,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
             if (bleScanner == null){
                 bleScanner = mBluetoothAdapter.getBluetoothLeScanner();
             }
-            bleScanner.stopScan(mScanCallback);
+            bleScanner.stopScan(myScanCallback);
 
         }
     };
@@ -425,12 +434,17 @@ public class MainActivity extends AppCompatActivity {
             bleScanner = mBluetoothAdapter.getBluetoothLeScanner();
         }
 
-        bleScanner.stopScan(mScanCallback);
-        bleScanner.startScan(mScanCallback);
+        bleScanner.stopScan(myScanCallback);
+        bleScanner.startScan(myScanCallback);
     }
 
     @SuppressLint("NewApi")
-    private ScanCallback mScanCallback = new ScanCallback() {
+    class MyScanCallback extends ScanCallback{
+
+        public MyScanCallback(){
+
+        }
+
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
@@ -456,7 +470,36 @@ public class MainActivity extends AppCompatActivity {
             super.onScanFailed(errorCode);
             // 扫描失败，并且失败原因
         }
-    };
+    }
+
+//    @SuppressLint("NewApi")
+//    private ScanCallback mScanCallback = new ScanCallback() {
+//        @Override
+//        public void onScanResult(int callbackType, ScanResult result) {
+//            super.onScanResult(callbackType, result);
+//
+//            super.onScanResult(callbackType, result);
+//            MDevice mDev = new MDevice(result.getDevice(), result.getRssi());
+//            if (list.contains(mDev)){
+//                return;
+//            }
+//
+//            Log.d(TAG, "device name: "+mDev.getDevice().getName());
+//            Log.d(TAG, "device Mac: "+mDev.getDevice().getAddress());
+//            list.add(mDev);
+//            refreshBluetoothData();
+//        }
+//        @Override
+//        public void onBatchScanResults(List<ScanResult> results) {
+//            super.onBatchScanResults(results);
+//            // 批量回调，一般不推荐使用，使用上面那个会更灵活
+//        }
+//        @Override
+//        public void onScanFailed(int errorCode) {
+//            super.onScanFailed(errorCode);
+//            // 扫描失败，并且失败原因
+//        }
+//    };
 
     @SuppressLint("NewApi")
     private void stopScan(){
@@ -466,7 +509,7 @@ public class MainActivity extends AppCompatActivity {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             hander.removeCallbacks(stopScanRunnable);
         }else{
-            bleScanner.stopScan(mScanCallback);
+            bleScanner.stopScan(myScanCallback);
             hander.removeCallbacks(stopScanRunnableNew);
         }
 

@@ -205,6 +205,9 @@
     <string name="notify">Notify</string>
     <string name="stop_notify">Stop Notify</string>
 
+    <string name="send_success">Send order success.</string>
+    <string name="send_failed">Send order failed,please try again!</string>
+
 
 
 </resources>

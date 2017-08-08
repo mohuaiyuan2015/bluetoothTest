@@ -41,4 +41,7 @@
     <string name="stretch_you_right_arm">右伸胳膊</string>
     <string name="play_basketball">打篮球</string>
 
+    <string name="send_success">发送命令成功.</string>
+    <string name="send_failed">发送命令失败，请重新发送一次！</string>
+
 </resources>

@@ -5,14 +5,12 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -22,19 +20,11 @@ import android.widget.Toast;
 import com.example.yf_04.bluetoothtest.BlueToothLeService.BluetoothLeService;
 import com.example.yf_04.bluetoothtest.Utils.GattAttributes;
 import com.example.yf_04.bluetoothtest.Utils.Utils;
-import com.example.yf_04.bluetoothtest.adapter.ActionAdapter;
-import com.example.yf_04.bluetoothtest.bean.BasicAction;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.List;
+import java.util.logging.Handler;
 
-import javax.security.auth.login.LoginException;
 
 public class Communicate extends AppCompatActivity {
 
@@ -98,6 +88,7 @@ public class Communicate extends AppCompatActivity {
 
     private int sdkInt;
 
+    private MyHandler myHandler;
 
     //mohuaiyuan 201707  Temporary annotation
     //mode 二
@@ -119,6 +110,7 @@ public class Communicate extends AppCompatActivity {
 
         Log.d(TAG, "onCreate: ");
         context=this;
+        myHandler=new MyHandler(context);
 
         myApplication = (MyApplication) getApplication();
         initCharacteristics();
@@ -137,9 +129,44 @@ public class Communicate extends AppCompatActivity {
         initListener();
 
         //mohuaiyuan 201707  暂时注释  仅仅为了测试 发送数据的情况
+        sdkInt = Build.VERSION.SDK_INT;
         requestMtu();
 
     }
+
+    public static final int SEND_ORDER_SUCCESS=0;
+    public static final int SEND_ORDER_FAILED=1;
+
+    class MyHandler extends android.os.Handler{
+
+        private Context context;
+        public MyHandler(Context context){
+            this.context=context;
+        }
+
+        public Context getContext() {
+            return context;
+        }
+
+        public void setContext(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case SEND_ORDER_FAILED:
+                    Toast.makeText(context, context.getResources().getString(R.string.send_failed), Toast.LENGTH_SHORT).show();
+                    break;
+
+                default:
+
+            }
+
+        }
+    }
+
 
     //mohuaiyuan 201707  Temporary annotation
     //mode 二
@@ -173,6 +200,8 @@ public class Communicate extends AppCompatActivity {
 
     }
 */
+
+
     private void initListener() {
         Log.d(TAG, "initListener: ");
         //mode 一
@@ -293,6 +322,15 @@ public class Communicate extends AppCompatActivity {
         Log.d(TAG, "string: "+order);
         return order;
     }
+
+    private MyRunnable.SendOrderResult sendOrderResult= new MyRunnable.SendOrderResult() {
+        @Override
+        public void getResult(int responseCode) {
+            android.os.Message message=new Message();
+            message.what=responseCode;
+            myHandler.sendMessage(message);
+        }
+    };
 
     private View.OnClickListener myOnClickListener=new View.OnClickListener() {
         @Override
@@ -496,6 +534,7 @@ public class Communicate extends AppCompatActivity {
             writeCharacteristic(writeCharacteristic, array);
         } else {
             MyRunnable myRunnable=new MyRunnable(order,writeCharacteristic);
+            myRunnable.setSendOrderResult();
             Thread thread = new Thread(myRunnable);
             thread.start();
 
@@ -525,7 +564,9 @@ public class Communicate extends AppCompatActivity {
         Log.d(TAG, "prepareBroadcastDataNotify: ");
         final int charaProp = characteristic.getProperties();
         Log.d(TAG, "charaProp: "+charaProp);
-        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+        int result=charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        Log.d(TAG, "result: "+result);
+        if ( result> 0) {
             BluetoothLeService.setCharacteristicNotification(characteristic, true);
         }
 
@@ -545,120 +586,6 @@ public class Communicate extends AppCompatActivity {
         }
     }
 
-    /**
-     * Send data to bluetooth
-     */
-    class MyRunnable implements Runnable{
-        private  String data;
-        private  BluetoothGattCharacteristic characteristic;
-        /**
-         * the time interval of send data(ms)
-         */
-        private static final long SEND_INTERVAL= 0;
-
-        /**
-         *
-         */
-        private static final int DATA_UNIT=20;
-
-
-        boolean sendResult=true;
-
-        public MyRunnable(){
-
-        }
-        public MyRunnable(String data,BluetoothGattCharacteristic characteristic){
-            this.data=data;
-            this.characteristic=characteristic;
-        }
-
-        public String getData() {
-            return data;
-        }
-
-        public void setData(String data) {
-            this.data = data;
-        }
-
-        public BluetoothGattCharacteristic getCharacteristic() {
-            return characteristic;
-        }
-
-        public void setCharacteristic(BluetoothGattCharacteristic characteristic) {
-            this.characteristic = characteristic;
-        }
-
-        private boolean isLegal(){
-            boolean result=false;
-            if(characteristic==null){
-                Log.e(TAG, "characteristic==null: "+(characteristic==null) );
-                return result;
-            }
-            if(data==null || data.length()==0){
-                Log.e(TAG, "data==null :"+(data==null) );
-                Log.e(TAG, " data.length()==0:"+(data.length()==0) );
-
-                return result;
-            }
-
-            result=true;
-            return result;
-        }
-
-        @Override
-        public void run() {
-            Log.d(TAG, "MyRunnable run: ");
-
-                if(!isLegal()){
-                    Log.e(TAG, "myRunnable init illegal" );
-                    sendResult=false;
-                    return;
-                }
-                data=data.replace(" ","");
-
-                int length =data.length();
-                int sendCount=length / DATA_UNIT;
-                int remainde=length % DATA_UNIT;
-                if(remainde!=0){
-                    sendCount++;
-                }
-
-
-                for (int i=0;i<sendCount;i++){
-                    String currentData="";
-                    int beginIndex=i*DATA_UNIT;
-                    int endIndex=beginIndex+DATA_UNIT;
-                    if(endIndex>length){
-                        endIndex=length;
-                    }
-                    currentData=data.substring(beginIndex,endIndex);
-                    Log.d(TAG, "currentData: "+currentData);
-
-                    byte[] array = Utils.hexStringToByteArray(currentData);
-                    boolean result=false;
-                    try {
-                        result=BluetoothLeService.writeCharacteristicGattDb(characteristic, array);
-                    } catch (NullPointerException e) {
-                        e.printStackTrace();
-                    }
-
-                    Log.d(TAG, "result: "+result);
-                    sendResult=result && sendResult;
-
-                    //mohuaiyuan 201708
-                    if(SEND_INTERVAL>0){
-                        try {
-                            Thread.sleep(SEND_INTERVAL);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                }
-
-
-        }
-    }
 
     public void readCharacteristic(BluetoothGattCharacteristic characteristic){
         BluetoothLeService.readCharacteristic(characteristic);
@@ -706,7 +633,7 @@ public class Communicate extends AppCompatActivity {
 
     private void requestMtu(){
         Log.d(TAG, "requestMtu: ");
-         sdkInt = Build.VERSION.SDK_INT;
+
         Log.d(TAG, "sdkInt------------>"+sdkInt);
         if (sdkInt>=21){
             //设置最大发包、收包的长度为512个字节
@@ -725,5 +652,19 @@ public class Communicate extends AppCompatActivity {
 
     }
 
+    private void stopNotifyOrIndicate(){
+        if (nofityEnable){
+            stopBroadcastDataNotify(notifyCharacteristic);
+        }
 
+//        if (indicateEnable)
+//            stopBroadcastDataIndicate(indicateCharacteristic);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopNotifyOrIndicate();
+        unregisterReceiver(mGattUpdateReceiver);
+    }
 }
