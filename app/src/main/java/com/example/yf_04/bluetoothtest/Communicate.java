@@ -1,13 +1,11 @@
 package com.example.yf_04.bluetoothtest;
 
-import android.annotation.TargetApi;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -23,7 +21,6 @@ import com.example.yf_04.bluetoothtest.Utils.Utils;
 
 
 import java.util.List;
-import java.util.logging.Handler;
 
 
 public class Communicate extends AppCompatActivity {
@@ -476,6 +473,9 @@ public class Communicate extends AppCompatActivity {
             return;
         }
 
+        //mohuaiyuan
+//        writeCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+
         MyLog.d(TAG, "sdkInt: "+sdkInt);
         if (sdkInt >= 21) {
             byte[] array = Utils.hexStringToByteArray(order);
@@ -567,13 +567,13 @@ public class Communicate extends AppCompatActivity {
 
         List<BluetoothGattCharacteristic> characteristics = ((MyApplication)getApplication()).getCharacteristics();
         for (BluetoothGattCharacteristic c :characteristics){
-            if (Utils.getPorperties(context,c).equals("Notify")){
+            if (Utils.getProperties(context,c).equals("Notify")){
                 MyLog.d(TAG, "there is a notify characteristics............ : ");
                 notifyCharacteristic = c;
                 continue;
             }
 
-            if (Utils.getPorperties(context,c).equals("Write")){
+            if (Utils.getProperties(context,c).equals("Write")){
                 MyLog.d(TAG, "there is a write characteristics............ : ");
                 writeCharacteristic = c;
                 continue;
@@ -608,13 +608,13 @@ public class Communicate extends AppCompatActivity {
 //            List<BluetoothGattCharacteristic> characteristics = ((MyApplication)getApplication()).getCharacteristics();
 //
 //            for (BluetoothGattCharacteristic c :characteristics){
-//                if (Utils.getPorperties(context,c).equals("Notify")){
+//                if (Utils.getProperties(context,c).equals("Notify")){
 //                    MyLog.d(TAG, "there is a notify characteristics............ : ");
 //                    notifyCharacteristic = c;
 //                    continue;
 //                }
 //
-//                if (Utils.getPorperties(context,c).equals("Write")){
+//                if (Utils.getProperties(context,c).equals("Write")){
 //                    MyLog.d(TAG, "there is a write characteristics............ : ");
 //                    writeCharacteristic = c;
 //                    continue;
@@ -624,7 +624,7 @@ public class Communicate extends AppCompatActivity {
 ////            properties = "Notify & Write";
 //
 //        }else {
-////            properties = Utils.getPorperties(this, characteristic);
+////            properties = Utils.getProperties(this, characteristic);
 //            MyLog.d(TAG, "write  and notify  are the same characteristics............ : ");
 //            notifyCharacteristic = characteristic;
 //            readCharacteristic = characteristic;

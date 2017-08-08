@@ -594,29 +594,26 @@ public class Utils {
 
 
 
-    public static String getPorperties(Context context, BluetoothGattCharacteristic item){
+    public static String getProperties(Context context, BluetoothGattCharacteristic item) {
         String proprties;
         String read = null, write = null, notify = null;
 
         /**
          * Checking the various GattCharacteristics and listing in the ListView
          */
-        if (getGattCharacteristicsPropertices(item.getProperties(),
-                BluetoothGattCharacteristic.PROPERTY_READ)) {
+        int property = item.getProperties();
+
+        if (getGattCharacteristicsPropertices(property , BluetoothGattCharacteristic.PROPERTY_READ)) {
             read = context.getString(R.string.gatt_services_read);
         }
-        if (getGattCharacteristicsPropertices(item.getProperties(),
-                BluetoothGattCharacteristic.PROPERTY_WRITE)
-                | getGattCharacteristicsPropertices(item.getProperties(),
-                BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) {
+        if (getGattCharacteristicsPropertices(property ,BluetoothGattCharacteristic.PROPERTY_WRITE)
+                | getGattCharacteristicsPropertices(property ,BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) {
             write = context.getString(R.string.gatt_services_write);
         }
-        if (getGattCharacteristicsPropertices(item.getProperties(),
-                BluetoothGattCharacteristic.PROPERTY_NOTIFY)) {
+        if (getGattCharacteristicsPropertices(property,BluetoothGattCharacteristic.PROPERTY_NOTIFY)) {
             notify = context.getString(R.string.gatt_services_notify);
         }
-        if (getGattCharacteristicsPropertices(item.getProperties(),
-                BluetoothGattCharacteristic.PROPERTY_INDICATE)) {
+        if (getGattCharacteristicsPropertices(property,BluetoothGattCharacteristic.PROPERTY_INDICATE)) {
             notify = context.getString(R.string.gatt_services_indicate);
         }
         // Handling multiple properties listing in the ListView

@@ -78,7 +78,7 @@ public class CharacteristicsAdapter extends BaseAdapter {
         int type = getItemViewType(position);
         if (type == TYPE_NORMAL){
             holder.tvCharacteristicName.setText(name);
-            holder.tvCharacteristicProperties.setText(Utils.getPorperties(context,characteristic));
+            holder.tvCharacteristicProperties.setText(Utils.getProperties(context,characteristic));
         }else {
             holder.tvCharacteristicName.setText("This is not a characteristic just for debug");
             holder.tvCharacteristicProperties.setText("USR Debug Mode ");
