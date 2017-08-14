@@ -4,9 +4,11 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
@@ -17,10 +19,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -35,9 +39,13 @@ import com.example.yf_04.bluetoothtest.Utils.Utils;
 import com.example.yf_04.bluetoothtest.adapter.MyAdapter;
 import com.example.yf_04.bluetoothtest.bean.MDevice;
 import com.example.yf_04.bluetoothtest.bean.MService;
+import com.example.yf_04.bluetoothtest.myInterface.MultipleConnection;
+import com.example.yf_04.bluetoothtest.myabstractclass.DiscoveredResultAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import me.drakeet.materialdialog.MaterialDialog;
@@ -58,16 +66,19 @@ public class MainActivity extends AppCompatActivity {
 
     private  List<MDevice> list = new ArrayList<MDevice>();
 
+    private ScanBle scanBle;
+    private DiscoveredResultAdapter myDiscoveredResult;
 
     private boolean scaning;
     private BluetoothLeScanner bleScanner;
 
     private Handler hander;
+
     /**
      * BluetoothAdapter for handling connections
      * 连接蓝牙都需要，用来管理手机上的蓝牙
      */
-    public static BluetoothAdapter mBluetoothAdapter;
+    public  BluetoothAdapter mBluetoothAdapter;
 
     private MyAdapter myAdapter;
 
@@ -83,12 +94,13 @@ public class MainActivity extends AppCompatActivity {
     private int sdkInt=-1;
 
     private  MyScanCallback myScanCallback;
+    private Map<String,BluetoothGatt> bluetoothGattMap=new HashMap<String, BluetoothGatt>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        MyLog.d(TAG, "onCreate: ");
+        MyLog.debug(TAG, "onCreate: ");
 
         context=this;
         myApplication=(MyApplication)getApplication();
@@ -103,9 +115,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(myAdapter);
 
         sdkInt=Build.VERSION.SDK_INT;
-        MyLog.d(TAG, "sdkInt: "+sdkInt);
+        MyLog.debug(TAG, "sdkInt: "+sdkInt);
         if(sdkInt>=21){
-
             myScanCallback =new MyScanCallback();
         }
 
@@ -113,10 +124,17 @@ public class MainActivity extends AppCompatActivity {
 
         checkBleSupportAndInitialize();
 
+        scanBle=new ScanBle(context);
+        myDiscoveredResult =new DiscoveredResultAdapter();
+        myDiscoveredResult.setScanCallback(myScanCallback);
+        myDiscoveredResult.setLeScanCallback(mLeScanCallback);
+        scanBle.setDiscoveredResult(myDiscoveredResult);
+
+
         //注册广播接收者，接收消息
         registerReceiver(mGattUpdateReceiver, Utils.makeGattUpdateIntentFilter());
 
-        MyLog.d(TAG, " prepare init BluetoothLeService--------->");
+        MyLog.debug(TAG, " prepare init BluetoothLeService--------->");
         Intent gattServiceIntent = new Intent(context,BluetoothLeService.class);
        ComponentName componentName= context.startService(gattServiceIntent);
 //        MyLog.d(TAG, "componentName==null: "+(componentName==null));
@@ -129,14 +147,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        MyLog.d(TAG, "onStop: ");
+        MyLog.debug(TAG, "onStop: ");
         isShowingDialog=false;
 
     }
     @Override
     protected void onRestart() {
         super.onRestart();
-        MyLog.d(TAG, "onRestart: ");
+        MyLog.debug(TAG, "onRestart: ");
         //mohuaiyuan 201707  update: to be done at onResume method
 //        isShowingDialog = false;
 //        disconnectDevice();
@@ -146,18 +164,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        MyLog.d(TAG, "onResume: ");
+        MyLog.debug(TAG, "onResume: ");
         isShowingDialog=false;
-        disconnectDevice();
+
+        //mohuaiyuan  201708 暂时注释
+//        disconnectDevice();
     }
 
     private void initListener() {
-        MyLog.d(TAG, "initListener: ");
+
+        MyLog.debug(TAG, "initListener: ");
 
         scan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyLog.d(TAG, "scan onClick: ");
+                MyLog.debug(TAG, "scan onClick: ");
                 searchDevice();
                 onRefresh();
             }
@@ -166,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
         stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyLog.d(TAG, "stop onClick: ");
+                MyLog.debug(TAG, "stop onClick: ");
                 stopSearching();
 
             }
@@ -175,8 +196,8 @@ public class MainActivity extends AppCompatActivity {
         myAdapter.setOnItemClickListener(new MyAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position) {
-                MyLog.d(TAG, "myAdapter onItemClick: ");
-                MyLog.d(TAG, "scanning: "+scaning);
+                MyLog.debug(TAG, "myAdapter onItemClick: ");
+                MyLog.debug(TAG, "scanning: "+scaning);
 
 //                if (!scaning) {
 ////                    isShowingDialog = true;
@@ -195,55 +216,127 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        myAdapter.setOnDisconnectListener(new MyAdapter.OnDisconnectListener() {
+            @Override
+            public void onDisconnect(View view, int position) {
+                Log.d(TAG, "myAdapter.setOnDisconnectListener  onDisconnect:----------------------> ");
+                String deviceAddress=list.get(position).getDevice().getAddress();
+                BluetoothGatt bluetoothGatt=bluetoothGattMap.get(deviceAddress);
+                disconnectDevice(bluetoothGatt);
+
+            }
+        });
+
+        myAdapter.setOnShowStatusListener(new MyAdapter.OnShowStatusListener() {
+            @Override
+            public void onShow(View view, int position) {
+                MyLog.debug(TAG, "myAdapter.setOnShowStatusListener  onShow:------------------------> ");
+                int status=list.get(position).getConnectStatus();
+                MyLog.debug(TAG, "device getConnectStatus: "+status);
+            }
+        });
+
+        BluetoothLeService.setMultipleConnection(new MultipleConnection() {
+            @Override
+            public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+                MyLog.debug(TAG, " BluetoothLeService.setMultipleConnection  onConnectionStateChange: ");
+                MyLog.debug(TAG,"status:"+status);
+                MyLog.debug(TAG,"newState:"+newState);
+                BluetoothDevice device = gatt.getDevice();
+                String deviceAddress = device.getAddress();
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).getDevice().getAddress().equals(deviceAddress)) {
+                        Log.d(TAG, "position: "+i);
+                        list.get(i).setConnectStatus(newState);
+                        break;
+                    }
+                }
+
+                updateBluetoothDeviceData();
+
+
+                if (newState == BluetoothProfile.STATE_CONNECTED) {
+                    //connected
+                    if (!bluetoothGattMap.containsKey(deviceAddress)) {
+                        bluetoothGattMap.put(deviceAddress, gatt);
+                    }
+
+
+                } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                    //disconnected
+                    bluetoothGattMap.remove(deviceAddress);
+
+                }
+
+            }
+        });
+
+
     }
 
+
+
     private void initUI() {
-        MyLog.d(TAG, "initUI: ");
+        MyLog.debug(TAG, "initUI: ");
         scan= (Button) findViewById(R.id.scan);
         stop= (Button) findViewById(R.id.stop);
         recyclerView= (RecyclerView) findViewById(R.id.recycleview);
     }
 
-
-    //扫描设备
-    private Runnable stopScanRunnable = new Runnable() {
+    private static final int ADD_BLUETOOTH_DEVICE=2;
+    private static final int UPDATE_BLUETOOTH_DEVICE_DATA=10;
+    private Handler myUpdateUiHandler=new Handler(){
         @Override
-        public void run() {
-            MyLog.d(TAG, "Runnable stopScanRunnable: ");
-            if(scaning){
-                scaning=false;
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case UPDATE_BLUETOOTH_DEVICE_DATA:
+                    refreshBluetoothData();
+                    break;
+
+                case ADD_BLUETOOTH_DEVICE:
+
+                    Bundle bundle=msg.getData();
+                    BluetoothDevice device= bundle.getParcelable("device");
+                    int rssi=bundle.getInt("rssi");
+
+                    addBluetoothDevice(device, rssi);
+
+                    updateBluetoothDeviceData();
+                    break;
+
+                default:
+
             }
-
-            //mohuaiyuan 201708
-//            mBluetoothAdapter.startLeScan(mLeScanCallback);
-
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-
-
         }
     };
 
-    @SuppressLint("NewApi")
-    private Runnable stopScanRunnableNew=new Runnable() {
-        @Override
-        public void run() {
-            MyLog.d(TAG, "Runnable stopScanRunnableNew: ");
-            if(scaning){
-                scaning=false;
-            }
-            if (bleScanner == null){
-                bleScanner = mBluetoothAdapter.getBluetoothLeScanner();
-            }
-            bleScanner.stopScan(myScanCallback);
+    private void addBluetoothDevice(BluetoothDevice device,int rssi){
 
+        MDevice mDev = new MDevice(device, rssi);
+
+        if (list.contains(mDev)){
+            return;
         }
-    };
 
+        MyLog.debug(TAG, "device name: "+mDev.getDevice().getName());
+        MyLog.debug(TAG, "device Mac: "+mDev.getDevice().getAddress());
+        list.add(mDev);
+        //mohuaiyuan 201708
+//        refreshBluetoothData();
+
+    }
+
+    private void updateBluetoothDeviceData(){
+        Message message=new Message();
+        message.what=UPDATE_BLUETOOTH_DEVICE_DATA;
+        myUpdateUiHandler.sendMessage(message);
+    }
 
     private Runnable dismssDialogRunnable = new Runnable() {
         @Override
         public void run() {
-            MyLog.d(TAG, "Runnable dismssDialogRunnable... ");
+            MyLog.debug(TAG, "Runnable dismssDialogRunnable... ");
             if(progressDialog !=null){
                 progressDialog.dismiss();
             }
@@ -263,31 +356,24 @@ public class MainActivity extends AppCompatActivity {
         public void onLeScan(final BluetoothDevice device, final int rssi,
                              byte[] scanRecord) {
 
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    MDevice mDev = new MDevice(device, rssi);
+            Message message=new Message();
+            message.what=ADD_BLUETOOTH_DEVICE;
 
-                    if (list.contains(mDev)){
-                        return;
-                    }
-//                    if(list==null){
-//                        list = new ArrayList<>();
-//                    }
+            Bundle bundle=new Bundle();
+            bundle.putParcelable("device",device);
+            bundle.putInt("rssi",rssi);
+            bundle.putByteArray("scanRecord",scanRecord);
+            message.setData(bundle);
 
-                    MyLog.d(TAG, "device name: "+mDev.getDevice().getName());
-                    MyLog.d(TAG, "device Mac: "+mDev.getDevice().getAddress());
-                    list.add(mDev);
-                   refreshBluetoothData();
-                }
-            });
+            myUpdateUiHandler.sendMessage(message);
+
         }
     };
 
 
 
     public void searchDevice() {
-        MyLog.d(TAG, "searchDevice: ");
+        MyLog.debug(TAG, "searchDevice: ");
         if (!scaning) {
             scaning = true;
             //如果有连接先关闭连接
@@ -297,7 +383,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void stopSearching(){
-        MyLog.d(TAG, "stopSearching: ");
+        MyLog.debug(TAG, "stopSearching: ");
         scaning = false;
         stopScan();
     }
@@ -305,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onRefresh() {
         // Prepare list view and initiate scanning
-        MyLog.d(TAG, "onRefresh: ");
+        MyLog.debug(TAG, "onRefresh: ");
 
         if (myAdapter != null) {
             myAdapter.clear();
@@ -317,11 +403,11 @@ public class MainActivity extends AppCompatActivity {
         String[] permissions=new String[]{Manifest.permission.ACCESS_COARSE_LOCATION
                 , Manifest.permission.ACCESS_FINE_LOCATION    };
         //Android M Permission check
-        MyLog.d(TAG, "Build.VERSION.SDK_INT: "+Build.VERSION.SDK_INT);
+        MyLog.debug(TAG, "Build.VERSION.SDK_INT: "+Build.VERSION.SDK_INT);
         if(sdkInt>= Build.VERSION_CODES.M
                 && ContextCompat.checkSelfPermission( context, Manifest.permission.ACCESS_COARSE_LOCATION )!=PackageManager.PERMISSION_GRANTED ){
-            MyLog.d(TAG, "Android M Permission check ");
-            MyLog.d(TAG, "ask for Permission... ");
+            MyLog.debug(TAG, "Android M Permission check ");
+            MyLog.debug(TAG, "ask for Permission... ");
             ActivityCompat.requestPermissions(this,permissions, PERMISSION_REQUEST_COARSE_LOCATION);
 
         }else{
@@ -344,15 +430,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
-        MyLog.d(TAG, "onRequestPermissionsResult: "+requestCode);
+        MyLog.debug(TAG, "onRequestPermissionsResult: "+requestCode);
 
         switch (requestCode) {
             case PERMISSION_REQUEST_COARSE_LOCATION:
-                MyLog.d(TAG, "grantResults.length: "+grantResults.length);
+                MyLog.debug(TAG, "grantResults.length: "+grantResults.length);
                 if(grantResults.length>0){
-                    MyLog.d(TAG, "grantResults[0]: "+grantResults[0]);
+                    MyLog.debug(TAG, "grantResults[0]: "+grantResults[0]);
                 }
-
 
                 if (grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // TODO request success
@@ -371,10 +456,10 @@ public class MainActivity extends AppCompatActivity {
      * 获得蓝牙适配器
      */
     private void checkBleSupportAndInitialize() {
-        MyLog.d(TAG, "checkBleSupportAndInitialize: ");
+        MyLog.debug(TAG, "checkBleSupportAndInitialize: ");
         // Use this check to determine whether BLE is supported on the device.
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            MyLog.d(TAG, "device_ble_not_supported ");
+            MyLog.debug(TAG, "device_ble_not_supported ");
             Toast.makeText(this, R.string.device_ble_not_supported,Toast.LENGTH_SHORT).show();
             return;
         }
@@ -384,7 +469,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (mBluetoothAdapter == null) {
             // Device does not support Blue tooth
-            MyLog.d(TAG, "device_ble_not_supported ");
+            MyLog.debug(TAG, "device_ble_not_supported ");
             Toast.makeText(this,R.string.device_ble_not_supported, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -392,50 +477,18 @@ public class MainActivity extends AppCompatActivity {
 
         //打开蓝牙
         if (!mBluetoothAdapter.isEnabled()) {
-            MyLog.d(TAG, "open bluetooth ");
+            MyLog.debug(TAG, "open bluetooth ");
             mBluetoothAdapter.enable();
         }
     }
 
     private void startScan() {
-        MyLog.d(TAG, "startScan: ");
-        if (sdkInt< Build.VERSION_CODES.LOLLIPOP) {
-            scanPrevious21Version();
-        } else {
-            scanAfter21Version();
-        }
-    }
-
-    /**
-     * 版本号21之前的调用该方法搜索
-     */
-    private void scanPrevious21Version() {
-        MyLog.d(TAG, "scanPrevious21Version: ");
-        //10秒后停止扫描
-        hander.postDelayed( stopScanRunnable , SCAN_CYCLE );
-        mBluetoothAdapter.stopLeScan(mLeScanCallback);
-        mBluetoothAdapter.startLeScan(mLeScanCallback);
-    }
-
-    /**
-     * 版本号21及之后的调用该方法扫描，该方法不是特别管用,因此demo中不再使用，仅供参考
-     */
-    @SuppressLint("NewApi")
-    private void scanAfter21Version() {
-        MyLog.d(TAG, "scanAfter21Version: ");
-
-        hander.postDelayed(stopScanRunnableNew ,SCAN_CYCLE );
-
-        if (bleScanner == null){
-            bleScanner = mBluetoothAdapter.getBluetoothLeScanner();
-        }
-
-        bleScanner.stopScan(myScanCallback);
-        bleScanner.startScan(myScanCallback);
+        MyLog.debug(TAG, "startScan: ");
+        scanBle.start();
     }
 
     @SuppressLint("NewApi")
-    class MyScanCallback extends ScanCallback{
+    private class MyScanCallback extends ScanCallback{
 
         public MyScanCallback(){
 
@@ -444,15 +497,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
-
-            super.onScanResult(callbackType, result);
             MDevice mDev = new MDevice(result.getDevice(), result.getRssi());
             if (list.contains(mDev)){
                 return;
             }
 
-            MyLog.d(TAG, "device name: "+mDev.getDevice().getName());
-            MyLog.d(TAG, "device Mac: "+mDev.getDevice().getAddress());
+            MyLog.debug(TAG, "device name: "+mDev.getDevice().getName());
+            MyLog.debug(TAG, "device Mac: "+mDev.getDevice().getAddress());
             list.add(mDev);
             refreshBluetoothData();
         }
@@ -468,57 +519,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    @SuppressLint("NewApi")
-//    private ScanCallback mScanCallback = new ScanCallback() {
-//        @Override
-//        public void onScanResult(int callbackType, ScanResult result) {
-//            super.onScanResult(callbackType, result);
-//
-//            super.onScanResult(callbackType, result);
-//            MDevice mDev = new MDevice(result.getDevice(), result.getRssi());
-//            if (list.contains(mDev)){
-//                return;
-//            }
-//
-//            MyLog.d(TAG, "device name: "+mDev.getDevice().getName());
-//            MyLog.d(TAG, "device Mac: "+mDev.getDevice().getAddress());
-//            list.add(mDev);
-//            refreshBluetoothData();
-//        }
-//        @Override
-//        public void onBatchScanResults(List<ScanResult> results) {
-//            super.onBatchScanResults(results);
-//            // 批量回调，一般不推荐使用，使用上面那个会更灵活
-//        }
-//        @Override
-//        public void onScanFailed(int errorCode) {
-//            super.onScanFailed(errorCode);
-//            // 扫描失败，并且失败原因
-//        }
-//    };
-
     @SuppressLint("NewApi")
     private void stopScan(){
-        MyLog.d(TAG, "stopScan: ");
+        MyLog.debug(TAG, "stopScan: ");
 
-        if(sdkInt< Build.VERSION_CODES.LOLLIPOP){
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-            hander.removeCallbacks(stopScanRunnable);
-        }else{
-            bleScanner.stopScan(myScanCallback);
-            hander.removeCallbacks(stopScanRunnableNew);
-        }
-
+        scanBle.stop();
     }
 
 
     private void connectDevice(BluetoothDevice device) {
-        MyLog.d(TAG, "connectDevice: ");
+        MyLog.debug(TAG, "connectDevice: ");
         currentDevAddress = device.getAddress();
         currentDevName = device.getName();
 
-        MyLog.d(TAG, "connectDevice name: "+currentDevName);
-        MyLog.d(TAG, "connectDevice Mac: "+currentDevAddress);
+        MyLog.debug(TAG, "connectDevice name: "+currentDevName);
+        MyLog.debug(TAG, "connectDevice Mac: "+currentDevAddress);
 
         //mohuaiyuan 201708  add :stop scan
 //        stopSearching();
@@ -533,10 +548,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void disconnectDevice() {
-        MyLog.d(TAG, "disconnectDevice()...");
+        MyLog.debug(TAG, "disconnectDevice: ");
         isShowingDialog=false;
         BluetoothLeService.disconnect();
     }
+
+    private void disconnectDevice(BluetoothGatt bluetoothGatt) {
+        MyLog.debug(TAG, "disconnectDevice()...");
+        isShowingDialog=false;
+        BluetoothLeService.disconnect(bluetoothGatt);
+    }
+
+
 
 
     /**
@@ -546,12 +569,12 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            MyLog.d(TAG, "BroadcastReceiver mGattUpdateReceiver action: "+action);
+            MyLog.debug(TAG, "BroadcastReceiver mGattUpdateReceiver action: "+action);
             // Status received when connected to GATT Server
             //连接成功
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
 //                System.out.println("--------------------->连接成功");
-                MyLog.d(TAG, "connnected --------------------->connected success");
+                MyLog.debug(TAG, "connnected --------------------->connected success");
 
                 //mohuaiyuan 201707  多此一举  注释
 //                //搜索服务
@@ -559,14 +582,17 @@ public class MainActivity extends AppCompatActivity {
             }
             // Services Discovered from GATT Server
             else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                MyLog.d(TAG, "discovered services------------------>discovered services ");
+
+                MyLog.debug(TAG, "discovered services------------------>discovered services ");
                 hander.removeCallbacks(dismssDialogRunnable);
                 if(progressDialog !=null){
                     progressDialog.dismiss();
                 }
                 prepareGattServices(BluetoothLeService.getSupportedGattServices());
+
             } else if (action.equals(BluetoothLeService.ACTION_GATT_DISCONNECTED)) {
-                MyLog.d(TAG, "disconnected----------------------->connected fail ");
+
+                MyLog.debug(TAG, "disconnected----------------------->connected fail ");
                 if(progressDialog!=null){
                     progressDialog.dismiss();
                 }
@@ -579,7 +605,6 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
-
     /**
      * Getting the GATT Services
      * 获得服务
@@ -587,7 +612,7 @@ public class MainActivity extends AppCompatActivity {
      * @param gattServices
      */
     private void prepareGattServices(List<BluetoothGattService> gattServices) {
-        MyLog.d(TAG, "prepareGattServices: ");
+        MyLog.debug(TAG, "prepareGattServices: ");
         prepareData(gattServices);
 
         //mohuaiyuan 201707
@@ -601,14 +626,14 @@ public class MainActivity extends AppCompatActivity {
 
             //mohuaiyuan 201707  暂时注释
         List<MService> services =myApplication.getServices();
-        MyLog.d(TAG, "services.size(): "+services.size());
+        MyLog.debug(TAG, "services.size(): "+services.size());
         jumpToCharacteristicActivity(services);
 
 
     }
 
     private void jumpToCharacteristicActivity(List<MService> list){
-        MyLog.d(TAG, "jumpToCharacteristicActivity: ");
+        MyLog.debug(TAG, "jumpToCharacteristicActivity: ");
 
         if(list.isEmpty()){
             Toast.makeText(context, "There is not SERVICE,please try another device!", Toast.LENGTH_SHORT).show();
@@ -622,7 +647,7 @@ public class MainActivity extends AppCompatActivity {
             BluetoothGattService service = mService.getService();
 
             UUID serviceUuid = service.getUuid();
-            MyLog.d(TAG, "serviceUuid: "+serviceUuid);
+            MyLog.debug(TAG, "serviceUuid: "+serviceUuid);
             if (serviceUuid.toString().equals(GattAttributes.USR_SERVICE)) {
                 position=i;
                 isContains=true;
@@ -684,9 +709,10 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        //mohuaiyuan 201708  暂时注释
         myApplication.setCharacteristic(characteristics.get(position));
-        Intent intent = new Intent(context,Communicate.class);
-        startActivity(intent);
+//        Intent intent = new Intent(context,Communicate.class);
+//        startActivity(intent);
 
     }
 
@@ -698,7 +724,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void prepareData(List<BluetoothGattService> gattServices) {
 
-        MyLog.d(TAG, "prepareData: ");
+        MyLog.debug(TAG, "prepareData: ");
         if (gattServices == null)
             return;
 
@@ -741,15 +767,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showProgressDialog() {
-        MyLog.d(TAG, "showProgressDialog: ");
+        MyLog.debug(TAG, "showProgressDialog: ");
         progressDialog = new MaterialDialog(context);
         View view = LayoutInflater.from(context)
                 .inflate(R.layout.progressbar_item,
                         null);
         progressDialog.setView(view).show();
     }
-
-
 
     @Override
     protected void onDestroy() {

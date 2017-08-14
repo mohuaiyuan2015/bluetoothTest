@@ -13,7 +13,7 @@ import com.example.yf_04.bluetoothtest.Utils.Utils;
 /**
  * Send data to bluetooth
  */
-class MyRunnable implements Runnable{
+class SendOrderRunnable implements Runnable{
     private static final String TAG = "MyRunnable";
 
     private  String data;
@@ -48,7 +48,7 @@ class MyRunnable implements Runnable{
     private  SendOrderResult sendOrderResult;
 
 
-    public MyRunnable(String data,BluetoothGattCharacteristic characteristic){
+    public SendOrderRunnable(String data, BluetoothGattCharacteristic characteristic){
         this.data=data;
         this.characteristic=characteristic;
     }

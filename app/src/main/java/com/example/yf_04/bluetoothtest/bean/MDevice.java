@@ -6,6 +6,8 @@ public class MDevice {
     private BluetoothDevice device;
     private int rssi;
 
+    private int connectStatus;
+
     public MDevice(){
 
     }
@@ -29,6 +31,14 @@ public class MDevice {
 
     public void setRssi(int rssi) {
         this.rssi = rssi;
+    }
+
+    public int getConnectStatus() {
+        return connectStatus;
+    }
+
+    public void setConnectStatus(int connectStatus) {
+        this.connectStatus = connectStatus;
     }
 
     @Override

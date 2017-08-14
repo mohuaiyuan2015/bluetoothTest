@@ -209,5 +209,14 @@
     <string name="send_failed">Send order failed,please try again!</string>
 
 
+    <string name="connect_status_default">default</string>
+    <string name="connect_status_disconnect">disconnect</string>
+    <string name="connect_status_connected">connected</string>
+    <string name="connect_status_connecting">connecting</string>
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="show_status">Show Status</string>
+
+
 
 </resources>

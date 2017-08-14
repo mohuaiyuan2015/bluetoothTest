@@ -105,7 +105,7 @@ public class Communicate extends AppCompatActivity {
         //mode 一
         setContentView(R.layout.communicate_layout);
 
-        MyLog.d(TAG, "onCreate: ");
+        MyLog.debug(TAG, "onCreate: ");
         context=this;
         myHandler=new MyHandler(context);
 
@@ -113,9 +113,9 @@ public class Communicate extends AppCompatActivity {
         //mohuaiyuan 201708   Original code
 //        initCharacteristics();
         initCharacteristic();
-        MyLog.d(TAG, "USR_SERVICE charac...: "+GattAttributes.USR_SERVICE);
-        MyLog.d(TAG, "write charac...: "+writeCharacteristic.getUuid().toString());
-        MyLog.d(TAG, "notify charac...: "+notifyCharacteristic.getUuid().toString());
+        MyLog.debug(TAG, "USR_SERVICE charac...: "+GattAttributes.USR_SERVICE);
+        MyLog.debug(TAG, "write charac...: "+writeCharacteristic.getUuid().toString());
+        MyLog.debug(TAG, "notify charac...: "+notifyCharacteristic.getUuid().toString());
 
 
         initUI();
@@ -170,7 +170,7 @@ public class Communicate extends AppCompatActivity {
 
 
     private void initListener() {
-        MyLog.d(TAG, "initListener: ");
+        MyLog.debug(TAG, "initListener: ");
         //mode 一
         standInSitu.setOnClickListener(myOnClickListener);
         treadOnTheGround.setOnClickListener(myOnClickListener);
@@ -216,7 +216,7 @@ public class Communicate extends AppCompatActivity {
     }
 
     private void initUI() {
-        MyLog.d(TAG, "initUI: ");
+        MyLog.debug(TAG, "initUI: ");
 
         standInSitu= (Button) findViewById(R.id.standInSitu);
         treadOnTheGround= (Button) findViewById(R.id.treadOnTheGround);
@@ -261,14 +261,14 @@ public class Communicate extends AppCompatActivity {
     }
 
     private String getStringById(int id ){
-        MyLog.d(TAG, "getStringById: ");
+        MyLog.debug(TAG, "getStringById: ");
 
         String order=context.getResources().getString(id);
-        MyLog.d(TAG, "getStringById string: "+order);
+        MyLog.debug(TAG, "getStringById string: "+order);
         return order;
     }
 
-    private MyRunnable.SendOrderResult sendOrderResult= new MyRunnable.SendOrderResult() {
+    private SendOrderRunnable.SendOrderResult sendOrderResult= new SendOrderRunnable.SendOrderResult() {
         @Override
         public void getResult(int responseCode) {
             android.os.Message message=new android.os.Message();
@@ -280,7 +280,7 @@ public class Communicate extends AppCompatActivity {
     private View.OnClickListener myOnClickListener=new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            MyLog.d(TAG, "myOnClickListener onClick: ");
+            MyLog.debug(TAG, "myOnClickListener onClick: ");
 
             switch (v.getId()){
 
@@ -459,11 +459,11 @@ public class Communicate extends AppCompatActivity {
     private void writeOption(String order){
 
 
-        MyLog.d(TAG, "writeOption: ");
+        MyLog.debug(TAG, "writeOption: ");
 
 
         if (TextUtils.isEmpty(order)){
-            MyLog.e(TAG, "writeOption:order is empty!!!" );
+            MyLog.error(TAG, "writeOption:order is empty!!!" );
             return;
         }
 
@@ -476,12 +476,12 @@ public class Communicate extends AppCompatActivity {
         //mohuaiyuan
 //        writeCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
 
-        MyLog.d(TAG, "sdkInt: "+sdkInt);
+        MyLog.debug(TAG, "sdkInt: "+sdkInt);
         if (sdkInt >= 21) {
             byte[] array = Utils.hexStringToByteArray(order);
             writeCharacteristic(writeCharacteristic, array);
         } else {
-            MyRunnable myRunnable=new MyRunnable(order,writeCharacteristic);
+            SendOrderRunnable myRunnable=new SendOrderRunnable(order,writeCharacteristic);
             myRunnable.setSendOrderResult(sendOrderResult);
             Thread thread = new Thread(myRunnable);
             thread.start();
@@ -491,7 +491,7 @@ public class Communicate extends AppCompatActivity {
     }
 
     private void notifyOption(){
-        MyLog.d(TAG, "notifyOption: ");
+        MyLog.debug(TAG, "notifyOption: ");
         nofityEnable=!nofityEnable;
 
         if (!nofityEnable){
@@ -509,16 +509,16 @@ public class Communicate extends AppCompatActivity {
      * @param characteristic
      */
    private void prepareBroadcastDataNotify(BluetoothGattCharacteristic characteristic) {
-        MyLog.d(TAG, "prepareBroadcastDataNotify: ");
+        MyLog.debug(TAG, "prepareBroadcastDataNotify: ");
         boolean response=false;
         final int charaProp = characteristic.getProperties();
-        MyLog.d(TAG, "charaProp: "+charaProp);
+        MyLog.debug(TAG, "charaProp: "+charaProp);
         int temp=charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY;
-        MyLog.d(TAG, "temp: "+temp);
+        MyLog.debug(TAG, "temp: "+temp);
         if ( temp> 0) {
             response=  BluetoothLeService.setCharacteristicNotification(characteristic, true);
         }
-       MyLog.d(TAG, "response: "+response);
+       MyLog.debug(TAG, "response: "+response);
 
     }
 
@@ -528,14 +528,14 @@ public class Communicate extends AppCompatActivity {
      * @param characteristic
      */
     private void stopBroadcastDataNotify(BluetoothGattCharacteristic characteristic) {
-        MyLog.d(TAG, "stopBroadcastDataNotify: ");
+        MyLog.debug(TAG, "stopBroadcastDataNotify: ");
         boolean response=false;
         final int charaProp = characteristic.getProperties();
-        MyLog.d(TAG, "charaProp: "+charaProp);
+        MyLog.debug(TAG, "charaProp: "+charaProp);
         if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
             response= BluetoothLeService.setCharacteristicNotification(characteristic, false);
         }
-        MyLog.d(TAG, "result: "+response);
+        MyLog.debug(TAG, "result: "+response);
     }
 
 
@@ -553,7 +553,7 @@ public class Communicate extends AppCompatActivity {
     }
 
     private void initCharacteristic(){
-        MyLog.d(TAG, "initCharacteristic: ");
+        MyLog.debug(TAG, "initCharacteristic: ");
 
         BluetoothGattCharacteristic characteristic = myApplication.getCharacteristic();
 
@@ -561,20 +561,20 @@ public class Communicate extends AppCompatActivity {
         for(int i=0;i<characs.size();i++){
             BluetoothGattCharacteristic charac=characs.get(i);
 
-            MyLog.d(TAG, "characteristic UUID: "+charac.getUuid().toString());
-            MyLog.d(TAG, "characteristic Type: "+charac.getProperties());
+            MyLog.debug(TAG, "characteristic UUID: "+charac.getUuid().toString());
+            MyLog.debug(TAG, "characteristic Type: "+charac.getProperties());
         }
 
         List<BluetoothGattCharacteristic> characteristics = ((MyApplication)getApplication()).getCharacteristics();
         for (BluetoothGattCharacteristic c :characteristics){
             if (Utils.getProperties(context,c).equals("Notify")){
-                MyLog.d(TAG, "there is a notify characteristics............ : ");
+                MyLog.debug(TAG, "there is a notify characteristics............ : ");
                 notifyCharacteristic = c;
                 continue;
             }
 
             if (Utils.getProperties(context,c).equals("Write")){
-                MyLog.d(TAG, "there is a write characteristics............ : ");
+                MyLog.debug(TAG, "there is a write characteristics............ : ");
                 writeCharacteristic = c;
                 continue;
             }
@@ -634,21 +634,21 @@ public class Communicate extends AppCompatActivity {
 //    }
 
     private void requestMtu(){
-        MyLog.d(TAG, "requestMtu: ");
+        MyLog.debug(TAG, "requestMtu: ");
 
-        MyLog.d(TAG, "sdkInt------------>"+sdkInt);
+        MyLog.debug(TAG, "sdkInt------------>"+sdkInt);
         if (sdkInt>=21){
             //设置最大发包、收包的长度为512个字节
             if(BluetoothLeService.requestMtu(512)){
-                MyLog.d(TAG, "Max transmittal data is 512 ");
+                MyLog.debug(TAG, "Max transmittal data is 512 ");
 //                Toast.makeText(this,getString(R.string.transmittal_length,"512"),Toast.LENGTH_LONG).show();
             }else{
-                MyLog.d(TAG, "Max transmittal data is 20 ");
+                MyLog.debug(TAG, "Max transmittal data is 20 ");
 //                Toast.makeText(this,getString(R.string.transmittal_length,"20"),Toast.LENGTH_LONG).show();
             }
 
         }else {
-            MyLog.d(TAG, "Max transmittal data is 20 ");
+            MyLog.debug(TAG, "Max transmittal data is 20 ");
 //            Toast.makeText(this,getString(R.string.transmittal_length,"20"),Toast.LENGTH_LONG).show();
         }
 
@@ -669,7 +669,7 @@ public class Communicate extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            MyLog.d(TAG, "Communicate mGattUpdateReceiver action: "+action);
+            MyLog.debug(TAG, "Communicate mGattUpdateReceiver action: "+action);
             Bundle extras = intent.getExtras();
             if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 // Data Received
@@ -682,10 +682,10 @@ public class Communicate extends AppCompatActivity {
 
                             if (isDebugMode){
                                 byte[] array = intent.getByteArrayExtra(Constants.EXTRA_BYTE_VALUE);
-                                MyLog.d(TAG, "array : "+array.toString());
+                                MyLog.debug(TAG, "array : "+array.toString());
                             }else if (uuidRequired.equalsIgnoreCase(receivedUUID)) {
                                 byte[] array = intent.getByteArrayExtra(Constants.EXTRA_BYTE_VALUE);
-                                MyLog.d(TAG, "array : "+array.toString());
+                                MyLog.debug(TAG, "array : "+array.toString());
                             }
                         }
                     }
