@@ -127,7 +127,7 @@ public class BluetoothLeService extends Service {
      * a) BluetoothGattServer作为周边来提供数据；BluetoothGattServerCallback返回周边的状态。
      * b) BluetoothGatt作为中央来使用和处理数据；BluetoothGattCallback返回中央的状态和周边提供的数据
      */
-    public static BluetoothGatt mBluetoothGatt;
+    public static volatile BluetoothGatt mBluetoothGatt;
     private static int mConnectionState = STATE_DISCONNECTED;
 
     private static MultipleConnection multipleConnection;
@@ -885,7 +885,7 @@ public class BluetoothLeService extends Service {
     public static void disconnect(BluetoothGatt bluetoothGatt){
         Log.d(TAG, "disconnect: ");
         if (mBluetoothAdapter == null || bluetoothGatt == null) {
-            Log.e(TAG, "mBluetoothAdapter == null || mBluetoothGatt == null ");
+            MyLog.error(TAG, "mBluetoothAdapter == null || mBluetoothGatt == null ");
             return;
         }
 
@@ -1090,9 +1090,10 @@ public class BluetoothLeService extends Service {
      *
      * @return A {@code List} of supported services.
      */
-    public static List<BluetoothGattService> getSupportedGattServices() {
-        if (mBluetoothGatt == null)
+    public static synchronized List<BluetoothGattService> getSupportedGattServices() {
+        if (mBluetoothGatt == null){
             return null;
+        }
 
         return mBluetoothGatt.getServices();
     }

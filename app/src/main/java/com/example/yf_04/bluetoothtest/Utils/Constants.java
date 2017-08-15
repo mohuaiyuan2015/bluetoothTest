@@ -243,4 +243,13 @@ public class Constants {
     public static String DATA_LOGGER_FILE_NAAME = "file name";
     public static String DATA_LOGGER_FLAG = "Data Logger Flag";
 
+
+    /**
+     * Scan cycle:(ms)
+     */
+    public static final long SCAN_CYCLE = 10*1000;
+
+
+
 }
+

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -20,12 +21,24 @@ import com.example.yf_04.bluetoothtest.Utils.MyLog;
 import com.example.yf_04.bluetoothtest.Utils.Utils;
 
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 
 public class Communicate extends AppCompatActivity {
 
     private static final String TAG = "Communicate";
+    public static final String CONNECT_MODEL="connect_model";
+    public static final Integer CONNECT_MODEL_SINGLE=1;
+    public static final Integer CONNECT_MODEL_MULTIPLe=2;
+    public static final Integer CONNECT_MODEL_DEFAULT=CONNECT_MODEL_SINGLE;
+    public static final Integer CHARACTERISTIC_TYPE_WRITE=1;
+    public static final Integer CHARACTERISTIC_TYPE_NOTIFY=2;
+
+
+    private Integer connectModel=CONNECT_MODEL_DEFAULT;
 
     private Button standInSitu;
     private Button treadOnTheGround;
@@ -106,13 +119,29 @@ public class Communicate extends AppCompatActivity {
         setContentView(R.layout.communicate_layout);
 
         MyLog.debug(TAG, "onCreate: ");
+        Intent intent =getIntent();
+        Bundle bundle=intent.getExtras();
+
+        try {
+            connectModel=bundle.getInt(CONNECT_MODEL);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         context=this;
         myHandler=new MyHandler(context);
 
         myApplication = (MyApplication) getApplication();
+
         //mohuaiyuan 201708   Original code
 //        initCharacteristics();
-        initCharacteristic();
+
+        //mohuaiyuan 201708 Original code
+//        initCharacteristicWitySingle();
+        initCharacteristicWithMultiple();
+
+
+
         MyLog.debug(TAG, "USR_SERVICE charac...: "+GattAttributes.USR_SERVICE);
         MyLog.debug(TAG, "write charac...: "+writeCharacteristic.getUuid().toString());
         MyLog.debug(TAG, "notify charac...: "+notifyCharacteristic.getUuid().toString());
@@ -457,10 +486,7 @@ public class Communicate extends AppCompatActivity {
 
 
     private void writeOption(String order){
-
-
         MyLog.debug(TAG, "writeOption: ");
-
 
         if (TextUtils.isEmpty(order)){
             MyLog.error(TAG, "writeOption:order is empty!!!" );
@@ -476,15 +502,25 @@ public class Communicate extends AppCompatActivity {
         //mohuaiyuan
 //        writeCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
 
+
         MyLog.debug(TAG, "sdkInt: "+sdkInt);
-        if (sdkInt >= 21) {
-            byte[] array = Utils.hexStringToByteArray(order);
-            writeCharacteristic(writeCharacteristic, array);
-        } else {
-            SendOrderRunnable myRunnable=new SendOrderRunnable(order,writeCharacteristic);
-            myRunnable.setSendOrderResult(sendOrderResult);
-            Thread thread = new Thread(myRunnable);
-            thread.start();
+
+         Iterator<String> iterator= ConnectionInfoCollector.getCurrentCharacteristic().keySet().iterator();
+        while (iterator.hasNext()){
+            String deviceAddress =  iterator.next();
+            Map<Integer,BluetoothGattCharacteristic> map=ConnectionInfoCollector.getCurrentCharacteristic().get(deviceAddress);
+            writeCharacteristic=map.get(CHARACTERISTIC_TYPE_WRITE);
+
+            if (sdkInt >= 21) {
+                byte[] array = Utils.hexStringToByteArray(order);
+                writeCharacteristic(writeCharacteristic, array);
+            } else {
+                SendOrderRunnable myRunnable=new SendOrderRunnable(order,writeCharacteristic);
+                myRunnable.setSendOrderResult(sendOrderResult);
+                Thread thread = new Thread(myRunnable);
+                thread.start();
+
+            }
 
         }
 
@@ -552,7 +588,9 @@ public class Communicate extends AppCompatActivity {
         }
     }
 
-    private void initCharacteristic(){
+
+
+    private void initCharacteristicWitySingle(){
         MyLog.debug(TAG, "initCharacteristic: ");
 
         BluetoothGattCharacteristic characteristic = myApplication.getCharacteristic();
@@ -632,6 +670,48 @@ public class Communicate extends AppCompatActivity {
 ////            indicateCharacteristic = characteristic;
 //        }
 //    }
+
+    private void initCharacteristicWithMultiple(){
+        Log.d(TAG, "initCharacteristicWithMultiple: ");
+
+        Map<String, List<BluetoothGattCharacteristic>> map=ConnectionInfoCollector.getCharacteristicsMap();
+        Iterator<String>iterator=map.keySet().iterator();
+
+        while (iterator.hasNext()) {
+            String deviceAddress = iterator.next();
+            BluetoothGattCharacteristic characteristic = ConnectionInfoCollector.getCurrentCharacteristic().get(deviceAddress).get(CHARACTERISTIC_TYPE_WRITE);
+            List<BluetoothGattCharacteristic> characteristics = map.get(deviceAddress);
+
+            for (BluetoothGattCharacteristic c : characteristics) {
+                if (Utils.getProperties(context, c).equals("Notify")) {
+                    MyLog.debug(TAG, "there is a notify characteristics............ : ");
+                    notifyCharacteristic = c;
+                    ConnectionInfoCollector.getCurrentCharacteristic().get(deviceAddress).put(CHARACTERISTIC_TYPE_NOTIFY,c);
+                    continue;
+                }
+
+                if (Utils.getProperties(context, c).equals("Write")) {
+                    MyLog.debug(TAG, "there is a write characteristics............ : ");
+                    writeCharacteristic = c;
+                    ConnectionInfoCollector.getCurrentCharacteristic().get(deviceAddress).put(CHARACTERISTIC_TYPE_WRITE,c);
+                    continue;
+                }
+            }
+
+            if (notifyCharacteristic == null) {
+                Log.e(TAG, "notifyCharacteristic == null" );
+                notifyCharacteristic = characteristic;
+                ConnectionInfoCollector.getCurrentCharacteristic().get(deviceAddress).put(CHARACTERISTIC_TYPE_NOTIFY,characteristic);
+            }
+            if (writeCharacteristic == null) {
+                Log.e(TAG, "writeCharacteristic == null " );
+                writeCharacteristic = characteristic;
+                ConnectionInfoCollector.getCurrentCharacteristic().get(deviceAddress).put(CHARACTERISTIC_TYPE_WRITE,characteristic);
+            }
+
+        }
+
+    }
 
     private void requestMtu(){
         MyLog.debug(TAG, "requestMtu: ");

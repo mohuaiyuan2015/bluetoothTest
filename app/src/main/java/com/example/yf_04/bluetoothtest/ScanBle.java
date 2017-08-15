@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 
+import com.example.yf_04.bluetoothtest.Utils.Constants;
 import com.example.yf_04.bluetoothtest.Utils.MyLog;
 import com.example.yf_04.bluetoothtest.myabstractclass.DiscoveredResult;
 
@@ -25,10 +26,7 @@ public class ScanBle {
 
     private static final String TAG = "ScanBle";
 
-    /**
-     * Scan cycle:(ms)
-     */
-    private static final long SCAN_CYCLE = 10*1000;
+
 
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
@@ -195,7 +193,7 @@ public class ScanBle {
     private void scanPrevious21Version() {
         MyLog.debug(TAG, "scanPrevious21Version: ");
         //10秒后停止扫描
-        hander.postDelayed( stopScanRunnable , SCAN_CYCLE );
+        hander.postDelayed( stopScanRunnable , Constants.SCAN_CYCLE );
         bluetoothAdapter.stopLeScan(mLeScanCallback);
         bluetoothAdapter.startLeScan(mLeScanCallback);
     }
@@ -207,7 +205,7 @@ public class ScanBle {
     private void scanAfter21Version() {
         MyLog.debug(TAG, "scanAfter21Version: ");
 
-        hander.postDelayed(stopScanRunnableNew ,SCAN_CYCLE );
+        hander.postDelayed(stopScanRunnableNew , Constants.SCAN_CYCLE );
 
         if (bleScanner == null){
             bleScanner = bluetoothAdapter.getBluetoothLeScanner();

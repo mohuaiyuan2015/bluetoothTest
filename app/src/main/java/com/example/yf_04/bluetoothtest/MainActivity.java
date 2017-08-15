@@ -33,6 +33,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.widget.Toast;
 
 import com.example.yf_04.bluetoothtest.BlueToothLeService.BluetoothLeService;
+import com.example.yf_04.bluetoothtest.Utils.Constants;
 import com.example.yf_04.bluetoothtest.Utils.GattAttributes;
 import com.example.yf_04.bluetoothtest.Utils.MyLog;
 import com.example.yf_04.bluetoothtest.Utils.Utils;
@@ -44,6 +45,7 @@ import com.example.yf_04.bluetoothtest.myabstractclass.DiscoveredResultAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -54,13 +56,14 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
-    /**
-     * Scan cycle:(ms)
-     */
-    private static final long SCAN_CYCLE = 10*1000;
+
 
     private Button scan;
     private Button stop;
+
+    private Button showDebugMsg;
+    private Button sendOrders;
+
     private RecyclerView recyclerView;
     private Context context;
 
@@ -94,7 +97,8 @@ public class MainActivity extends AppCompatActivity {
     private int sdkInt=-1;
 
     private  MyScanCallback myScanCallback;
-    private Map<String,BluetoothGatt> bluetoothGattMap=new HashMap<String, BluetoothGatt>();
+    //mohuaiyuan 201708
+//    private Map<String,BluetoothGatt> bluetoothGattMap=new HashMap<String, BluetoothGatt>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
 
         checkBleSupportAndInitialize();
 
+        //mohuaiyuan  prepare scan bluetooth device and get results of scan
         scanBle=new ScanBle(context);
         myDiscoveredResult =new DiscoveredResultAdapter();
         myDiscoveredResult.setScanCallback(myScanCallback);
@@ -169,8 +174,14 @@ public class MainActivity extends AppCompatActivity {
 
         //mohuaiyuan  201708 暂时注释
 //        disconnectDevice();
+        //mohuaiyuan 201708
+        disconnectDeviceAll();
+
     }
 
+    /**
+     * init Listener
+     */
     private void initListener() {
 
         MyLog.debug(TAG, "initListener: ");
@@ -190,6 +201,22 @@ public class MainActivity extends AppCompatActivity {
                 MyLog.debug(TAG, "stop onClick: ");
                 stopSearching();
 
+            }
+        });
+
+        showDebugMsg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "showDebugMsg.setOnClickListener  onClick: ");
+                Log.d(TAG, "ConnectionInfoCollector: "+ConnectionInfoCollector.print());
+            }
+        });
+
+        sendOrders.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, Communicate.class);
+                context.startActivity(intent);
             }
         });
 
@@ -221,8 +248,12 @@ public class MainActivity extends AppCompatActivity {
             public void onDisconnect(View view, int position) {
                 Log.d(TAG, "myAdapter.setOnDisconnectListener  onDisconnect:----------------------> ");
                 String deviceAddress=list.get(position).getDevice().getAddress();
-                BluetoothGatt bluetoothGatt=bluetoothGattMap.get(deviceAddress);
+                //mohuaiyuan 201708
+//                BluetoothGatt bluetoothGatt=bluetoothGattMap.get(deviceAddress);
+                BluetoothGatt bluetoothGatt=ConnectionInfoCollector.getBluetoothGattMap().get(deviceAddress);
                 disconnectDevice(bluetoothGatt);
+                //refresh data
+                refreshBluetoothData();
 
             }
         });
@@ -256,15 +287,25 @@ public class MainActivity extends AppCompatActivity {
 
 
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
+                    //mohuaiyuan 201708
                     //connected
-                    if (!bluetoothGattMap.containsKey(deviceAddress)) {
-                        bluetoothGattMap.put(deviceAddress, gatt);
+//                    if (!bluetoothGattMap.containsKey(deviceAddress)) {
+//                        bluetoothGattMap.put(deviceAddress, gatt);
+//                    }
+                    if (!ConnectionInfoCollector.getBluetoothGattMap().containsKey(deviceAddress)) {
+                        ConnectionInfoCollector.putBluetoothGatt(deviceAddress, gatt);
                     }
 
 
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                    //mohuaiyuan 201708
                     //disconnected
-                    bluetoothGattMap.remove(deviceAddress);
+//                    bluetoothGattMap.remove(deviceAddress);
+                    ConnectionInfoCollector.getBluetoothGattMap().remove(deviceAddress);
+                    ConnectionInfoCollector.getServicesMap().remove(deviceAddress);
+                    ConnectionInfoCollector.getCharacteristicsMap().remove(deviceAddress);
+                    ConnectionInfoCollector.getCurrentCharacteristic().remove(deviceAddress);
+
 
                 }
 
@@ -280,6 +321,8 @@ public class MainActivity extends AppCompatActivity {
         MyLog.debug(TAG, "initUI: ");
         scan= (Button) findViewById(R.id.scan);
         stop= (Button) findViewById(R.id.stop);
+        showDebugMsg= (Button) findViewById(R.id.showDebugMsg);
+        sendOrders= (Button) findViewById(R.id.sendOrders);
         recyclerView= (RecyclerView) findViewById(R.id.recycleview);
     }
 
@@ -374,11 +417,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void searchDevice() {
         MyLog.debug(TAG, "searchDevice: ");
+        MyLog.debug(TAG, "scaning: "+scaning);
         if (!scaning) {
             scaning = true;
+            //mohuaiyuan 201708
             //如果有连接先关闭连接
-            disconnectDevice();
-//            searchAnimate();
+//            disconnectDevice();
+            disconnectDeviceAll();
         }
     }
 
@@ -398,7 +443,7 @@ public class MainActivity extends AppCompatActivity {
             myAdapter.notifyDataSetChanged();
         }
 
-        //TODO  ask for Permission  ACCESS_COARSE_LOCATION   ACCESS_FINE_LOCATION
+        //TODO  ask for Permissions:  ACCESS_COARSE_LOCATION   ACCESS_FINE_LOCATION
 
         String[] permissions=new String[]{Manifest.permission.ACCESS_COARSE_LOCATION
                 , Manifest.permission.ACCESS_FINE_LOCATION    };
@@ -453,7 +498,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * 获得蓝牙适配器
+     * get bluetoothAdapter and open bluetooth if the bluetooth is disabled
      */
     private void checkBleSupportAndInitialize() {
         MyLog.debug(TAG, "checkBleSupportAndInitialize: ");
@@ -484,7 +529,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void startScan() {
         MyLog.debug(TAG, "startScan: ");
+
         scanBle.start();
+
+        hander.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                scaning=false;
+
+            }
+        },Constants.SCAN_CYCLE);
     }
 
     @SuppressLint("NewApi")
@@ -547,18 +601,42 @@ public class MainActivity extends AppCompatActivity {
         BluetoothLeService.connect(currentDevAddress, currentDevName, context);
     }
 
+    /**
+     * disconnect the bluetooth while is connected
+     */
     private void disconnectDevice() {
         MyLog.debug(TAG, "disconnectDevice: ");
         isShowingDialog=false;
         BluetoothLeService.disconnect();
     }
 
+    /**
+     * disconnect the bluetooth by the bluetoothGatt while is connected
+     * @param bluetoothGatt
+     */
     private void disconnectDevice(BluetoothGatt bluetoothGatt) {
         MyLog.debug(TAG, "disconnectDevice()...");
         isShowingDialog=false;
         BluetoothLeService.disconnect(bluetoothGatt);
     }
 
+    /**
+     * disconnect all the bluetooth while is connected
+     */
+    private void disconnectDeviceAll(){
+        MyLog.debug(TAG, "disconnectDeviceAll: ");
+        Map<String ,BluetoothGatt>map=  ConnectionInfoCollector.getBluetoothGattMap();
+        if(map==null || map.isEmpty()){
+            return;
+        }
+        Iterator<String>iterator=map.keySet().iterator();
+        while (iterator.hasNext()){
+            String deviceAddress=iterator.next();
+            BluetoothGatt bluetoothGatt=map.get(deviceAddress);
+            disconnectDevice(bluetoothGatt);
+        }
+
+    }
 
 
 
@@ -613,6 +691,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void prepareGattServices(List<BluetoothGattService> gattServices) {
         MyLog.debug(TAG, "prepareGattServices: ");
+
         prepareData(gattServices);
 
         //mohuaiyuan 201707
@@ -663,7 +742,21 @@ public class MainActivity extends AppCompatActivity {
 
         MService mService = list.get(position);
         BluetoothGattService service = mService.getService();
-        myApplication.setCharacteristics(service.getCharacteristics());
+        List<BluetoothGattCharacteristic> characteristics=service.getCharacteristics();
+        myApplication.setCharacteristics(characteristics);
+
+        //mohuaiyuan 201708
+        String deviceAddress=null;
+        try {
+            deviceAddress=BluetoothLeService.mBluetoothGatt.getDevice().getAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(deviceAddress!=null){
+            ConnectionInfoCollector.getCharacteristicsMap().put(deviceAddress,characteristics);
+        }else {
+            Log.e(TAG, "deviceAddress!=null" );
+        }
 
         MyApplication.serviceType = MyApplication.SERVICE_TYPE.TYPE_USR_DEBUG;
 
@@ -677,6 +770,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void jumpToCommunicate() {
+        Log.d(TAG, "jumpToCommunicate: ");
         List<BluetoothGattCharacteristic> characteristics = myApplication.getCharacteristics();
         BluetoothGattCharacteristic usrVirtualCharacteristic =
                 new BluetoothGattCharacteristic(UUID.fromString(GattAttributes.USR_SERVICE),-1,-1);
@@ -708,11 +802,36 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(context, "This device can not be writed,please try another device!", Toast.LENGTH_SHORT).show();
             return;
         }
+        BluetoothGattCharacteristic writeCharacteristic=characteristics.get(position);
+        myApplication.setCharacteristic(writeCharacteristic);
+
+        //mohuaiyuan 201708
+        String deviceAddress=null;
+        try {
+            deviceAddress=BluetoothLeService.mBluetoothGatt.getDevice().getAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Map<Integer,BluetoothGattCharacteristic> map=new HashMap<>();
+        map.put(Communicate.CHARACTERISTIC_TYPE_WRITE,writeCharacteristic);
+        if(deviceAddress!=null){
+            ConnectionInfoCollector.getCurrentCharacteristic().put(deviceAddress,map);
+        }else {
+            Log.e(TAG, "deviceAddress!=null" );
+        }
+
 
         //mohuaiyuan 201708  暂时注释
-        myApplication.setCharacteristic(characteristics.get(position));
 //        Intent intent = new Intent(context,Communicate.class);
+//        Bundle bundle =new Bundle();
+//        if(ConnectionInfoCollector.getBluetoothGattMap().size()>1){
+//            bundle.putInt(Communicate.CONNECT_MODEL,Communicate.CONNECT_MODEL_MULTIPLe);
+//        }else {
+//            bundle.putInt(Communicate.CONNECT_MODEL,Communicate.CONNECT_MODEL_SINGLE);
+//        }
+//        intent.putExtras(bundle);
 //        startActivity(intent);
+
 
     }
 
@@ -742,6 +861,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         myApplication.setServices(list);
+
+        //mohuaiyuan 201708
+        String deviceAddress =null;
+        try {
+            deviceAddress= BluetoothLeService.mBluetoothGatt.getDevice().getAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(deviceAddress!=null){
+            ConnectionInfoCollector.getServicesMap().put(deviceAddress ,list);
+        }else {
+            Log.e(TAG, "deviceAddress==null " );
+        }
+
+
     }
 
 
