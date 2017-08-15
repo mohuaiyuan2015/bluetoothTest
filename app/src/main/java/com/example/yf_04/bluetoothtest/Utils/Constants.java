@@ -249,6 +249,12 @@ public class Constants {
      */
     public static final long SCAN_CYCLE = 10*1000;
 
+    /**
+     * Connect time out:(ms)
+     */
+    public static final long CONNECT_TIME_OUT = 20*1000;
+
+
 
 
 }

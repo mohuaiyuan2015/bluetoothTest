@@ -172,7 +172,7 @@ public class BluetoothLeService extends Service {
             // GATT Server connected
             if (newState == BluetoothProfile.STATE_CONNECTED) {
 //                System.out.println("---------------------------->已经连接");
-                MyLog.debug(TAG, "----------------------------> STATE_CONNECTED");
+                MyLog.debug(TAG, gatt.getDevice().getAddress()+"----------------------------> STATE_CONNECTED");
                 intentAction = ACTION_GATT_CONNECTED;
                 mConnectionState = STATE_CONNECTED;
 
@@ -185,7 +185,7 @@ public class BluetoothLeService extends Service {
             // GATT Server disconnected
             else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
 //                System.out.println("---------------------------->连接断开");
-                MyLog.debug(TAG, "---------------------------->STATE_DISCONNECTED ");
+                MyLog.debug(TAG, gatt.getDevice().getAddress()+"---------------------------->STATE_DISCONNECTED ");
                 intentAction = ACTION_GATT_DISCONNECTED;
                 mConnectionState = STATE_DISCONNECTED;
                 broadcastConnectionUpdate(intentAction);
@@ -194,7 +194,7 @@ public class BluetoothLeService extends Service {
             // GATT Server disconnected
             else if (newState == BluetoothProfile.STATE_DISCONNECTING) {
 //                System.out.println("---------------------------->正在连接");
-                MyLog.debug(TAG, "---------------------------->STATE_DISCONNECTING ");
+                MyLog.debug(TAG, gatt.getDevice().getAddress()+"---------------------------->STATE_DISCONNECTING ");
 //                intentAction = ACTION_GATT_DISCONNECTING;
 //                mConnectionState = STATE_DISCONNECTING;
 //                broadcastConnectionUpdate(intentAction);
@@ -208,10 +208,10 @@ public class BluetoothLeService extends Service {
             MyLog.debug(TAG, " BluetoothGattCallback mGattCallback onServicesDiscovered: ");
             if (status == BluetoothGatt.GATT_SUCCESS) {
 //                System.out.println("---------------------------->发现服务");
-                MyLog.debug(TAG, "---------------onServicesDiscovered------------->GATT_SUCCESS ");
+                MyLog.debug(TAG, gatt.getDevice().getAddress()+"---------------onServicesDiscovered------------->GATT_SUCCESS ");
                 broadcastConnectionUpdate(ACTION_GATT_SERVICES_DISCOVERED);
             } else {
-                MyLog.debug(TAG, "--------------onServicesDiscovered-------------->fail  ");
+                MyLog.debug(TAG, gatt.getDevice().getAddress()+"--------------onServicesDiscovered-------------->fail  ");
                 MyLog.debug(TAG, "onServicesDiscovered status: "+status);
             }
         }
@@ -239,7 +239,8 @@ public class BluetoothLeService extends Service {
                                      int status) {
 
 
-            System.out.println("onDescriptorRead ------------------->GATT_SUCC");
+//            System.out.println("onDescriptorRead ------------------->GATT_SUCC");
+            MyLog.debug(TAG, "onDescriptorRead ------------------->GATT_SUCC ");
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 UUID descriptorUUID = descriptor.getUuid();
@@ -315,10 +316,11 @@ public class BluetoothLeService extends Service {
             //write操作会调用此方法
             if (status == BluetoothGatt.GATT_SUCCESS) {
 //                System.out.println("onCharacteristicWrite ------------------->write success");
-                MyLog.debug(TAG, "onCharacteristicWrite ------------------->write success ");
+                MyLog.debug(TAG, gatt.getDevice().getAddress()+" ------------------->onCharacteristicWrite  success ");
                 Intent intent = new Intent(ACTION_GATT_CHARACTERISTIC_WRITE_SUCCESS);
                 mContext.sendBroadcast(intent);
             } else {
+                MyLog.debug(TAG, gatt.getDevice().getAddress()+" ------------------->onCharacteristicWrite  fail ");
                 MyLog.debug(TAG, "onCharacteristicWrite status: "+status);
                 Intent intent = new Intent(ACTION_GATT_CHARACTERISTIC_ERROR);
                 intent.putExtra(Constants.EXTRA_CHARACTERISTIC_ERROR_MESSAGE, "" + status);
@@ -346,7 +348,8 @@ public class BluetoothLeService extends Service {
                 MyLog.debug(TAG, "value: "+String.valueOf(value));
                 MyLog.debug(TAG, "uuid: "+String.valueOf(uuid));
 
-                System.out.println("onCharacteristicRead------------------->GATT_SUCC");
+//                System.out.println("onCharacteristicRead------------------->GATT_SUCC");
+                MyLog.debug(TAG, "onCharacteristicRead------------------->GATT_SUCC ");
 
                 // Body sensor location read value
                 if (charUuid.equals(UUIDDatabase.UUID_BODY_SENSOR_LOCATION)) {
@@ -867,7 +870,7 @@ public class BluetoothLeService extends Service {
      * callback.
      */
     public static void disconnect() {
-        Log.d(TAG, "disconnect: ");
+        Log.d(TAG, "disconnect() ");
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.e(TAG, "mBluetoothAdapter == null || mBluetoothGatt == null" );
             return;
@@ -883,7 +886,7 @@ public class BluetoothLeService extends Service {
     }
 
     public static void disconnect(BluetoothGatt bluetoothGatt){
-        Log.d(TAG, "disconnect: ");
+        Log.d(TAG, "disconnect(BluetoothGatt bluetoothGatt) ");
         if (mBluetoothAdapter == null || bluetoothGatt == null) {
             MyLog.error(TAG, "mBluetoothAdapter == null || mBluetoothGatt == null ");
             return;
@@ -899,6 +902,7 @@ public class BluetoothLeService extends Service {
         MyLog.debug(TAG, "discoverServices: ");
 //        // Logger.datalog(mContext.getResources().getString(R.string.dl_service_discover_request));
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            MyLog.error(TAG, "mBluetoothAdapter == null || mBluetoothGatt == null " );
             return;
         } else {
             mBluetoothGatt.discoverServices();

@@ -3,7 +3,9 @@ package com.example.yf_04.bluetoothtest;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.util.Log;
 
+import com.example.yf_04.bluetoothtest.Utils.MyLog;
 import com.example.yf_04.bluetoothtest.bean.MService;
 
 import java.util.ArrayList;
@@ -17,6 +19,8 @@ import java.util.Map;
  */
 
 public class ConnectionInfoCollector {
+
+    private static final String TAG = "ConnectionInfoCollector";
 
     private static Map<String,BluetoothGatt> bluetoothGattMap=new HashMap<>();
     private static Map<String ,List<MService>>  servicesMap = new HashMap<>();
@@ -66,6 +70,16 @@ public class ConnectionInfoCollector {
         }
         result=putBluetoothGatt(deviceAddress,bluetoothGatt);
         return result;
+
+    }
+
+    public static void remove(String deviceAddress) {
+        MyLog.debug(TAG, "remove: ");
+
+        bluetoothGattMap.remove(deviceAddress);
+        servicesMap.remove(deviceAddress);
+        characteristicsMap.remove(deviceAddress);
+        currentCharacteristic.remove(deviceAddress);
 
     }
 
