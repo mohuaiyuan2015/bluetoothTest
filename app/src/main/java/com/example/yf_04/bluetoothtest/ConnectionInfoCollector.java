@@ -114,13 +114,35 @@ public class ConnectionInfoCollector {
         StringBuffer stringBuffer=new StringBuffer();
         stringBuffer.append("[bluetoothGattMap :"+bluetoothGattMap.toString()+"]");
         stringBuffer.append("[servicesMap :"+servicesMap.toString()+"]");
-        stringBuffer.append("[characteristicsMap :"+characteristicsMap.toString()+"]");
+        stringBuffer.append("[characteristicsMap :"+characteristicsMapToString()+"]");
         stringBuffer.append("[currentCharacteristic :"+currentCharacteristicToString()+"]");
 
 
         return stringBuffer.toString();
     }
 
+    private static String characteristicsMapToString() {
+        StringBuffer stringBuffer = new StringBuffer();
+        Iterator<String> iterator = characteristicsMap.keySet().iterator();
+        while (iterator.hasNext()) {
+            stringBuffer.append("[");
+            String deviceAddress = iterator.next();
+            stringBuffer.append(deviceAddress + "{");
+            List<BluetoothGattCharacteristic> characteristics = characteristicsMap.get(deviceAddress);
+            for (int i = 0; i < characteristics.size(); i++) {
+                BluetoothGattCharacteristic characteristic = characteristics.get(i);
+                String uuid = characteristic.getUuid().toString();
+                int property = characteristic.getProperties();
+                stringBuffer.append("uuid=" + uuid + "  property=" + property + ";");
+
+            }
+
+            stringBuffer.append("} ]");
+        }
+
+
+        return stringBuffer.toString();
+    }
     private static String currentCharacteristicToString(){
         StringBuffer stringBuffer=new StringBuffer();
         Iterator<String>iterator= currentCharacteristic.keySet().iterator();

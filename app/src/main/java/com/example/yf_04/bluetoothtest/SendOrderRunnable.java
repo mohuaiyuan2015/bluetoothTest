@@ -4,6 +4,7 @@ package com.example.yf_04.bluetoothtest;
  * Created by YF-04 on 2017/8/4.
  */
 
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.util.Log;
 
@@ -16,8 +17,6 @@ import com.example.yf_04.bluetoothtest.Utils.Utils;
 class SendOrderRunnable implements Runnable{
     private static final String TAG = "MyRunnable";
 
-    private  String data;
-    private BluetoothGattCharacteristic characteristic;
     /**
      * the time interval of send data(ms)
      */
@@ -43,6 +42,10 @@ class SendOrderRunnable implements Runnable{
     private static final int REPEAT_INTERVAL=1000;
 
 
+    private  String data;
+    private BluetoothGatt bluetoothGatt;
+    private BluetoothGattCharacteristic characteristic;
+
     boolean sendResult=true;
 
     private  SendOrderResult sendOrderResult;
@@ -50,6 +53,12 @@ class SendOrderRunnable implements Runnable{
 
     public SendOrderRunnable(String data, BluetoothGattCharacteristic characteristic){
         this.data=data;
+        this.characteristic=characteristic;
+    }
+
+    public SendOrderRunnable(String data, BluetoothGattCharacteristic characteristic,BluetoothGatt bluetoothGatt){
+        this.data=data;
+        this.bluetoothGatt=bluetoothGatt;
         this.characteristic=characteristic;
     }
 
@@ -129,7 +138,7 @@ class SendOrderRunnable implements Runnable{
                 byte[] array = Utils.hexStringToByteArray(currentData);
                 boolean result=false;
                 try {
-                    result= BluetoothLeService.writeCharacteristicGattDb(characteristic, array);
+                    result= BluetoothLeService.writeCharacteristicGattDb(bluetoothGatt,characteristic, array);
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 }

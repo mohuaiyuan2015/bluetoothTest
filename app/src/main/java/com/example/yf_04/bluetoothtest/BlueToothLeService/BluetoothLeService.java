@@ -67,6 +67,7 @@ import com.example.yf_04.bluetoothtest.Utils.MyLog;
 import com.example.yf_04.bluetoothtest.Utils.UUIDDatabase;
 import com.example.yf_04.bluetoothtest.Utils.Utils;
 import com.example.yf_04.bluetoothtest.myInterface.MultipleConnection;
+import com.example.yf_04.bluetoothtest.myabstractclass.MultipleConnectionAdapter;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -130,7 +131,9 @@ public class BluetoothLeService extends Service {
     public static volatile BluetoothGatt mBluetoothGatt;
     private static int mConnectionState = STATE_DISCONNECTED;
 
-    private static MultipleConnection multipleConnection;
+    //mohuaiyuan 201708
+//    private static MultipleConnection multipleConnection;
+    private static MultipleConnectionAdapter multipleConnectionAdapter;
 
     /**
      * Device address
@@ -140,12 +143,22 @@ public class BluetoothLeService extends Service {
     private static Context mContext;
 
 
-    public static MultipleConnection getMultipleConnection() {
-        return multipleConnection;
+    //mohuaiyuan 201708
+//    public static MultipleConnection getMultipleConnection() {
+//        return multipleConnection;
+//    }
+//
+//    public static void setMultipleConnection(MultipleConnection multipleConnection) {
+//        BluetoothLeService.multipleConnection = multipleConnection;
+//    }
+
+
+    public static MultipleConnectionAdapter getMultipleConnectionAdapter() {
+        return multipleConnectionAdapter;
     }
 
-    public static void setMultipleConnection(MultipleConnection multipleConnection) {
-        BluetoothLeService.multipleConnection = multipleConnection;
+    public static void setMultipleConnectionAdapter(MultipleConnectionAdapter multipleConnectionAdapter) {
+        BluetoothLeService.multipleConnectionAdapter = multipleConnectionAdapter;
     }
 
     /**
@@ -160,12 +173,21 @@ public class BluetoothLeService extends Service {
             MyLog.debug(TAG, " BluetoothGattCallback mGattCallback onConnectionStateChange: ");
 
             try {
-                if(mBluetoothGatt!=null && multipleConnection!=null){
-                    multipleConnection.onConnectionStateChange(gatt,status,newState);
+                if(multipleConnectionAdapter!=null){
+                    multipleConnectionAdapter.onConnectionStateChange(gatt,status,newState);
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
+
+            //mohuaiyuan
+//            try {
+//                if(mBluetoothGatt!=null && multipleConnection!=null){
+//                    multipleConnection.onConnectionStateChange(gatt,status,newState);
+//                }
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
 
 
             String intentAction;
@@ -179,7 +201,9 @@ public class BluetoothLeService extends Service {
                 //mohuaiyuan 201707  多此一举 注释掉
 //                broadcastConnectionUpdate(intentAction);
 
-                discoverServices();
+                //mohuaiyuan 201708
+//                discoverServices();
+                discoverServices(gatt);
 
             }
             // GATT Server disconnected
@@ -206,14 +230,19 @@ public class BluetoothLeService extends Service {
             // GATT Services discovered
             //发现新的服务
             MyLog.debug(TAG, " BluetoothGattCallback mGattCallback onServicesDiscovered: ");
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-//                System.out.println("---------------------------->发现服务");
-                MyLog.debug(TAG, gatt.getDevice().getAddress()+"---------------onServicesDiscovered------------->GATT_SUCCESS ");
-                broadcastConnectionUpdate(ACTION_GATT_SERVICES_DISCOVERED);
-            } else {
-                MyLog.debug(TAG, gatt.getDevice().getAddress()+"--------------onServicesDiscovered-------------->fail  ");
-                MyLog.debug(TAG, "onServicesDiscovered status: "+status);
+            if(gatt!=null){
+                multipleConnectionAdapter.onServicesDiscovered(gatt,status);
             }
+
+            //mohuaiyuan 201708
+//            if (status == BluetoothGatt.GATT_SUCCESS) {
+//                MyLog.debug(TAG, gatt.getDevice().getAddress()+"---------------onServicesDiscovered------------->GATT_SUCCESS ");
+//                broadcastConnectionUpdate(ACTION_GATT_SERVICES_DISCOVERED);
+//            } else {
+//                MyLog.debug(TAG, gatt.getDevice().getAddress()+"--------------onServicesDiscovered-------------->fail  ");
+//                MyLog.debug(TAG, "onServicesDiscovered status: "+status);
+//            }
+
         }
 
         @Override
@@ -235,9 +264,7 @@ public class BluetoothLeService extends Service {
         }
 
         @Override
-        public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor,
-                                     int status) {
-
+        public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor,int status) {
 
 //            System.out.println("onDescriptorRead ------------------->GATT_SUCC");
             MyLog.debug(TAG, "onDescriptorRead ------------------->GATT_SUCC ");
@@ -575,12 +602,15 @@ public class BluetoothLeService extends Service {
              * Sending lots of data is possible, but usually ends up being less efficient than classic
              * Bluetooth when trying to achieve maximum throughput.
              */
-//            System.out.println("onCharacteristicChanged -------------------> changed");
-            MyLog.debug(TAG, "onCharacteristicChanged------------------------>");
-            MyLog.debug(TAG, "characteristic UUID: "+characteristic.getUuid().toString());
-            MyLog.debug(TAG, "characteristic  data: "+Utils.byteToASCII(characteristic.getValue()));
-            //notify 会回调用此方法
-            broadcastNotifyUpdate(characteristic);
+
+                if(multipleConnectionAdapter!=null){
+                    multipleConnectionAdapter.onCharacteristicChanged(gatt,characteristic);
+                }
+//            MyLog.debug(TAG, "onCharacteristicChanged------------------------>");
+//            MyLog.debug(TAG, "characteristic UUID: "+characteristic.getUuid().toString());
+//            MyLog.debug(TAG, "characteristic  data: "+Utils.byteToASCII(characteristic.getValue()));
+//            //notify 会回调用此方法
+//            broadcastNotifyUpdate(characteristic);
         }
 
         @Override
@@ -908,8 +938,20 @@ public class BluetoothLeService extends Service {
             mBluetoothGatt.discoverServices();
         }
 
+    }
+
+    public static void discoverServices(BluetoothGatt bluetoothGatt) {
+        MyLog.debug(TAG, "discoverServices: ");
+//        // Logger.datalog(mContext.getResources().getString(R.string.dl_service_discover_request));
+        if (mBluetoothAdapter == null || bluetoothGatt == null) {
+            MyLog.error(TAG, "mBluetoothAdapter == null || mBluetoothGatt == null " );
+            return;
+        } else {
+            bluetoothGatt.discoverServices();
+        }
 
     }
+
 
     /**
      * Request a read on a given {@code BluetoothGattCharacteristic}. The read
@@ -985,6 +1027,20 @@ public class BluetoothLeService extends Service {
         return  result;
     }
 
+    public static boolean writeCharacteristicGattDb(BluetoothGatt bluetoothGatt,BluetoothGattCharacteristic characteristic, byte[] byteArray) {
+        MyLog.debug(TAG, "writeCharacteristicGattDb: ");
+        boolean result=false;
+        if (mBluetoothAdapter == null || bluetoothGatt == null) {
+            MyLog.error(TAG, "mBluetoothAdapter == null || bluetoothGatt == null");
+            return result;
+        } else {
+            byte[] valueByte = byteArray;
+            characteristic.setValue(valueByte);
+            result= bluetoothGatt.writeCharacteristic(characteristic);
+        }
+        return  result;
+    }
+
 
 
     /**
@@ -1040,6 +1096,32 @@ public class BluetoothLeService extends Service {
         return result;
     }
 
+    public static boolean setCharacteristicNotification(BluetoothGatt bluetoothGatt,BluetoothGattCharacteristic characteristic, boolean enabled) {
+        MyLog.debug(TAG, "setCharacteristicNotification: ");
+
+        boolean result=false;
+
+        if (mBluetoothAdapter == null || bluetoothGatt == null) {
+            MyLog.error(TAG, "mBluetoothAdapter == null || bluetoothGatt == null ");
+            return result;
+        }
+        if (characteristic.getDescriptor(UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG)) != null) {
+            if (enabled) {
+                BluetoothGattDescriptor descriptor = characteristic
+                        .getDescriptor(UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                bluetoothGatt.writeDescriptor(descriptor);
+            } else {
+                BluetoothGattDescriptor descriptor = characteristic
+                        .getDescriptor(UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+                descriptor.setValue(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+                bluetoothGatt.writeDescriptor(descriptor);
+            }
+        }
+        result=bluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+        return result;
+    }
+
 
 
     /**
@@ -1085,6 +1167,19 @@ public class BluetoothLeService extends Service {
         return false;
     }
 
+    /**
+     * 改变BLE默认的单次发包、收包的最大长度,用于android 5.0及以上版本
+     * @param mtu
+     * @return
+     */
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static boolean requestMtu(BluetoothGatt bluetoothGatt,int mtu){
+        if (bluetoothGatt != null) {
+            return bluetoothGatt.requestMtu(mtu);
+        }
+        return false;
+    }
+
 
 
     /**
@@ -1100,6 +1195,14 @@ public class BluetoothLeService extends Service {
         }
 
         return mBluetoothGatt.getServices();
+    }
+
+    public static synchronized List<BluetoothGattService> getSupportedGattServices(BluetoothGatt bluetoothGatt) {
+        if (bluetoothGatt == null){
+            return null;
+        }
+
+        return bluetoothGatt.getServices();
     }
 
     public static int getConnectionState() {

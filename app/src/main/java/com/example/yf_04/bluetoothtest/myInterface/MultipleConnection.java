@@ -1,6 +1,7 @@
 package com.example.yf_04.bluetoothtest.myInterface;
 
 import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattDescriptor;
 
 /**
  * Created by YF-04 on 2017/8/10.

@@ -42,6 +42,7 @@ import com.example.yf_04.bluetoothtest.bean.MDevice;
 import com.example.yf_04.bluetoothtest.bean.MService;
 import com.example.yf_04.bluetoothtest.myInterface.MultipleConnection;
 import com.example.yf_04.bluetoothtest.myabstractclass.DiscoveredResultAdapter;
+import com.example.yf_04.bluetoothtest.myabstractclass.MultipleConnectionAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +50,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import me.drakeet.materialdialog.MaterialDialog;
 
@@ -63,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Button showDebugMsg;
     private Button sendOrders;
+    private Button connectAll;
+
 
     private RecyclerView recyclerView;
     private Context context;
@@ -97,6 +102,9 @@ public class MainActivity extends AppCompatActivity {
     private int sdkInt=-1;
 
     private  MyScanCallback myScanCallback;
+
+    private ExecutorService installPool=null;
+
     //mohuaiyuan 201708
 //    private Map<String,BluetoothGatt> bluetoothGattMap=new HashMap<String, BluetoothGatt>();
 
@@ -108,6 +116,8 @@ public class MainActivity extends AppCompatActivity {
 
         context=this;
         myApplication=(MyApplication)getApplication();
+
+        installPool = Executors. newSingleThreadExecutor();
 
         initUI();
 
@@ -174,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
 
         //mohuaiyuan  201708 暂时注释
 //        disconnectDevice();
+
         //mohuaiyuan 201708
         disconnectDeviceAll();
 
@@ -225,6 +236,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        connectAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(list==null || list.isEmpty()||list.size()<1){
+                    Toast.makeText(context, "Please scan bluetooth first!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                isShowingDialog=true;
+                showProgressDialog();
+                hander.postDelayed(dismssDialogRunnable, Constants.CONNECT_TIME_OUT);
+                connectDevice(list);
+
+            }
+        });
+
         myAdapter.setOnItemClickListener(new MyAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position) {
@@ -272,9 +298,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        BluetoothLeService.setMultipleConnection(new MultipleConnection() {
+        BluetoothLeService.setMultipleConnectionAdapter(new MultipleConnectionAdapter(){
+
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+                super.onConnectionStateChange(gatt, status, newState);
+
                 MyLog.debug(TAG, " BluetoothLeService.setMultipleConnection  onConnectionStateChange: ");
                 MyLog.debug(TAG,"status:"+status);
                 MyLog.debug(TAG,"newState:"+newState);
@@ -291,7 +320,6 @@ public class MainActivity extends AppCompatActivity {
 
                 updateBluetoothDeviceData();
 
-
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     //mohuaiyuan 201708
                     //connected
@@ -302,19 +330,46 @@ public class MainActivity extends AppCompatActivity {
                         ConnectionInfoCollector.putBluetoothGatt(deviceAddress, gatt);
                     }
 
-
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     //mohuaiyuan 201708
                     //disconnected
 //                    bluetoothGattMap.remove(deviceAddress);
                     ConnectionInfoCollector.remove(deviceAddress);
 
-
                 }
 
             }
-        });
 
+            @Override
+            public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+                super.onServicesDiscovered(gatt, status);
+                if (status == BluetoothGatt.GATT_SUCCESS) {
+                    MyLog.debug(TAG, gatt.getDevice().getAddress() + "---------------onServices Discovered------------->GATT_SUCCESS ");
+
+                    hander.removeCallbacks(dismssDialogRunnable);
+                    if(progressDialog !=null){
+                        progressDialog.dismiss();
+                    }
+                    List<BluetoothGattService> gattServices=BluetoothLeService.getSupportedGattServices(gatt);
+                    prepareGattServices(gatt,gattServices);
+
+                } else {
+                    MyLog.debug(TAG, gatt.getDevice().getAddress() + "--------------onServicesDiscovered-------------->fail  ");
+                    MyLog.debug(TAG, "onServicesDiscovered status: " + status);
+                }
+
+            }
+
+            @Override
+            public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+                super.onCharacteristicChanged(gatt, characteristic);
+                MyLog.debug(TAG, "onCharacteristicChanged------------------------>");
+                MyLog.debug(TAG, "deviceAddress:"+gatt.getDevice().getAddress().toString());
+                MyLog.debug(TAG, "characteristic UUID: " + characteristic.getUuid().toString());
+                MyLog.debug(TAG, "characteristic  data: " + Utils.byteToASCII(characteristic.getValue()));
+
+            }
+        });
 
     }
 
@@ -326,6 +381,7 @@ public class MainActivity extends AppCompatActivity {
         stop= (Button) findViewById(R.id.stop);
         showDebugMsg= (Button) findViewById(R.id.showDebugMsg);
         sendOrders= (Button) findViewById(R.id.sendOrders);
+        connectAll= (Button) findViewById(R.id.connectAll);
         recyclerView= (RecyclerView) findViewById(R.id.recycleview);
     }
 
@@ -560,6 +616,7 @@ public class MainActivity extends AppCompatActivity {
 
             MyLog.debug(TAG, "device name: "+mDev.getDevice().getName());
             MyLog.debug(TAG, "device Mac: "+mDev.getDevice().getAddress());
+
             list.add(mDev);
             refreshBluetoothData();
         }
@@ -585,11 +642,26 @@ public class MainActivity extends AppCompatActivity {
 
     private void connectDevice(BluetoothDevice device) {
         MyLog.debug(TAG, "connectDevice: ");
-        currentDevAddress = device.getAddress();
-        currentDevName = device.getName();
 
-        MyLog.debug(TAG, "connectDevice name: "+currentDevName);
-        MyLog.debug(TAG, "connectDevice Mac: "+currentDevAddress);
+        if (device == null) {
+            MyLog.error(TAG, "device==null ");
+            return;
+        }
+
+        String deviceAddress = device.getAddress();
+
+        if (deviceAddress == null || deviceAddress.isEmpty()) {
+            MyLog.error(TAG, " deviceAddress == null || deviceAddress.isEmpty() " );
+            return;
+        }
+
+        String deviceName = device.getName();
+
+        currentDevAddress = deviceAddress;
+        currentDevName = deviceName;
+
+        MyLog.debug(TAG, "connectDevice name: " + currentDevName);
+        MyLog.debug(TAG, "connectDevice Mac: " + currentDevAddress);
 
         //mohuaiyuan 201708  add :stop scan
 //        stopSearching();
@@ -600,7 +672,26 @@ public class MainActivity extends AppCompatActivity {
 //                BluetoothLeService.disconnect();
 //        }
 
-        BluetoothLeService.connect(currentDevAddress, currentDevName, context);
+        BluetoothLeService.connect(deviceAddress, deviceName, context);
+    }
+
+    private void connectDevice(List<MDevice> mDevices) {
+        MyLog.debug(TAG, "connectDevice: ");
+
+        if(mDevices==null || mDevices.isEmpty()){
+            Log.e(TAG, "mDevices==null || mDevices.isEmpty()" );
+            return;
+        }
+        for(int i=0;i<mDevices.size();i++){
+            final BluetoothDevice device=mDevices.get(i).getDevice();
+            installPool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    connectDevice(device);
+                }
+            });
+
+        }
     }
 
     /**
@@ -632,11 +723,18 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         Iterator<String>iterator=map.keySet().iterator();
+        List<BluetoothGatt> gatts=new ArrayList<>();
         while (iterator.hasNext()){
             String deviceAddress=iterator.next();
             BluetoothGatt bluetoothGatt=map.get(deviceAddress);
-            disconnectDevice(bluetoothGatt);
+            gatts.add(bluetoothGatt);
+//            disconnectDevice(bluetoothGatt);
         }
+
+        for(int i=0;i<gatts.size();i++){
+            disconnectDevice(gatts.get(i));
+        }
+
 
     }
 
@@ -729,6 +827,30 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void prepareGattServices(BluetoothGatt bluetoothGatt,List<BluetoothGattService> gattServices) {
+        MyLog.debug(TAG, "prepareGattServices: ");
+
+        prepareData(bluetoothGatt, gattServices);
+
+        //mohuaiyuan 201707
+//        Intent intent = new Intent(this, ServicesActivity.class);
+//        intent.putExtra("dev_name",currentDevName);
+//        intent.putExtra("dev_mac",currentDevAddress);
+//        startActivity(intent);
+//        overridePendingTransition(0, 0);
+
+        //直接跳转到 CharacteristicsActivity
+
+        //mohuaiyuan 201707  暂时注释
+        List<MService> services = myApplication.getServices();
+        MyLog.debug(TAG, "services.size(): " + services.size());
+
+        //mohuaiyuan 201708
+//        jumpToCharacteristicActivity(services);
+        jumpToCharacteristicActivity(bluetoothGatt, services);
+
+    }
+
     private void jumpToCharacteristicActivity(List<MService> list){
         MyLog.debug(TAG, "jumpToCharacteristicActivity: ");
 
@@ -787,6 +909,66 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void jumpToCharacteristicActivity(BluetoothGatt bluetoothGatt,List<MService> list) {
+        MyLog.debug(TAG, "jumpToCharacteristicActivity: ");
+
+        if (list.isEmpty()) {
+            Toast.makeText(context, "There is not SERVICE,please try another device!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int position = 0;
+        boolean isContains = false;
+        for (int i = 0; i < list.size(); i++) {
+            MService mService = list.get(i);
+            BluetoothGattService service = mService.getService();
+
+            UUID serviceUuid = service.getUuid();
+            MyLog.debug(TAG, "serviceUuid: " + serviceUuid);
+            if (serviceUuid.toString().equals(GattAttributes.USR_SERVICE)) {
+                position = i;
+                isContains = true;
+                break;
+            }
+        }
+
+        //mohuaiyuan 201707  暂时注释
+//        if (!isContains){
+//            Toast.makeText(context, "There is not USR_SERVICE,please try another device!", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+
+        MService mService = list.get(position);
+        BluetoothGattService service = mService.getService();
+        List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
+        myApplication.setCharacteristics(characteristics);
+
+        //mohuaiyuan 201708
+        String deviceAddress = null;
+        try {
+            deviceAddress = bluetoothGatt.getDevice().getAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (deviceAddress != null) {
+            ConnectionInfoCollector.getCharacteristicsMap().put(deviceAddress, characteristics);
+        } else {
+            MyLog.error(TAG, "deviceAddress!=null");
+        }
+
+        MyApplication.serviceType = MyApplication.SERVICE_TYPE.TYPE_USR_DEBUG;
+
+        // jump to CharacteristicsActivity
+//        Intent intent = new Intent(context, CharacteristicsActivity.class);
+//        intent.putExtra("is_usr_service", true);
+//        context.startActivity(intent);
+
+        //mohuaiyuan 201708
+//        jumpToCommunicate();
+        jumpToCommunicate(bluetoothGatt);
+
+    }
+
     private void jumpToCommunicate() {
         MyLog.debug(TAG, "jumpToCommunicate: ");
         List<BluetoothGattCharacteristic> characteristics = myApplication.getCharacteristics();
@@ -838,7 +1020,6 @@ public class MainActivity extends AppCompatActivity {
             MyLog.error(TAG, "deviceAddress!=null" );
         }
 
-
         //mohuaiyuan 201708  暂时注释
 //        Intent intent = new Intent(context,Communicate.class);
 //        Bundle bundle =new Bundle();
@@ -853,6 +1034,74 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    private void jumpToCommunicate(BluetoothGatt bluetoothGatt) {
+        MyLog.debug(TAG, "jumpToCommunicate: ");
+        List<BluetoothGattCharacteristic> characteristics = myApplication.getCharacteristics();
+        BluetoothGattCharacteristic usrVirtualCharacteristic =
+                new BluetoothGattCharacteristic(UUID.fromString(GattAttributes.USR_SERVICE),-1,-1);
+        characteristics.add(usrVirtualCharacteristic);
+
+        String write = context.getString(R.string.gatt_services_write);
+        String notify= context.getString(R.string.gatt_services_notify);
+        int position=0;
+        boolean isHave=false;
+        for(int i=0;i<characteristics.size();i++){
+            BluetoothGattCharacteristic characteristic=characteristics.get(i);
+            String porperty= Utils.getProperties(context,characteristic);
+//            //mohuaiyuan 201708
+//            if(porperty.contains(notify)){
+//                position=i;
+//                isHave=true;
+//                break;
+//            }
+
+            //原来的代码
+            if(porperty.contains(write)){
+                position=i;
+                isHave=true;
+                break;
+            }
+        }
+
+        if(!isHave){
+            Toast.makeText(context, "This device can not be writed,please try another device!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        BluetoothGattCharacteristic writeCharacteristic=characteristics.get(position);
+        myApplication.setCharacteristic(writeCharacteristic);
+
+        //mohuaiyuan 201708
+        String deviceAddress=null;
+        try {
+            deviceAddress=bluetoothGatt.getDevice().getAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Map<Integer,BluetoothGattCharacteristic> map=new HashMap<>();
+        map.put(Communicate.CHARACTERISTIC_TYPE_WRITE,writeCharacteristic);
+        if(deviceAddress!=null){
+            ConnectionInfoCollector.getCurrentCharacteristic().put(deviceAddress,map);
+        }else {
+            MyLog.error(TAG, "deviceAddress!=null" );
+        }
+
+
+
+
+        //mohuaiyuan 201708  暂时注释
+//        Intent intent = new Intent(context,Communicate.class);
+//        Bundle bundle =new Bundle();
+//        if(ConnectionInfoCollector.getBluetoothGattMap().size()>1){
+//            bundle.putInt(Communicate.CONNECT_MODEL,Communicate.CONNECT_MODEL_MULTIPLe);
+//        }else {
+//            bundle.putInt(Communicate.CONNECT_MODEL,Communicate.CONNECT_MODEL_SINGLE);
+//        }
+//        intent.putExtras(bundle);
+//        startActivity(intent);
+
+
+    }
 
     /**
      * Prepare GATTServices data.
@@ -896,6 +1145,41 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void prepareData(BluetoothGatt bluetoothGatt,List<BluetoothGattService> gattServices) {
+
+        MyLog.debug(TAG, "prepareData: ");
+        if (gattServices == null)
+            return;
+
+        List<MService> list = new ArrayList<>();
+
+        for (BluetoothGattService gattService : gattServices) {
+            String uuid = gattService.getUuid().toString();
+            if (uuid.equals(GattAttributes.GENERIC_ACCESS_SERVICE) || uuid.equals(GattAttributes.GENERIC_ATTRIBUTE_SERVICE)){
+                continue;
+            }
+
+            String name = GattAttributes.lookup(gattService.getUuid().toString(), "UnkonwService");
+            MService mService = new MService(name, gattService);
+            list.add(mService);
+        }
+
+        myApplication.setServices(list);
+
+        //mohuaiyuan 201708
+        String deviceAddress =null;
+        try {
+            deviceAddress= bluetoothGatt.getDevice().getAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(deviceAddress!=null){
+            ConnectionInfoCollector.getServicesMap().put(deviceAddress ,list);
+        }else {
+            MyLog.error(TAG, "deviceAddress==null " );
+        }
+
+    }
 
     private void showDialog(String info) {
         if (!isShowingDialog){
@@ -934,6 +1218,10 @@ public class MainActivity extends AppCompatActivity {
         if(progressDialog!=null){
             progressDialog.dismiss();
         }
+        if(installPool!=null){
+            installPool.shutdown();
+        }
+
 
     }
 

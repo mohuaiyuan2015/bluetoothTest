@@ -1,5 +1,6 @@
 package com.example.yf_04.bluetoothtest;
 
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -154,7 +155,7 @@ public class Communicate extends AppCompatActivity {
 
         //mohuaiyuan 201707  暂时注释  仅仅为了测试 发送数据的情况
         sdkInt = Build.VERSION.SDK_INT;
-        requestMtu();
+        requestMtu(512);
 
     }
 
@@ -491,7 +492,58 @@ public class Communicate extends AppCompatActivity {
     
 
 
-    private void writeOption(String order){
+//    private void writeOption(String order){
+//        MyLog.debug(TAG, "writeOption: ");
+//
+//        if (TextUtils.isEmpty(order)){
+//            MyLog.error(TAG, "writeOption:order is empty!!!" );
+//            return;
+//        }
+//
+//        //对十六进制的数据进行处理
+//        order = order.replace(" ","");
+//        if (!Utils.isRightHexStr(order)){
+//            return;
+//        }
+//
+//        //mohuaiyuan
+////        writeCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+//
+//
+//        MyLog.debug(TAG, "sdkInt: "+sdkInt);
+//        if (sdkInt >= 21) {
+//            byte[] array = Utils.hexStringToByteArray(order);
+//            writeCharacteristic(writeCharacteristic, array);
+//        } else {
+//            SendOrderRunnable myRunnable = new SendOrderRunnable(order, writeCharacteristic);
+//            myRunnable.setSendOrderResult(sendOrderResult);
+//            Thread thread = new Thread(myRunnable);
+//            thread.start();
+//        }
+//
+//
+////        Iterator<String> iterator = ConnectionInfoCollector.getCurrentCharacteristic().keySet().iterator();
+////        while (iterator.hasNext()) {
+////            String deviceAddress = iterator.next();
+////            Map<Integer, BluetoothGattCharacteristic> map = ConnectionInfoCollector.getCurrentCharacteristic().get(deviceAddress);
+////            writeCharacteristic = map.get(CHARACTERISTIC_TYPE_WRITE);
+////
+////            if (sdkInt >= 21) {
+////                byte[] array = Utils.hexStringToByteArray(order);
+////                writeCharacteristic(writeCharacteristic, array);
+////            } else {
+////                SendOrderRunnable myRunnable = new SendOrderRunnable(order, writeCharacteristic);
+////                myRunnable.setSendOrderResult(sendOrderResult);
+////                Thread thread = new Thread(myRunnable);
+////                thread.start();
+////
+////            }
+////        }
+//
+//    }
+
+
+    private void writeOption(BluetoothGatt bluetoothGatt,BluetoothGattCharacteristic characteristic, String order){
         MyLog.debug(TAG, "writeOption: ");
 
         if (TextUtils.isEmpty(order)){
@@ -506,30 +558,53 @@ public class Communicate extends AppCompatActivity {
         }
 
         //mohuaiyuan
-//        writeCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+//        characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
 
 
         MyLog.debug(TAG, "sdkInt: "+sdkInt);
-
-         Iterator<String> iterator= ConnectionInfoCollector.getCurrentCharacteristic().keySet().iterator();
-        while (iterator.hasNext()){
-            String deviceAddress =  iterator.next();
-            Map<Integer,BluetoothGattCharacteristic> map=ConnectionInfoCollector.getCurrentCharacteristic().get(deviceAddress);
-            writeCharacteristic=map.get(CHARACTERISTIC_TYPE_WRITE);
-
-            if (sdkInt >= 21) {
-                byte[] array = Utils.hexStringToByteArray(order);
-                writeCharacteristic(writeCharacteristic, array);
-            } else {
-                SendOrderRunnable myRunnable=new SendOrderRunnable(order,writeCharacteristic);
-                myRunnable.setSendOrderResult(sendOrderResult);
-                Thread thread = new Thread(myRunnable);
-                thread.start();
-
-            }
-
+        if (sdkInt >= 21) {
+            byte[] array = Utils.hexStringToByteArray(order);
+            writeCharacteristic(bluetoothGatt,characteristic, array);
+        } else {
+//            SendOrderRunnable myRunnable = new SendOrderRunnable(order, characteristic);
+            SendOrderRunnable myRunnable = new SendOrderRunnable(order, characteristic,bluetoothGatt);
+            myRunnable.setSendOrderResult(sendOrderResult);
+            Thread thread = new Thread(myRunnable);
+            thread.start();
         }
 
+    }
+
+    private void writeOption( String order) {
+        MyLog.debug(TAG, "writeOption: ");
+
+        if (TextUtils.isEmpty(order)) {
+            MyLog.error(TAG, "writeOption:order is empty!!!");
+            return;
+        }
+
+        //对十六进制的数据进行处理
+        order = order.replace(" ", "");
+        if (!Utils.isRightHexStr(order)) {
+            return;
+        }
+
+        //mohuaiyuan
+//        writeCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+
+        Map<String,Map<Integer,BluetoothGattCharacteristic>> currentCharacteristic =ConnectionInfoCollector.getCurrentCharacteristic();
+        Iterator<String> iterator = currentCharacteristic.keySet().iterator();
+        BluetoothGatt bluetoothGatt;
+        BluetoothGattCharacteristic bluetoothGattCharacteristic;
+        while (iterator.hasNext()) {
+            String deviceAddress = iterator.next();
+            Log.d(TAG, "deviceAddress: "+deviceAddress);
+            bluetoothGatt=ConnectionInfoCollector.getBluetoothGattMap().get(deviceAddress);
+            Map<Integer, BluetoothGattCharacteristic> map = currentCharacteristic.get(deviceAddress);
+            bluetoothGattCharacteristic = map.get(CHARACTERISTIC_TYPE_WRITE);
+            writeOption(bluetoothGatt,bluetoothGattCharacteristic,order);
+
+        }
     }
 
     private void notifyOption(){
@@ -537,20 +612,32 @@ public class Communicate extends AppCompatActivity {
         nofityEnable=!nofityEnable;
 
         if (!nofityEnable){
+            //mohuaiyuan 201708
+//            stopBroadcastDataNotify(notifyCharacteristic);
+            stopBroadcastDataNotify();
+        }else {
+            //mohuaiyuan 201708
+//            prepareBroadcastDataNotify(notifyCharacteristic);
+            prepareBroadcastDataNotify();
+        }
+        updateNotifyText(nofityEnable);
+    }
+
+    private void updateNotifyText(boolean isNotify){
+        if (!isNotify){
             btnNotify.setText(getStringById(R.string.notify));
-            stopBroadcastDataNotify(notifyCharacteristic);
         }else {
             btnNotify.setText(getStringById(R.string.stop_notify));
-            prepareBroadcastDataNotify(notifyCharacteristic);
         }
     }
+
 
     /**
      * Preparing Broadcast receiver to broadcast notify characteristics
      *
      * @param characteristic
      */
-   private void prepareBroadcastDataNotify(BluetoothGattCharacteristic characteristic) {
+    private void prepareBroadcastDataNotify(BluetoothGattCharacteristic characteristic) {
         MyLog.debug(TAG, "prepareBroadcastDataNotify: ");
         boolean response=false;
         final int charaProp = characteristic.getProperties();
@@ -560,7 +647,44 @@ public class Communicate extends AppCompatActivity {
         if ( temp> 0) {
             response=  BluetoothLeService.setCharacteristicNotification(characteristic, true);
         }
-       MyLog.debug(TAG, "response: "+response);
+        MyLog.debug(TAG, "response: "+response);
+
+    }
+
+    /**
+     * Preparing Broadcast receiver to broadcast notify characteristics
+     *
+     * @param characteristic
+     */
+    private void prepareBroadcastDataNotify(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic characteristic) {
+        MyLog.debug(TAG, "prepareBroadcastDataNotify: ");
+        boolean response=false;
+        final int charaProp = characteristic.getProperties();
+        MyLog.debug(TAG, "charaProp: "+charaProp);
+        int temp=charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        MyLog.debug(TAG, "temp: "+temp);
+        if ( temp> 0) {
+            response=  BluetoothLeService.setCharacteristicNotification(bluetoothGatt,characteristic, true);
+        }
+        MyLog.debug(TAG, "response: "+response);
+
+    }
+
+    private void prepareBroadcastDataNotify(){
+        MyLog.debug(TAG, "prepareBroadcastDataNotify: ");
+
+        Map<String,Map<Integer,BluetoothGattCharacteristic>> currentCharacteristic =ConnectionInfoCollector.getCurrentCharacteristic();
+        Iterator<String> iterator = currentCharacteristic.keySet().iterator();
+        BluetoothGatt bluetoothGatt;
+        BluetoothGattCharacteristic bluetoothGattCharacteristic;
+        while (iterator.hasNext()) {
+            String deviceAddress = iterator.next();
+            Log.d(TAG, "deviceAddress: "+deviceAddress);
+            bluetoothGatt=ConnectionInfoCollector.getBluetoothGattMap().get(deviceAddress);
+            Map<Integer, BluetoothGattCharacteristic> map = currentCharacteristic.get(deviceAddress);
+            bluetoothGattCharacteristic = map.get(CHARACTERISTIC_TYPE_NOTIFY);
+            prepareBroadcastDataNotify(bluetoothGatt,bluetoothGattCharacteristic);
+        }
 
     }
 
@@ -571,24 +695,66 @@ public class Communicate extends AppCompatActivity {
      */
     private void stopBroadcastDataNotify(BluetoothGattCharacteristic characteristic) {
         MyLog.debug(TAG, "stopBroadcastDataNotify: ");
-        boolean response=false;
+        boolean response = false;
         final int charaProp = characteristic.getProperties();
-        MyLog.debug(TAG, "charaProp: "+charaProp);
+        MyLog.debug(TAG, "charaProp: " + charaProp);
         if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-            response= BluetoothLeService.setCharacteristicNotification(characteristic, false);
+            response = BluetoothLeService.setCharacteristicNotification(characteristic, false);
         }
-        MyLog.debug(TAG, "result: "+response);
+        MyLog.debug(TAG, "result: " + response);
     }
 
+    /**
+     * Stopping Broadcast receiver to broadcast notify characteristics
+     *
+     * @param characteristic
+     */
+    private void stopBroadcastDataNotify(BluetoothGatt bluetoothGatt,BluetoothGattCharacteristic characteristic) {
+        MyLog.debug(TAG, "stopBroadcastDataNotify: ");
+        boolean response = false;
+        final int charaProp = characteristic.getProperties();
+        MyLog.debug(TAG, "charaProp: " + charaProp);
+        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+            response = BluetoothLeService.setCharacteristicNotification(bluetoothGatt,characteristic, false);
+        }
+        MyLog.debug(TAG, "result: " + response);
+    }
+
+    private void stopBroadcastDataNotify(){
+
+        Map<String,Map<Integer,BluetoothGattCharacteristic>> currentCharacteristic =ConnectionInfoCollector.getCurrentCharacteristic();
+        Iterator<String> iterator = currentCharacteristic.keySet().iterator();
+        BluetoothGatt bluetoothGatt;
+        BluetoothGattCharacteristic bluetoothGattCharacteristic;
+        while (iterator.hasNext()) {
+            String deviceAddress = iterator.next();
+            Log.d(TAG, "deviceAddress: "+deviceAddress);
+            bluetoothGatt=ConnectionInfoCollector.getBluetoothGattMap().get(deviceAddress);
+            Map<Integer, BluetoothGattCharacteristic> map = currentCharacteristic.get(deviceAddress);
+            bluetoothGattCharacteristic = map.get(CHARACTERISTIC_TYPE_NOTIFY);
+            stopBroadcastDataNotify(bluetoothGatt,bluetoothGattCharacteristic);
+        }
+    }
 
     public void readCharacteristic(BluetoothGattCharacteristic characteristic){
         BluetoothLeService.readCharacteristic(characteristic);
     }
 
     public void writeCharacteristic(BluetoothGattCharacteristic characteristic, byte[] bytes) {
+        Log.d(TAG, "writeCharacteristic: ");
         // Writing the hexValue to the characteristics
         try {
             BluetoothLeService.writeCharacteristicGattDb(characteristic, bytes);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeCharacteristic(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic characteristic, byte[] bytes) {
+        Log.d(TAG, "writeCharacteristic: ");
+        // Writing the hexValue to the characteristics
+        try {
+            BluetoothLeService.writeCharacteristicGattDb(bluetoothGatt,characteristic, bytes);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -687,10 +853,12 @@ public class Communicate extends AppCompatActivity {
             String deviceAddress = iterator.next();
             BluetoothGattCharacteristic characteristic = ConnectionInfoCollector.getCurrentCharacteristic().get(deviceAddress).get(CHARACTERISTIC_TYPE_WRITE);
             List<BluetoothGattCharacteristic> characteristics = map.get(deviceAddress);
+            MyLog.debug(TAG, "deviceAddress : "+deviceAddress);
 
             for (BluetoothGattCharacteristic c : characteristics) {
                 if (Utils.getProperties(context, c).equals("Notify")) {
                     MyLog.debug(TAG, "there is a notify characteristics............ : ");
+                    MyLog.debug(TAG, "uuid : "+c.getUuid().toString()+" property:"+c.getProperties());
                     notifyCharacteristic = c;
                     ConnectionInfoCollector.getCurrentCharacteristic().get(deviceAddress).put(CHARACTERISTIC_TYPE_NOTIFY,c);
                     continue;
@@ -698,6 +866,7 @@ public class Communicate extends AppCompatActivity {
 
                 if (Utils.getProperties(context, c).equals("Write")) {
                     MyLog.debug(TAG, "there is a write characteristics............ : ");
+                    MyLog.debug(TAG, "uuid : "+c.getUuid().toString()+" property:"+c.getProperties());
                     writeCharacteristic = c;
                     ConnectionInfoCollector.getCurrentCharacteristic().get(deviceAddress).put(CHARACTERISTIC_TYPE_WRITE,c);
                     continue;
@@ -719,18 +888,34 @@ public class Communicate extends AppCompatActivity {
 
     }
 
-    private void requestMtu(){
+    private void requestMtu(int mtu) {
         MyLog.debug(TAG, "requestMtu: ");
 
+        MyLog.debug(TAG, "sdkInt------------>" + sdkInt);
+
+        Map<String,BluetoothGatt> bluetoothGattMap=ConnectionInfoCollector.getBluetoothGattMap();
+        Iterator<String> iterator =bluetoothGattMap.keySet().iterator();
+        BluetoothGatt bluetoothGatt;
+
+        while (iterator.hasNext()) {
+            String deveceAddress = iterator.next();
+            bluetoothGatt=bluetoothGattMap.get(deveceAddress);
+
+            requestMtu(bluetoothGatt,mtu);
+
+        }
+
+    }
+
+    private void requestMtu(BluetoothGatt bluetoothGatt,int mtu ){
+        MyLog.debug(TAG, "requestMtu: ");
         MyLog.debug(TAG, "sdkInt------------>"+sdkInt);
         if (sdkInt>=21){
             //设置最大发包、收包的长度为512个字节
-            if(BluetoothLeService.requestMtu(512)){
+            if(BluetoothLeService.requestMtu(bluetoothGatt,mtu)){
                 MyLog.debug(TAG, "Max transmittal data is 512 ");
-//                Toast.makeText(this,getString(R.string.transmittal_length,"512"),Toast.LENGTH_LONG).show();
             }else{
                 MyLog.debug(TAG, "Max transmittal data is 20 ");
-//                Toast.makeText(this,getString(R.string.transmittal_length,"20"),Toast.LENGTH_LONG).show();
             }
 
         }else {
