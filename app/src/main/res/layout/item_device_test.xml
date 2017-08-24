@@ -87,7 +87,9 @@
             android:id="@+id/showStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/show_status"/>
+            android:text="@string/show_status"
+            android:visibility="gone"
+            />
 
 
     </LinearLayout>

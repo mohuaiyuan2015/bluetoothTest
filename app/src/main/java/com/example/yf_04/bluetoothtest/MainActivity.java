@@ -17,6 +17,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -40,10 +41,18 @@ import com.example.yf_04.bluetoothtest.Utils.Utils;
 import com.example.yf_04.bluetoothtest.adapter.MyAdapter;
 import com.example.yf_04.bluetoothtest.bean.MDevice;
 import com.example.yf_04.bluetoothtest.bean.MService;
+import com.example.yf_04.bluetoothtest.bean.MacAddressInfo;
 import com.example.yf_04.bluetoothtest.myInterface.MultipleConnection;
 import com.example.yf_04.bluetoothtest.myabstractclass.DiscoveredResultAdapter;
 import com.example.yf_04.bluetoothtest.myabstractclass.MultipleConnectionAdapter;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -108,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
     //mohuaiyuan 201708
 //    private Map<String,BluetoothGatt> bluetoothGattMap=new HashMap<String, BluetoothGatt>();
 
+    private MacAddressInfo macAddressInfo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
         installPool = Executors. newSingleThreadExecutor();
 
         initUI();
+        initMacAddressInfo();
 
         hander = new Handler();
         LinearLayoutManager llm = new LinearLayoutManager(this);
@@ -156,6 +168,47 @@ public class MainActivity extends AppCompatActivity {
 //        if(componentName!=null){
 //            MyLog.debug(TAG, "componentName:"+componentName.toString());
 //        }
+
+    }
+
+    private void initMacAddressInfo() {
+        Log.d(TAG, "initMacAddressInfo: ");
+
+        AssetManager am = context.getAssets();
+        InputStream inputStream=null;
+        BufferedReader bufferedReader=null;
+        try {
+            inputStream=am.open("macAddress");
+            bufferedReader=new BufferedReader(new InputStreamReader(inputStream));
+            String line="";
+            while ((line=bufferedReader.readLine())!=null){
+                String[] temp=line.split(",");
+                Log.d(TAG, "temp: "+temp.length);
+                if(temp!=null && temp.length==2){
+                    long id=Long.valueOf(temp[0].trim());
+                    String mac=temp[1].trim();
+                    Log.d(TAG, "macAddressInfo id: "+id);
+                    Log.d(TAG, "macAddressInfo mac: "+mac);
+                    if(macAddressInfo==null){
+                        macAddressInfo=new MacAddressInfo();
+                    }
+                    macAddressInfo.setId(id);
+                    macAddressInfo.setMac(mac);
+                }else{
+                    Toast.makeText(context,"Please Check assets/macAddress file!",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            inputStream.close();
+            bufferedReader.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
 
     }
 
@@ -246,7 +299,9 @@ public class MainActivity extends AppCompatActivity {
                 isShowingDialog=true;
                 showProgressDialog();
                 hander.postDelayed(dismssDialogRunnable, Constants.CONNECT_TIME_OUT);
-                connectDevice(list);
+
+                List<MDevice> connectList=getConnectDeviceByMac();
+                connectDevice(connectList);
 
             }
         });
@@ -266,10 +321,15 @@ public class MainActivity extends AppCompatActivity {
 //                    Toast.makeText(context, "Scanning bluetooth device", Toast.LENGTH_SHORT).show();
 //                }
 
-                isShowingDialog=true;
-                showProgressDialog();
-                hander.postDelayed(dismssDialogRunnable, Constants.CONNECT_TIME_OUT);
-                connectDevice(list.get(position).getDevice());
+                BluetoothDevice device=list.get(position).getDevice();
+                if(device.getAddress().equals(macAddressInfo.getMac())){
+                    isShowingDialog=true;
+                    showProgressDialog();
+                    hander.postDelayed(dismssDialogRunnable, Constants.CONNECT_TIME_OUT);
+                    connectDevice(device);
+                }else {
+                    Toast.makeText(context,"Can not to connect the device!",Toast.LENGTH_SHORT).show();
+                }
 
             }
         });
@@ -383,6 +443,18 @@ public class MainActivity extends AppCompatActivity {
         sendOrders= (Button) findViewById(R.id.sendOrders);
         connectAll= (Button) findViewById(R.id.connectAll);
         recyclerView= (RecyclerView) findViewById(R.id.recycleview);
+    }
+
+    private List<MDevice>getConnectDeviceByMac(){
+        Log.d(TAG, "getConnectDeviceByMac: ");
+        List<MDevice> result=new ArrayList<>();
+        for(int i=0;i<list.size();i++){
+            String macAddrss=list.get(i).getDevice().getAddress();
+            if(macAddressInfo!=null && macAddrss.equals(macAddressInfo.getMac())){
+                result.add(list.get(i));
+            }
+        }
+        return result;
     }
 
     private static final int ADD_BLUETOOTH_DEVICE=2;
@@ -1022,13 +1094,6 @@ public class MainActivity extends AppCompatActivity {
 
         //mohuaiyuan 201708  暂时注释
 //        Intent intent = new Intent(context,Communicate.class);
-//        Bundle bundle =new Bundle();
-//        if(ConnectionInfoCollector.getBluetoothGattMap().size()>1){
-//            bundle.putInt(Communicate.CONNECT_MODEL,Communicate.CONNECT_MODEL_MULTIPLe);
-//        }else {
-//            bundle.putInt(Communicate.CONNECT_MODEL,Communicate.CONNECT_MODEL_SINGLE);
-//        }
-//        intent.putExtras(bundle);
 //        startActivity(intent);
 
 
@@ -1091,13 +1156,6 @@ public class MainActivity extends AppCompatActivity {
 
         //mohuaiyuan 201708  暂时注释
 //        Intent intent = new Intent(context,Communicate.class);
-//        Bundle bundle =new Bundle();
-//        if(ConnectionInfoCollector.getBluetoothGattMap().size()>1){
-//            bundle.putInt(Communicate.CONNECT_MODEL,Communicate.CONNECT_MODEL_MULTIPLe);
-//        }else {
-//            bundle.putInt(Communicate.CONNECT_MODEL,Communicate.CONNECT_MODEL_SINGLE);
-//        }
-//        intent.putExtras(bundle);
 //        startActivity(intent);
 
 

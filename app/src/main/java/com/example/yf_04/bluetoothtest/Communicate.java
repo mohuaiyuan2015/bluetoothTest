@@ -120,10 +120,10 @@ public class Communicate extends AppCompatActivity {
         setContentView(R.layout.communicate_layout);
 
         MyLog.debug(TAG, "onCreate: ");
-        Intent intent =getIntent();
-        Bundle bundle=intent.getExtras();
 
         //mohuaiyuan 201708
+//        Intent intent =getIntent();
+//        Bundle bundle=intent.getExtras();
 //        try {
 //            connectModel=bundle.getInt(CONNECT_MODEL);
 //        } catch (Exception e) {
@@ -139,7 +139,7 @@ public class Communicate extends AppCompatActivity {
 //        initCharacteristics();
 
         //mohuaiyuan 201708 Original code
-//        initCharacteristicWitySingle();
+//        initCharacteristicWithSingle();
         initCharacteristicWithMultiple();
 
 
@@ -762,7 +762,7 @@ public class Communicate extends AppCompatActivity {
 
 
 
-    private void initCharacteristicWitySingle(){
+    private void initCharacteristicWithSingle(){
         MyLog.debug(TAG, "initCharacteristic: ");
 
         BluetoothGattCharacteristic characteristic = myApplication.getCharacteristic();

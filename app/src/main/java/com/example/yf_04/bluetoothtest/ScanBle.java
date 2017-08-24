@@ -170,20 +170,29 @@ public class ScanBle {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
-            discoveredResult.getScanCallback().onScanResult(callbackType,result);
+            if(discoveredResult!=null && discoveredResult.getScanCallback()!=null){
+                discoveredResult.getScanCallback().onScanResult(callbackType,result);
+            }
+
 
         }
         @Override
         public void onBatchScanResults(List<ScanResult> results) {
             super.onBatchScanResults(results);
             // 批量回调，一般不推荐使用，使用上面那个会更灵活
-            discoveredResult.getScanCallback().onBatchScanResults(results);
+            if(discoveredResult!=null && discoveredResult.getScanCallback()!=null){
+                discoveredResult.getScanCallback().onBatchScanResults(results);
+            }
+
         }
         @Override
         public void onScanFailed(int errorCode) {
             super.onScanFailed(errorCode);
             // 扫描失败，并且失败原因
-            discoveredResult.getScanCallback().onScanFailed(errorCode);
+            if(discoveredResult!=null && discoveredResult.getScanCallback()!=null){
+                discoveredResult.getScanCallback().onScanFailed(errorCode);
+            }
+
         }
     }
 

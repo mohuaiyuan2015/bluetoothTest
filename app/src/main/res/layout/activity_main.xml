@@ -32,14 +32,14 @@
         >
         <Button
             android:id="@+id/showDebugMsg"
-            android:layout_width="wrap_content"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="showDebugMsg"
             />
         <Button
             android:id="@+id/sendOrders"
-            android:layout_width="wrap_content"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="send orders"
@@ -48,12 +48,22 @@
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        >
         <Button
             android:id="@+id/connectAll"
-            android:layout_width="wrap_content"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="connect"
+            />
+        <Button
+            android:id="@+id/toBeContinue"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="connect"
+            android:visibility="invisible"
             />
 
     </LinearLayout>
