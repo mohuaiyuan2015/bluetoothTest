@@ -652,7 +652,7 @@ public class Communicate extends AppCompatActivity {
     }
 
     /**
-     * Preparing Broadcast receiver to broadcast notify characteristics
+     * Preparing Broadcast receiver to broadcast notify characteristics.
      *
      * @param characteristic
      */

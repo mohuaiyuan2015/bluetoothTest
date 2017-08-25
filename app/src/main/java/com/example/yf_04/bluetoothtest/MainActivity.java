@@ -118,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
 //    private Map<String,BluetoothGatt> bluetoothGattMap=new HashMap<String, BluetoothGatt>();
 
     private MacAddressInfo macAddressInfo;
+    private List<MacAddressInfo> macAddressInfos=new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -194,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     macAddressInfo.setId(id);
                     macAddressInfo.setMac(mac);
+                    macAddressInfos.add(macAddressInfo);
                 }else{
                     Toast.makeText(context,"Please Check assets/macAddress file!",Toast.LENGTH_SHORT).show();
                 }
@@ -207,8 +209,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
 
     }
 
@@ -445,14 +445,18 @@ public class MainActivity extends AppCompatActivity {
         recyclerView= (RecyclerView) findViewById(R.id.recycleview);
     }
 
-    private List<MDevice>getConnectDeviceByMac(){
+    private List<MDevice>getConnectDeviceByMac() {
         Log.d(TAG, "getConnectDeviceByMac: ");
-        List<MDevice> result=new ArrayList<>();
-        for(int i=0;i<list.size();i++){
-            String macAddrss=list.get(i).getDevice().getAddress();
-            if(macAddressInfo!=null && macAddrss.equals(macAddressInfo.getMac())){
-                result.add(list.get(i));
+        List<MDevice> result = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            String macAddrss = list.get(i).getDevice().getAddress();
+            for (int length = 0; length < macAddressInfos.size(); length++) {
+                if (macAddrss.equals(macAddressInfos.get(length).getMac())) {
+                    result.add(list.get(i));
+                    break;
+                }
             }
+
         }
         return result;
     }
@@ -640,7 +644,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         // Initializes a Blue tooth adapter.
-        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        final BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
         if (mBluetoothAdapter == null) {
