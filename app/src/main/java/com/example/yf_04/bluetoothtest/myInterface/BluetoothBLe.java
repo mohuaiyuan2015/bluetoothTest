@@ -9,6 +9,7 @@ import android.bluetooth.le.ScanCallback;
 import android.content.Context;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mohuaiyuan on 2017/8/25.
@@ -42,8 +43,8 @@ public interface BluetoothBLe {
     /**
      * Scan Bluetooth LE device
      * @param bluetoothAdapter
-     * @param scanCallback:Bluetooth LE scan callbacks,add in api level 21 ,be used at api level 21 and above api level 21
-     * @param leScanCallback:used to deliver LE scan results,add in api leval 18,be used under api level 21
+     * @param scanCallback:Bluetooth LE scan callbacks,add in api level 21 ,be used in api level 21 and above levels
+     * @param leScanCallback:used to deliver LE scan results,add in api leval 18,be used in below api level 21
      */
     void startScan(BluetoothAdapter bluetoothAdapter, ScanCallback scanCallback, BluetoothAdapter.LeScanCallback leScanCallback);
 
@@ -56,6 +57,16 @@ public interface BluetoothBLe {
      * @return BluetoothGatt
      */
     BluetoothGatt connect(Context context, final String deviceAddress, BluetoothAdapter bluetoothAdapter, BluetoothGattCallback bluetoothGattCallback);
+
+    /**
+     * Connect back to remote device by the list of device mac address
+     * @param context
+     * @param deviceAddress :the mac address of remote device
+     * @param bluetoothAdapter
+     * @param bluetoothGattCallback
+     * @return :Map<String ,BluetoothGatt> ,key:the mac address of remote device ,value :bluetoothGatt
+     */
+    Map<String ,BluetoothGatt> connect(Context context, final List<String> deviceAddress, BluetoothAdapter bluetoothAdapter, BluetoothGattCallback bluetoothGattCallback);
 
     /**
      * Discovers services offered by a remote device as well as their characteristics and descriptors.

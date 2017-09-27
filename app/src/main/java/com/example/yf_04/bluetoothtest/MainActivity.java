@@ -322,14 +322,14 @@ public class MainActivity extends AppCompatActivity {
 //                }
 
                 BluetoothDevice device=list.get(position).getDevice();
-                if(device.getAddress().equals(macAddressInfo.getMac())){
+//                if(device.getAddress().equals(macAddressInfo.getMac())){
                     isShowingDialog=true;
                     showProgressDialog();
                     hander.postDelayed(dismssDialogRunnable, Constants.CONNECT_TIME_OUT);
                     connectDevice(device);
-                }else {
-                    Toast.makeText(context,"Can not to connect the device!",Toast.LENGTH_SHORT).show();
-                }
+//                }else {
+//                    Toast.makeText(context,"Can not to connect the device!",Toast.LENGTH_SHORT).show();
+//                }
 
             }
         });

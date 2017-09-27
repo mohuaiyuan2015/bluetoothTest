@@ -13,7 +13,7 @@
 
 
     <application
-        android:name=".MyApplication"
+        android:name="com.example.yf_04.bluetoothtest.MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/tuuba_robot"
         android:label="@string/app_name"
