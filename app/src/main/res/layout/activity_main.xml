@@ -16,6 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="scanning"
+            android:textAllCaps="false"
             />
         <Button
             android:id="@+id/stop"
@@ -23,6 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="stop"
+            android:textAllCaps="false"
             />
 
     </LinearLayout>
@@ -36,6 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="showDebugMsg"
+            android:textAllCaps="false"
             />
         <Button
             android:id="@+id/sendOrders"
@@ -43,6 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="send orders"
+            android:textAllCaps="false"
             />
 
     </LinearLayout>
@@ -56,14 +60,15 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="connect"
+            android:textAllCaps="false"
             />
         <Button
-            android:id="@+id/toBeContinue"
+            android:id="@+id/openVisible"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="connect"
-            android:visibility="invisible"
+            android:text="openVisible"
+            android:textAllCaps="false"
             />
 
     </LinearLayout>

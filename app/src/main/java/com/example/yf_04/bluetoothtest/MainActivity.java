@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
     private Button showDebugMsg;
     private Button sendOrders;
     private Button connectAll;
+    private Button openVisible;
 
 
     private RecyclerView recyclerView;
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
      * BluetoothAdapter for handling connections
      * 连接蓝牙都需要，用来管理手机上的蓝牙
      */
-    public  BluetoothAdapter mBluetoothAdapter;
+    private   BluetoothAdapter mBluetoothAdapter;
 
     private MyAdapter myAdapter;
 
@@ -322,14 +323,14 @@ public class MainActivity extends AppCompatActivity {
 //                }
 
                 BluetoothDevice device=list.get(position).getDevice();
-                if(device.getAddress().equals(macAddressInfo.getMac())){
+//                if(device.getAddress().equals(macAddressInfo.getMac())){
                     isShowingDialog=true;
                     showProgressDialog();
                     hander.postDelayed(dismssDialogRunnable, Constants.CONNECT_TIME_OUT);
                     connectDevice(device);
-                }else {
-                    Toast.makeText(context,"Can not to connect the device!",Toast.LENGTH_SHORT).show();
-                }
+//                }else {
+//                    Toast.makeText(context,"Can not to connect the device!",Toast.LENGTH_SHORT).show();
+//                }
 
             }
         });
@@ -431,6 +432,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        openVisible.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(context,BluetoothVisible.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
 
@@ -443,6 +453,9 @@ public class MainActivity extends AppCompatActivity {
         sendOrders= (Button) findViewById(R.id.sendOrders);
         connectAll= (Button) findViewById(R.id.connectAll);
         recyclerView= (RecyclerView) findViewById(R.id.recycleview);
+
+        openVisible= (Button) findViewById(R.id.openVisible);
+
     }
 
     private List<MDevice>getConnectDeviceByMac() {

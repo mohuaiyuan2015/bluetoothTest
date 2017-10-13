@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,7 +20,9 @@ import com.example.yf_04.bluetoothtest.BlueToothLeService.BluetoothLeService;
 import com.example.yf_04.bluetoothtest.Utils.Constants;
 import com.example.yf_04.bluetoothtest.Utils.GattAttributes;
 import com.example.yf_04.bluetoothtest.Utils.MyLog;
+import com.example.yf_04.bluetoothtest.Utils.Orders;
 import com.example.yf_04.bluetoothtest.Utils.Utils;
+import com.example.yf_04.bluetoothtest.mediaplayer.MediaPlayerManager;
 
 
 import java.util.HashMap;
@@ -80,6 +83,8 @@ public class Communicate extends AppCompatActivity {
     private Button stretchYouRightArm;
     private Button playBasketball;
     private Button btnNotify;
+    private Button playApple;
+    private Button playRobot;
 
 
 
@@ -104,9 +109,12 @@ public class Communicate extends AppCompatActivity {
 
     private  Boolean isDebugMode=false;
 
+    private MediaPlayerManager mediaPlayerManager;
+
     //mohuaiyuan 201707  Temporary annotation
     //mode 二
    /* private List<BasicAction> list=new ArrayList<BasicAction>();
+
 
     private RecyclerView recyclerView ;
     private ActionAdapter adapter;*/
@@ -135,6 +143,8 @@ public class Communicate extends AppCompatActivity {
 
         myApplication = (MyApplication) getApplication();
 
+        mediaPlayerManager=new MediaPlayerManager(context);
+
         //mohuaiyuan 201708   Original code
 //        initCharacteristics();
 
@@ -156,6 +166,7 @@ public class Communicate extends AppCompatActivity {
         //mohuaiyuan 201707  暂时注释  仅仅为了测试 发送数据的情况
         sdkInt = Build.VERSION.SDK_INT;
         requestMtu(512);
+
 
     }
 
@@ -242,6 +253,17 @@ public class Communicate extends AppCompatActivity {
         stretchYouRightArm.setOnClickListener(myOnClickListener);
         playBasketball.setOnClickListener(myOnClickListener);
         btnNotify.setOnClickListener(myOnClickListener);
+        playApple.setOnClickListener(myOnClickListener);
+        playRobot.setOnClickListener(myOnClickListener);
+
+        mediaPlayerManager.setMyPreparedListener(new MediaPlayerManager.MyPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                //播放背景音乐
+                mp.start();
+
+            }
+        });
 
 
     }
@@ -288,6 +310,8 @@ public class Communicate extends AppCompatActivity {
         stretchYouRightArm=(Button) findViewById(R.id.stretchYouRightArm);
         playBasketball=(Button) findViewById(R.id.playBasketball);
         btnNotify=(Button) findViewById(R.id.btnNotify);
+        playApple=(Button) findViewById(R.id.playApple);
+        playRobot=(Button) findViewById(R.id.PlayRobot);
 
     }
 
@@ -308,44 +332,51 @@ public class Communicate extends AppCompatActivity {
         }
     };
 
+    private String order=null;
     private View.OnClickListener myOnClickListener=new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             MyLog.debug(TAG, "myOnClickListener onClick: ");
-            String order=null;
+
 
             switch (v.getId()){
 
                 case R.id.standInSitu:
-                    order=getStringById(R.string.STAND_IN_SITU);
+                    order=Orders.STAND_IN_SITU;
+                    writeOption(order);
                     break;
 
                 case R.id.treadOnTheGround:
-                    order=getStringById(R.string.TREAD_ON_THE_GROUND);
+                    order=Orders.TREAD_ON_THE_GROUND;
+                    writeOption(order);
                     break;
 
                 case R.id.walkForward:
-                    order=getStringById(R.string.WALK_FORWARD);
+                    order=Orders.WALK_FORWARD;
+                    writeOption(order);
                     break;
 
                 case R.id.walkBackwards:
-                    order=getStringById(R.string.WALK_BACKWARDS);
+                    order=Orders.WALK_BACKWARDS;
+                    writeOption(order);
                     break;
 
 
                 case R.id.theSideWalk:
-                    order=getStringById(R.string.THE_SIDE_WALK);
+                    order=Orders.THE_SIDE_WALK;
+                    writeOption(order);
                     break;
 
                 case R.id.inSituSquatDown:
                     isSquatDown=!isSquatDown;
                     if(isSquatDown){
                         inSituSquatDown.setText(R.string.from_squat_down_to_stand);
-                        order=getStringById(R.string.IN_SITU_SQUAT_DOWN);
+                        order=Orders.IN_SITU_SQUAT_DOWN;
                     }else{
                         inSituSquatDown.setText(R.string.in_situ_squat_down);
-                        order=getStringById(R.string.FROM_SQAT_DOWN_TO_STAND);
+                        order=Orders.FROM_SQAT_DOWN_TO_STAND;
                     }
+                    writeOption(order);
                     break;
 
 //                case R.id.fromSquatDownToStand:
@@ -356,11 +387,12 @@ public class Communicate extends AppCompatActivity {
                     isSitDown=!isSitDown;
                     if(isSitDown){
                         placeToSitDown.setText(R.string.from_sitting_to_standing);
-                        order=getStringById(R.string.PLACE_TO_SIT_DOWN);
+                        order=Orders.PLACE_TO_SIT_DOWN;
                     }else {
                         placeToSitDown.setText(R.string.place_to_sit_down);
-                        order=getStringById(R.string.FROM_SITTING_TO_STANDING);
+                        order=Orders.FROM_SITTING_TO_STANDING;
                     }
+                    writeOption(order);
                     break;
 
 
@@ -372,11 +404,12 @@ public class Communicate extends AppCompatActivity {
                     isLieDown=!isLieDown;
                     if(isLieDown){
                         placeToLieDown.setText(R.string.from_lie_down_to_stand);
-                        order=getStringById(R.string.PLACE_TO_LIE_DOWN);
+                        order=Orders.PLACE_TO_LIE_DOWN;
                     }else {
                         placeToLieDown.setText(R.string.place_to_lie_down);
-                        order=getStringById(R.string.FROM_LIE_DOWN_TO_STAND);
+                        order=Orders.FROM_LIE_DOWN_TO_STAND;
                     }
+                    writeOption(order);
                     break;
 
 //                case R.id.fromLieDownToStand:
@@ -387,11 +420,12 @@ public class Communicate extends AppCompatActivity {
                     isPutDown=!isPutDown;
                     if(isPutDown){
                         putDown.setText(R.string.from_the_ground_to_the_station);
-                        order=getStringById(R.string.PUT_DOWN);
+                        order=Orders.PUT_DOWN;
                     }else {
                         putDown.setText(R.string.put_down);
-                        order=getStringById(R.string.FROM_THE_GROUND_TO_THE_STATION );
+                        order=Orders.FROM_THE_GROUND_TO_THE_STATION;
                     }
+                    writeOption(order);
                     break;
 
 
@@ -400,79 +434,97 @@ public class Communicate extends AppCompatActivity {
 //                    break;
 
                 case R.id.bowOnesHead:
-                    order=getStringById(R.string.BOW_ONES_HEAD );
+                    order=Orders.BOW_ONES_HEAD;
+                    writeOption(order);
                     break;
 
                 case R.id.aWordHorse:
-                    order=getStringById(R.string.A_WORD_HORSE );
+                    order=Orders.A_WORD_HORSE;
+                    writeOption(order);
                     break;
 
                 case R.id.stance:
-                    order=getStringById(R.string.STANCE );
+                    order=Orders.STANCE;
+                    writeOption(order);
                     break;
 
 
                 case R.id.beforeTheLegPress:
-                    order=getStringById(R.string.BEFORE_THE_LEG_PRESS );
+                    order=Orders.BEFORE_THE_LEG_PRESS;
+                    writeOption(order);
                     break;
 
                 case R.id.sideLegPress:
-                    order=getStringById(R.string.SIDE_LEG_PRESS );
+                    order=Orders.SIDE_LEG_PRESS;
+                    writeOption(order);
                     break;
 
                 case R.id.chestOut:
-                    order=getStringById(R.string.CHEST_OUT );
+                    order=Orders.CHEST_OUT;
+                    writeOption(order);
                     break;
 
                 case R.id.stoop:
-                    order=getStringById(R.string.STOOP );
+                    order=Orders.STOOP;
+                    writeOption(order);
                     break;
 
 
                 case R.id.lookUp:
-                    order=getStringById(R.string.LOOK_UP );
+                    order=Orders.LOOK_UP;
+                    writeOption(order);
                     break;
 
                 case R.id.inSituTurning:
-                    order=getStringById(R.string.IN_SITU_TURNING );
+                    order=Orders.IN_SITU_TURNING;
+                    writeOption(order);
                     break;
 
                 case R.id.takeARightTurn:
-                    order=getStringById(R.string.TAKE_A_RIGHT_TURN );
+                    order=Orders.TAKE_A_RIGHT_TURN;
+                    writeOption(order);
                     break;
 
                 case R.id.lieOnYourStomachAndDoPushUps:
-                    order=getStringById(R.string.LIE_ON_YOU_STOMACH_AND_DO_PUSH_UPS );
+                    order=Orders.LIE_ON_YOU_STOMACH_AND_DO_PUSH_UPS;
+                    writeOption(order);
                     break;
 
 
                 case R.id.liftMyLeftArm:
-                    order=getStringById(R.string.LIFT_MY_LEFT_ARM );
+                    order=Orders.LIFT_MY_LEFT_ARM;
+                    writeOption(order);
                     break;
 
                 case R.id.liftMyRightArm:
-                    order=getStringById(R.string.LIFT_MY_RIGHT_ARM );
+                    order=Orders.LIFT_MY_RIGHT_ARM;
+                    writeOption(order);
                     break;
 
                 case R.id.wavingYourLeftArm:
-                    order=getStringById(R.string.WAVING_YOU_LEFT_ARM );
+                    order=Orders.WAVING_YOU_LEFT_ARM;
+                    writeOption(order);
                     break;
 
                 case R.id.wavingYouRightArm:
-                    order=getStringById(R.string.WAVING_YOU_RIGHT_ARM );
+                    order=Orders.WAVING_YOU_RIGHT_ARM;
+                    writeOption(order);
                     break;
 
 
                 case R.id.stretchYouLeftArm:
-                    order=getStringById(R.string.STRETCH_YOU_LEFT_ARM );
+                    order=Orders.STRETCH_YOU_LEFT_ARM;
+                    writeOption(order);
                     break;
 
                 case R.id.stretchYouRightArm:
-                    order=getStringById(R.string.STRETCH_YOU_RIGHT_ARM );
+                    order=Orders.STRETCH_YOU_RIGHT_ARM;
+                    writeOption(order);
                     break;
 
                 case R.id.playBasketball:
-                    order=getStringById(R.string.PLAY_BASKETBALL );
+                    order=Orders.PLAY_BASKETBALL;
+                    writeOption(order);
                     break;
 
                 case R.id.btnNotify:
@@ -480,16 +532,36 @@ public class Communicate extends AppCompatActivity {
 
                     break;
 
+                case R.id.playApple:
+                    Log.d(TAG, "onClick: playApple");
+                    order=Orders.PLAY_APPLE;
+                    playMusic(0);
+                    writeOption(order);
+                    break;
+
+                case R.id.PlayRobot:
+                    Log.d(TAG, "onClick: PlayRobot");
+                    order=Orders.PLAY_ROBOT;
+                    playMusic(1);
+                    writeOption(order);
+                    break;
+
                 default:
 
             }
 
-            writeOption(order);
-
         }
 
     };
-    
+
+    private void playMusic(int position) {
+        Log.d(TAG, "playMusic: ");
+        try {
+            mediaPlayerManager.executeSong(position);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
 //    private void writeOption(String order){

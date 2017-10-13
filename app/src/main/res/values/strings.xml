@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">bluetoothTest</string>
     <string name="title_activity_communicate">Communicate</string>
-<!--
+    <!--
     <string name="app_name">USRBleAssistent</string>-->
     <string name="devices">BLE Devices</string>
     <string name="menu_usr">Official Website</string>
@@ -199,6 +199,9 @@
     <string name="stretch_you_left_arm">Stretch you left arm</string>
     <string name="stretch_you_right_arm">Stretch you right arm</string>
     <string name="play_basketball">Play basketball</string>
+    <string name="dance">dance</string>
+    <string name="dance_apple">Play Small Apple</string>
+    <string name="dance_robot">Play Robot</string>
 
     <string name="to_be_continue">To be continue</string>
     <string name="read_characteristic">Read characteristic</string>
@@ -216,7 +219,7 @@
     <string name="connect">Connect</string>
     <string name="disconnect">Disconnect</string>
     <string name="show_status">Show Status</string>
-
+    <string name="title_activity_bluetooth_visible">BluetoothVisible</string>
 
 
 </resources>
