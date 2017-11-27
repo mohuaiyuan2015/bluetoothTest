@@ -219,9 +219,21 @@
     <string name="connect_status_connected">connected</string>
     <string name="connect_status_connecting">connecting</string>
     <string name="connect">Connect</string>
-    <string name="disconnect">Disconnect</string>
+    <string name="disconnect">断开连接</string>
     <string name="show_status">Show Status</string>
     <string name="title_activity_bluetooth_visible">BluetoothVisible</string>
+
+
+    <string name="start_scanning">开始扫描</string>
+    <string name="stop_scanning">停止扫描</string>
+    <string name="show_debug_message">显示调试信息</string>
+    <string name="send_orders">发送动作命令</string>
+    <string name="connect_all_devices">连接所有蓝牙</string>
+    <string name="open_ble_visible">打开蓝牙可见性</string>
+
+
+    <string name="not_connected">未连接</string>
+    <string name="is_connected">已连接</string>
 
 
 

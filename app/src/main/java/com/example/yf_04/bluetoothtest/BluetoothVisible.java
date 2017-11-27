@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 
+import com.example.yf_04.bluetoothtest.Utils.MyUtils;
+
 import java.lang.reflect.Method;
 
 public class BluetoothVisible extends Activity {
@@ -21,6 +23,8 @@ public class BluetoothVisible extends Activity {
     private Button open;
     private Button close;
 
+    private MyUtils myUtils;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +32,8 @@ public class BluetoothVisible extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_bluetooth_visible);
         context=this;
+
+        myUtils=new MyUtils();
         
         initUI();
         
@@ -41,7 +47,7 @@ public class BluetoothVisible extends Activity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "open onClick: ");
-                setDiscoverableTimeout(120);
+                myUtils.setDiscoverableTimeout(120);
 
             }
         });
@@ -50,7 +56,7 @@ public class BluetoothVisible extends Activity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "close onClick: ");
-                closeDiscoverableTimeout();
+                myUtils.closeDiscoverableTimeout();
 
             }
         });
@@ -62,36 +68,6 @@ public class BluetoothVisible extends Activity {
         close= (Button) findViewById(R.id.close);
     }
 
-    public void setDiscoverableTimeout(int timeout) {
-        Log.d(TAG, "setDiscoverableTimeout: ");
-        BluetoothAdapter adapter= BluetoothAdapter.getDefaultAdapter();
-        try {
-            Method setDiscoverableTimeout = BluetoothAdapter.class.getMethod("setDiscoverableTimeout", int.class);
-            setDiscoverableTimeout.setAccessible(true);
-            Method setScanMode =BluetoothAdapter.class.getMethod("setScanMode", int.class,int.class);
-            setScanMode.setAccessible(true);
 
-            setDiscoverableTimeout.invoke(adapter, timeout);
-            setScanMode.invoke(adapter, BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE,timeout);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void closeDiscoverableTimeout() {
-        Log.d(TAG, "closeDiscoverableTimeout: ");
-        BluetoothAdapter adapter=BluetoothAdapter.getDefaultAdapter();
-        try {
-            Method setDiscoverableTimeout = BluetoothAdapter.class.getMethod("setDiscoverableTimeout", int.class);
-            setDiscoverableTimeout.setAccessible(true);
-            Method setScanMode =BluetoothAdapter.class.getMethod("setScanMode", int.class,int.class);
-            setScanMode.setAccessible(true);
-
-            setDiscoverableTimeout.invoke(adapter, 1);
-            setScanMode.invoke(adapter, BluetoothAdapter.SCAN_MODE_CONNECTABLE,1);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
 }
