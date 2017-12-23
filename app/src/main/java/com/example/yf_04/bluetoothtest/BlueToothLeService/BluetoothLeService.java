@@ -860,7 +860,6 @@ public class BluetoothLeService extends Service {
         }
 
 
-
         MyLog.debug(TAG, " device.connectGatt-------------start connect-------->");
 
         // We want to directly connect to the device, so we are setting the

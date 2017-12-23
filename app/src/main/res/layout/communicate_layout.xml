@@ -482,6 +482,35 @@
                     />
 
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <Button
+                    android:id="@+id/playChristmas"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_christmas"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+                <Button
+                    android:id="@+id/PlayToBeContinue"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_robot"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+                    android:visibility="invisible"
+
+                    />
+
+            </LinearLayout>
 
         </LinearLayout>
 

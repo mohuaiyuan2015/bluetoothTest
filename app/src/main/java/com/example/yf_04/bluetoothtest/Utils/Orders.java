@@ -155,6 +155,10 @@ public class Orders {
      * 舞蹈：我是一个机器人
      */
     public static final  String PLAY_ROBOT="01 10 20 00 00 07 0E 00 00 00 7C 00 01 00 00 00 00 00 00 00 00 16 A9";
+    /**
+     * 舞蹈：圣诞歌
+     */
+    public static final  String PLAY_CHRISTMAS="01 10 20 00 00 07 0E 00 00 00 84 00 01 00 00 00 00 00 00 00 00 3F CA ";
 
 
 

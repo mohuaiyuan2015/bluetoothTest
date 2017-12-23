@@ -58,6 +58,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -76,12 +77,15 @@ public class MainActivity extends AppCompatActivity {
     private Button showDebugMsg;
     private Button sendOrders;
     private Button connectAll;
+    private Button openVisible;
+    private Button getBoundDevices;
 
 
     private RecyclerView recyclerView;
     private Context context;
 
     private  List<MDevice> list = new ArrayList<MDevice>();
+    private Set<BluetoothDevice> set;
 
     private ScanBle scanBle;
     private DiscoveredResultAdapter myDiscoveredResult;
@@ -95,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
      * BluetoothAdapter for handling connections
      * 连接蓝牙都需要，用来管理手机上的蓝牙
      */
-    public  BluetoothAdapter mBluetoothAdapter;
+    private   BluetoothAdapter mBluetoothAdapter;
 
     private MyAdapter myAdapter;
 
@@ -306,6 +310,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        openVisible.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "openVisible.setOnClickListener: ");
+                Intent intent=new Intent(context,BluetoothVisible.class);
+                startActivity(intent);
+            }
+        });
+
+        getBoundDevices.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, " getBoundDevices.setOnClickListener: ");
+                prepareGetBoundDevices();
+            }
+        });
+
         myAdapter.setOnItemClickListener(new MyAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position) {
@@ -403,6 +424,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onServicesDiscovered(BluetoothGatt gatt, int status) {
                 super.onServicesDiscovered(gatt, status);
+                Log.d(TAG, "BluetoothLeService.setMultipleConnectionAdapter onServicesDiscovered: ");
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     MyLog.debug(TAG, gatt.getDevice().getAddress() + "---------------onServices Discovered------------->GATT_SUCCESS ");
 
@@ -431,8 +453,30 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
+
     }
 
+    private void prepareGetBoundDevices() {
+        Log.d(TAG, "prepareGetBoundDevices: ");
+        if (!list.isEmpty()){
+            list.clear();
+            refreshBluetoothData();
+        }
+         set=mBluetoothAdapter.getBondedDevices();
+        Log.d(TAG, "set.size(): "+set.size());
+
+        for (BluetoothDevice devices:set){
+            Log.d(TAG, "devices : address--"+devices.getAddress() +"  name--"+devices.getName());
+            MDevice mDevice=new MDevice();
+            mDevice.setDevice(devices);
+            if (!list.contains(mDevice)){
+                list.add(mDevice);
+                refreshBluetoothData();
+            }
+        }
+    }
 
 
     private void initUI() {
@@ -443,6 +487,10 @@ public class MainActivity extends AppCompatActivity {
         sendOrders= (Button) findViewById(R.id.sendOrders);
         connectAll= (Button) findViewById(R.id.connectAll);
         recyclerView= (RecyclerView) findViewById(R.id.recycleview);
+
+        openVisible= (Button) findViewById(R.id.openVisible);
+        getBoundDevices= (Button) findViewById(R.id.getBoundDevices);
+
     }
 
     private List<MDevice>getConnectDeviceByMac() {
@@ -533,6 +581,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onLeScan(final BluetoothDevice device, final int rssi,
                              byte[] scanRecord) {
+
+
+            Log.d(TAG, "mLeScanCallback device: "+device.getAddress());
 
             Message message=new Message();
             message.what=ADD_BLUETOOTH_DEVICE;
@@ -685,6 +736,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
+            Log.d(TAG, "MyScanCallback result.getDevice(): "+result.getDevice().getAddress());
             MDevice mDev = new MDevice(result.getDevice(), result.getRssi());
             if (list.contains(mDev)){
                 return;
@@ -989,6 +1041,7 @@ public class MainActivity extends AppCompatActivity {
         MyLog.debug(TAG, "jumpToCharacteristicActivity: ");
 
         if (list.isEmpty()) {
+            Log.e(TAG, "There is not SERVICE,please try another device!: " );
             Toast.makeText(context, "There is not SERVICE,please try another device!", Toast.LENGTH_SHORT).show();
             return;
         }

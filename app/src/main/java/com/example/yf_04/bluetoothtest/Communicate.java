@@ -85,6 +85,7 @@ public class Communicate extends AppCompatActivity {
     private Button btnNotify;
     private Button playApple;
     private Button playRobot;
+    private Button playChristmas;
 
 
 
@@ -114,6 +115,7 @@ public class Communicate extends AppCompatActivity {
     //mohuaiyuan 201707  Temporary annotation
     //mode 二
    /* private List<BasicAction> list=new ArrayList<BasicAction>();
+
 
     private RecyclerView recyclerView ;
     private ActionAdapter adapter;*/
@@ -254,6 +256,7 @@ public class Communicate extends AppCompatActivity {
         btnNotify.setOnClickListener(myOnClickListener);
         playApple.setOnClickListener(myOnClickListener);
         playRobot.setOnClickListener(myOnClickListener);
+        playChristmas.setOnClickListener(myOnClickListener);
 
         mediaPlayerManager.setMyPreparedListener(new MediaPlayerManager.MyPreparedListener() {
             @Override
@@ -311,6 +314,7 @@ public class Communicate extends AppCompatActivity {
         btnNotify=(Button) findViewById(R.id.btnNotify);
         playApple=(Button) findViewById(R.id.playApple);
         playRobot=(Button) findViewById(R.id.PlayRobot);
+        playChristmas=(Button) findViewById(R.id.playChristmas);
 
     }
 
@@ -534,14 +538,20 @@ public class Communicate extends AppCompatActivity {
                 case R.id.playApple:
                     Log.d(TAG, "onClick: playApple");
                     order=Orders.PLAY_APPLE;
-                    playMusic(0);
+                    playMusic(1);
                     writeOption(order);
                     break;
 
                 case R.id.PlayRobot:
                     Log.d(TAG, "onClick: PlayRobot");
                     order=Orders.PLAY_ROBOT;
-                    playMusic(1);
+                    playMusic(2);
+                    writeOption(order);
+                    break;
+                case R.id.playChristmas:
+                    Log.d(TAG, "onClick: playChristmas");
+                    order=Orders.PLAY_CHRISTMAS;
+                    playMusic(0);
                     writeOption(order);
                     break;
 

@@ -15,14 +15,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="scanning"
+            android:text="@string/start_scanning"
+            android:textAllCaps="false"
             />
         <Button
             android:id="@+id/stop"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="stop"
+            android:text="@string/stop_scanning"
+            android:textAllCaps="false"
             />
 
     </LinearLayout>
@@ -35,14 +37,16 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="showDebugMsg"
+            android:text="@string/show_debug_message"
+            android:textAllCaps="false"
             />
         <Button
             android:id="@+id/sendOrders"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="send orders"
+            android:text="@string/send_orders"
+            android:textAllCaps="false"
             />
 
     </LinearLayout>
@@ -55,15 +59,41 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="connect"
+            android:text="@string/connect_all_devices"
+            android:textAllCaps="false"
+            />
+        <Button
+            android:id="@+id/openVisible"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/open_ble_visible"
+            android:textAllCaps="false"
+            android:visibility="invisible"
+            />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <Button
+            android:id="@+id/getBoundDevices"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="getBoundDevices"
+            android:textAllCaps="false"
+            android:visibility="gone"
             />
         <Button
             android:id="@+id/toBeContinue"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="connect"
-            android:visibility="invisible"
+            android:text="toBeContinue"
+            android:textAllCaps="false"
+            android:visibility="gone"
             />
 
     </LinearLayout>

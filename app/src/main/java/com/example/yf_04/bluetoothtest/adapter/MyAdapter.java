@@ -1,5 +1,6 @@
 package com.example.yf_04.bluetoothtest.adapter;
 
+import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
@@ -141,7 +142,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         holder.tvDevSignal.setText(mDevice.getRssi()+"dBm");
         holder.tvDevMac.setText(mDevice.getDevice().getAddress());
 
-        holder.tvConnectStatus.setText(String.valueOf(mDevice.getConnectStatus()));
+        int status=mDevice.getConnectStatus();
+        String statusString=null;
+        if (status== BluetoothProfile.STATE_CONNECTED){
+            statusString=context.getResources().getString(R.string.is_connected);
+        }else {
+            statusString=context.getResources().getString(R.string.not_connected);
+        }
+
+        holder.tvConnectStatus.setText(statusString);
 
     }
 

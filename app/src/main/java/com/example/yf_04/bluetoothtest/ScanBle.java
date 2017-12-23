@@ -14,6 +14,8 @@ import android.util.Log;
 
 import com.example.yf_04.bluetoothtest.Utils.Constants;
 import com.example.yf_04.bluetoothtest.Utils.MyLog;
+import com.example.yf_04.bluetoothtest.Utils.MyUtils;
+import com.example.yf_04.bluetoothtest.Utils.Utils;
 import com.example.yf_04.bluetoothtest.myabstractclass.DiscoveredResult;
 
 import java.util.List;
@@ -37,15 +39,16 @@ public class ScanBle {
     private Handler hander;
     private MyScanCallback myScanCallback;
 
-
     private BluetoothLeScanner bleScanner;
 
     private DiscoveredResult discoveredResult;
 
+    private MyUtils myUtils;
 
 
     public ScanBle(Context context){
        this.context=context;
+        myUtils=new MyUtils();
         init();
 
     }
@@ -91,6 +94,13 @@ public class ScanBle {
     }
 
     public void start(){
+
+        if (bluetoothAdapter==null){
+            bluetoothAdapter=BluetoothAdapter.getDefaultAdapter();
+        }
+        myUtils.setDiscoverableTimeout(3600);
+
+
         if (sdkInt< Build.VERSION_CODES.LOLLIPOP) {
             scanPrevious21Version();
         } else {
