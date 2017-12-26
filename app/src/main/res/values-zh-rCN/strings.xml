@@ -200,11 +200,21 @@
     <string name="stretch_you_left_arm">左伸胳膊</string>
     <string name="stretch_you_right_arm">右伸胳膊</string>
     <string name="play_basketball">打篮球</string>
+
     <string name="dance">跳舞</string>
-    <string name="dance_apple">小苹果舞蹈</string>
-    <string name="dance_robot">机器人舞蹈</string>
-    <string name="dance_felicitate">恭喜发财舞蹈</string>
-    <string name="dance_christmas">圣诞歌舞蹈</string>
+    <string name="dance_apple">舞蹈:小苹果</string>
+    <string name="dance_robot">舞蹈:机器人</string>
+    <string name="dance_romance">舞蹈: Romance</string>
+    <string name="dance_beat_it">舞蹈: Beat It</string>
+
+    <string name="dance_ponytail">舞蹈: Ponytail</string>
+    <string name="dance_ppap">舞蹈: ppap</string>
+    <string name="dance_zalababa">舞蹈: zalababa</string>
+    <string name="dance_felicitate">舞蹈: 恭喜发财</string>
+
+    <string name="dance_birthday">舞蹈:生日歌</string>
+    <string name="dance_christmas">舞蹈:圣诞歌</string>
+
 
 
     <string name="to_be_continue">To be continue</string>

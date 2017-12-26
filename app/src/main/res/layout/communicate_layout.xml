@@ -71,16 +71,16 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
+                android:orientation="horizontal">
+
                 <Button
                     android:id="@+id/theSideWalk"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/btnMargin"
                     android:layout_weight="1"
                     android:text="@string/the_side_walk"
                     android:textSize="@dimen/textSize"
-                    android:layout_margin="@dimen/btnMargin"
 
                     />
 
@@ -88,11 +88,10 @@
                     android:id="@+id/inSituSquatDown"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/btnMargin"
                     android:layout_weight="1"
                     android:text="@string/in_situ_squat_down"
-                    android:textSize="@dimen/textSize"
-                    android:layout_margin="@dimen/btnMargin"
-                    />
+                    android:textSize="@dimen/textSize" />
 
             </LinearLayout>
             <!--<LinearLayout
@@ -459,19 +458,20 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 >
+
                 <Button
                     android:id="@+id/playApple"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/btnMargin"
                     android:layout_weight="1"
                     android:text="@string/dance_apple"
                     android:textSize="@dimen/textSize"
-                    android:layout_margin="@dimen/btnMargin"
 
                     />
 
                 <Button
-                    android:id="@+id/PlayRobot"
+                    android:id="@+id/playRobot"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -488,11 +488,67 @@
                 android:orientation="horizontal"
                 >
                 <Button
-                    android:id="@+id/playChristmas"
+                    android:id="@+id/playRomance"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/dance_christmas"
+                    android:text="@string/dance_romance"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+                <Button
+                    android:id="@+id/playBeatIt"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_beat_it"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <Button
+                    android:id="@+id/playPonytail"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_ponytail"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+                <Button
+                    android:id="@+id/playPpap"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_ppap"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <Button
+                    android:id="@+id/playZalababa"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_zalababa"
                     android:textSize="@dimen/textSize"
                     android:layout_margin="@dimen/btnMargin"
 
@@ -510,6 +566,36 @@
                     />
 
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <Button
+                    android:id="@+id/playBirthday"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_birthday"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+                <Button
+                    android:id="@+id/playChristmas"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_christmas"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+            </LinearLayout>
+
+
 
         </LinearLayout>
 

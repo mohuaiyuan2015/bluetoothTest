@@ -83,10 +83,20 @@ public class Communicate extends AppCompatActivity {
     private Button stretchYouRightArm;
     private Button playBasketball;
     private Button btnNotify;
+
+    //舞蹈
     private Button playApple;
     private Button playRobot;
-    private Button playChristmas;
+    private Button playRomance;
+    private Button playBeatIt;
+
+    private Button playPonytail;
+    private Button playPpap;
+    private Button playZalababa;
     private Button playFelicitate;
+
+    private Button playBirthday;
+    private Button playChristmas;
 
 
 
@@ -255,9 +265,18 @@ public class Communicate extends AppCompatActivity {
         stretchYouRightArm.setOnClickListener(myOnClickListener);
         playBasketball.setOnClickListener(myOnClickListener);
         btnNotify.setOnClickListener(myOnClickListener);
+
         playApple.setOnClickListener(myOnClickListener);
         playRobot.setOnClickListener(myOnClickListener);
+        playRomance.setOnClickListener(myOnClickListener);
+        playBeatIt.setOnClickListener(myOnClickListener);
+
+        playPonytail.setOnClickListener(myOnClickListener);
+        playPpap.setOnClickListener(myOnClickListener);
+        playZalababa.setOnClickListener(myOnClickListener);
         playFelicitate.setOnClickListener(myOnClickListener);
+
+        playBirthday.setOnClickListener(myOnClickListener);
         playChristmas.setOnClickListener(myOnClickListener);
 
         mediaPlayerManager.setMyPreparedListener(new MediaPlayerManager.MyPreparedListener() {
@@ -314,9 +333,18 @@ public class Communicate extends AppCompatActivity {
         stretchYouRightArm=(Button) findViewById(R.id.stretchYouRightArm);
         playBasketball=(Button) findViewById(R.id.playBasketball);
         btnNotify=(Button) findViewById(R.id.btnNotify);
+
         playApple=(Button) findViewById(R.id.playApple);
-        playRobot=(Button) findViewById(R.id.PlayRobot);
+        playRobot=(Button) findViewById(R.id.playRobot);
+        playRomance=(Button) findViewById(R.id.playRomance);
+        playBeatIt=(Button) findViewById(R.id.playBeatIt);
+
+        playPonytail=(Button) findViewById(R.id.playPonytail);
+        playPpap=(Button) findViewById(R.id.playPpap);
+        playZalababa=(Button) findViewById(R.id.playZalababa);
         playFelicitate= (Button) findViewById(R.id.playFelicitate);
+
+        playBirthday=(Button) findViewById(R.id.playBirthday);
         playChristmas=(Button) findViewById(R.id.playChristmas);
 
     }
@@ -545,10 +573,43 @@ public class Communicate extends AppCompatActivity {
                     writeOption(order);
                     break;
 
-                case R.id.PlayRobot:
+                case R.id.playRobot:
                     Log.d(TAG, "onClick: PlayRobot");
                     order=Orders.PLAY_ROBOT;
                     preparePlayMusic("机器人");
+                    writeOption(order);
+                    break;
+
+                case R.id.playRomance:
+                    Log.d(TAG, "onClick: playRomance");
+                    order=Orders.PLAY_BAD_ROMANCE;
+                    preparePlayMusic("Romance");
+                    writeOption(order);
+                    break;
+                case R.id.playBeatIt:
+                    Log.d(TAG, "onClick: playBeatIt");
+                    order=Orders.PLAY_BEAT_IT;
+                    preparePlayMusic("Beat");
+                    writeOption(order);
+                    break;
+
+                case R.id.playPonytail:
+                    Log.d(TAG, "onClick: playPonytail");
+                    order=Orders.PLAY_PONYTAIL;
+                    preparePlayMusic("ponytail");
+                    writeOption(order);
+                    break;
+                case R.id.playPpap:
+                    Log.d(TAG, "onClick: playPpap");
+                    order=Orders.PLAY_PPAP;
+                    preparePlayMusic("ppap");
+                    writeOption(order);
+
+                    break;
+                case R.id.playZalababa:
+                    Log.d(TAG, "onClick: playZalababa");
+                    order=Orders.PLAY_ZALABABA;
+                    preparePlayMusic("zalababa");
                     writeOption(order);
                     break;
 
@@ -556,6 +617,13 @@ public class Communicate extends AppCompatActivity {
                     Log.d(TAG, "onClick: PlayFelicitate");
                     order=Orders.PLAY_FELICITATE;
                     preparePlayMusic("恭喜发财");
+                    writeOption(order);
+                    break;
+
+                case R.id.playBirthday:
+                    Log.d(TAG, "onClick: playBirthday");
+                    order=Orders.PLAY_BIRTHDAY_SONG;
+                    preparePlayMusic("生日歌");
                     writeOption(order);
                     break;
 
