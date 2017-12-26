@@ -155,6 +155,40 @@ public class Orders {
      * 舞蹈：我是一个机器人
      */
     public static final  String PLAY_ROBOT="01 10 20 00 00 07 0E 00 00 00 7C 00 01 00 00 00 00 00 00 00 00 16 A9";
+
+    /**
+     * 舞蹈：Bad Romance
+     */
+    public static final String PLAY_BAD_ROMANCE="01 10 20 00 00 07 0E 00 00 00 7D 00 01 00 00 00 00 00 00 00 00 12 55";
+    /**
+     * 舞蹈：Beat It
+     */
+    public static final String PLAY_BEAT_IT="01 10 20 00 00 07 0E 00 00 00 7E 00 01 00 00 00 00 00 00 00 00 1D 11";
+    /**
+     * 舞蹈：ponytail
+     */
+    public static final String PLAY_PONYTAIL="01 10 20 00 00 07 0E 00 00 00 7F 00 01 00 00 00 00 00 00 00 00 19 ED";
+    /**
+     * 舞蹈：ppap
+     */
+    public static final String PLAY_PPAP="01 10 20 00 00 07 0E 00 00 00 80 00 01 00 00 00 00 00 00 00 00 2A FA";
+    /**
+     * 舞蹈：zalababa
+     */
+    public static final String PLAY_ZALABABA="01 10 20 00 00 07 0E 00 00 00 81 00 01 00 00 00 00 00 00 00 00 2E 06";
+
+    /**
+     * 舞蹈 ：恭喜发财
+     */
+    public static final String PLAY_FELICITATE ="01 10 20 00 00 07 0E 00 00 00 82 00 01 00 00 00 00 00 00 00 00 21 42";
+
+
+    /**
+     * 舞蹈：生日歌
+     */
+    public static final String PLAY_BIRTHDAY_SONG="01 10 20 00 00 07 0E 00 00 00 83 00 01 00 00 00 00 00 00 00 00 25 BE";
+
+
     /**
      * 舞蹈：圣诞歌
      */

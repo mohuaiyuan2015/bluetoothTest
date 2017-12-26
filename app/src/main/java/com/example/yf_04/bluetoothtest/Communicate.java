@@ -86,6 +86,7 @@ public class Communicate extends AppCompatActivity {
     private Button playApple;
     private Button playRobot;
     private Button playChristmas;
+    private Button playFelicitate;
 
 
 
@@ -256,6 +257,7 @@ public class Communicate extends AppCompatActivity {
         btnNotify.setOnClickListener(myOnClickListener);
         playApple.setOnClickListener(myOnClickListener);
         playRobot.setOnClickListener(myOnClickListener);
+        playFelicitate.setOnClickListener(myOnClickListener);
         playChristmas.setOnClickListener(myOnClickListener);
 
         mediaPlayerManager.setMyPreparedListener(new MediaPlayerManager.MyPreparedListener() {
@@ -314,6 +316,7 @@ public class Communicate extends AppCompatActivity {
         btnNotify=(Button) findViewById(R.id.btnNotify);
         playApple=(Button) findViewById(R.id.playApple);
         playRobot=(Button) findViewById(R.id.PlayRobot);
+        playFelicitate= (Button) findViewById(R.id.playFelicitate);
         playChristmas=(Button) findViewById(R.id.playChristmas);
 
     }
@@ -538,20 +541,28 @@ public class Communicate extends AppCompatActivity {
                 case R.id.playApple:
                     Log.d(TAG, "onClick: playApple");
                     order=Orders.PLAY_APPLE;
-                    playMusic(1);
+                    preparePlayMusic("小苹果");
                     writeOption(order);
                     break;
 
                 case R.id.PlayRobot:
                     Log.d(TAG, "onClick: PlayRobot");
                     order=Orders.PLAY_ROBOT;
-                    playMusic(2);
+                    preparePlayMusic("机器人");
                     writeOption(order);
                     break;
+
+                case R.id.playFelicitate:
+                    Log.d(TAG, "onClick: PlayFelicitate");
+                    order=Orders.PLAY_FELICITATE;
+                    preparePlayMusic("恭喜发财");
+                    writeOption(order);
+                    break;
+
                 case R.id.playChristmas:
                     Log.d(TAG, "onClick: playChristmas");
                     order=Orders.PLAY_CHRISTMAS;
-                    playMusic(0);
+                    preparePlayMusic("圣诞歌");
                     writeOption(order);
                     break;
 
@@ -562,6 +573,30 @@ public class Communicate extends AppCompatActivity {
         }
 
     };
+
+    private List<String>musicNameList;
+    private void preparePlayMusic(String songName){
+        Log.d(TAG, "preparePlayMusic: ");
+       if (musicNameList==null){
+           musicNameList= mediaPlayerManager.getMusicNames();
+       }
+       int index=-1;
+        for (int i=0;i<musicNameList.size();i++){
+            String name=musicNameList.get(i);
+            if (name.contains(songName) || songName.contains(name)){
+                index=i;
+                break;
+            }
+        }
+        if (index!=-1){
+            playMusic(index);
+
+        }else {
+//            throw Exception("");
+            Log.e(TAG, "preparePlayMusic: " );
+        }
+
+    }
 
     private void playMusic(int position) {
         Log.d(TAG, "playMusic: ");
