@@ -99,6 +99,8 @@ public class Communicate extends AppCompatActivity {
     private Button playChristmas;
 
 
+    private Button testFromSittingToStanding;
+
 
     private Boolean isSquatDown=false;
     private Boolean isSitDown=false;
@@ -279,6 +281,8 @@ public class Communicate extends AppCompatActivity {
         playBirthday.setOnClickListener(myOnClickListener);
         playChristmas.setOnClickListener(myOnClickListener);
 
+        testFromSittingToStanding.setOnClickListener(myOnClickListener);
+
         mediaPlayerManager.setMyPreparedListener(new MediaPlayerManager.MyPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
@@ -347,6 +351,8 @@ public class Communicate extends AppCompatActivity {
         playBirthday=(Button) findViewById(R.id.playBirthday);
         playChristmas=(Button) findViewById(R.id.playChristmas);
 
+        testFromSittingToStanding= (Button) findViewById(R.id.testFromSittingToStanding);
+
     }
 
     private String getStringById(int id ){
@@ -376,28 +382,33 @@ public class Communicate extends AppCompatActivity {
             switch (v.getId()){
 
                 case R.id.standInSitu:
-                    order=Orders.STAND_IN_SITU;
+//                    order=Orders.STAND_IN_SITU;
+                    order=Orders.generateOrder(1);
                     writeOption(order);
                     break;
 
                 case R.id.treadOnTheGround:
-                    order=Orders.TREAD_ON_THE_GROUND;
+//                    order=Orders.TREAD_ON_THE_GROUND;
+                    order=Orders.generateOrder(2);
                     writeOption(order);
                     break;
 
                 case R.id.walkForward:
-                    order=Orders.WALK_FORWARD;
+//                    order=Orders.WALK_FORWARD;
+                    order=Orders.generateOrder(3);
                     writeOption(order);
                     break;
 
                 case R.id.walkBackwards:
-                    order=Orders.WALK_BACKWARDS;
+//                    order=Orders.WALK_BACKWARDS;
+                    order=Orders.generateOrder(4);
                     writeOption(order);
                     break;
 
 
                 case R.id.theSideWalk:
-                    order=Orders.THE_SIDE_WALK;
+//                    order=Orders.THE_SIDE_WALK;
+                    order=Orders.generateOrder(5);
                     writeOption(order);
                     break;
 
@@ -405,10 +416,12 @@ public class Communicate extends AppCompatActivity {
                     isSquatDown=!isSquatDown;
                     if(isSquatDown){
                         inSituSquatDown.setText(R.string.from_squat_down_to_stand);
-                        order=Orders.IN_SITU_SQUAT_DOWN;
+//                        order=Orders.IN_SITU_SQUAT_DOWN;
+                        order=Orders.generateOrder(6);
                     }else{
                         inSituSquatDown.setText(R.string.in_situ_squat_down);
-                        order=Orders.FROM_SQAT_DOWN_TO_STAND;
+//                        order=Orders.FROM_SQAT_DOWN_TO_STAND;
+                        order=Orders.generateOrder(7);
                     }
                     writeOption(order);
                     break;
@@ -421,10 +434,12 @@ public class Communicate extends AppCompatActivity {
                     isSitDown=!isSitDown;
                     if(isSitDown){
                         placeToSitDown.setText(R.string.from_sitting_to_standing);
-                        order=Orders.PLACE_TO_SIT_DOWN;
+//                        order=Orders.PLACE_TO_SIT_DOWN;
+                        order=Orders.generateOrder(8);
                     }else {
                         placeToSitDown.setText(R.string.place_to_sit_down);
-                        order=Orders.FROM_SITTING_TO_STANDING;
+//                        order=Orders.FROM_SITTING_TO_STANDING;
+                        order=Orders.generateOrder(9);
                     }
                     writeOption(order);
                     break;
@@ -438,10 +453,12 @@ public class Communicate extends AppCompatActivity {
                     isLieDown=!isLieDown;
                     if(isLieDown){
                         placeToLieDown.setText(R.string.from_lie_down_to_stand);
-                        order=Orders.PLACE_TO_LIE_DOWN;
+//                        order=Orders.PLACE_TO_LIE_DOWN;
+                        order=Orders.generateOrder(10);
                     }else {
                         placeToLieDown.setText(R.string.place_to_lie_down);
-                        order=Orders.FROM_LIE_DOWN_TO_STAND;
+//                        order=Orders.FROM_LIE_DOWN_TO_STAND;
+                        order=Orders.generateOrder(11);
                     }
                     writeOption(order);
                     break;
@@ -454,10 +471,12 @@ public class Communicate extends AppCompatActivity {
                     isPutDown=!isPutDown;
                     if(isPutDown){
                         putDown.setText(R.string.from_the_ground_to_the_station);
-                        order=Orders.PUT_DOWN;
+//                        order=Orders.PUT_DOWN;
+                        order=Orders.generateOrder(12);
                     }else {
                         putDown.setText(R.string.put_down);
-                        order=Orders.FROM_THE_GROUND_TO_THE_STATION;
+//                        order=Orders.FROM_THE_GROUND_TO_THE_STATION;
+                        order=Orders.generateOrder(13);
                     }
                     writeOption(order);
                     break;
@@ -468,96 +487,114 @@ public class Communicate extends AppCompatActivity {
 //                    break;
 
                 case R.id.bowOnesHead:
-                    order=Orders.BOW_ONES_HEAD;
+//                    order=Orders.BOW_ONES_HEAD;
+                    order=Orders.generateOrder(21);
                     writeOption(order);
                     break;
 
                 case R.id.aWordHorse:
-                    order=Orders.A_WORD_HORSE;
+//                    order=Orders.A_WORD_HORSE;
+                    order=Orders.generateOrder(28);
                     writeOption(order);
                     break;
 
                 case R.id.stance:
-                    order=Orders.STANCE;
+//                    order=Orders.STANCE;
+                    order=Orders.generateOrder(30);
                     writeOption(order);
                     break;
 
 
                 case R.id.beforeTheLegPress:
-                    order=Orders.BEFORE_THE_LEG_PRESS;
+//                    order=Orders.BEFORE_THE_LEG_PRESS;
+                    order=Orders.generateOrder(31);
                     writeOption(order);
                     break;
 
                 case R.id.sideLegPress:
-                    order=Orders.SIDE_LEG_PRESS;
+//                    order=Orders.SIDE_LEG_PRESS;
+                    order=Orders.generateOrder(32);
                     writeOption(order);
                     break;
 
                 case R.id.chestOut:
-                    order=Orders.CHEST_OUT;
+//                    order=Orders.CHEST_OUT;
+                    order=Orders.generateOrder(40);
                     writeOption(order);
                     break;
 
                 case R.id.stoop:
-                    order=Orders.STOOP;
+//                    order=Orders.STOOP;
+                    order=Orders.generateOrder(41);
                     writeOption(order);
                     break;
 
 
                 case R.id.lookUp:
-                    order=Orders.LOOK_UP;
+//                    order=Orders.LOOK_UP;
+                    order=Orders.generateOrder(53);
                     writeOption(order);
                     break;
 
                 case R.id.inSituTurning:
-                    order=Orders.IN_SITU_TURNING;
+//                    order=Orders.IN_SITU_TURNING;
+                    order=Orders.generateOrder(56);
                     writeOption(order);
                     break;
 
                 case R.id.takeARightTurn:
-                    order=Orders.TAKE_A_RIGHT_TURN;
+//                    order=Orders.TAKE_A_RIGHT_TURN;
+                    order=Orders.generateOrder(57);
                     writeOption(order);
                     break;
 
                 case R.id.lieOnYourStomachAndDoPushUps:
-                    order=Orders.LIE_ON_YOU_STOMACH_AND_DO_PUSH_UPS;
+//                    order=Orders.LIE_ON_YOU_STOMACH_AND_DO_PUSH_UPS;
+                    order=Orders.generateOrder(58);
                     writeOption(order);
                     break;
 
 
                 case R.id.liftMyLeftArm:
-                    order=Orders.LIFT_MY_LEFT_ARM;
+//                    order=Orders.LIFT_MY_LEFT_ARM;
+                    order=Orders.generateOrder(62);
                     writeOption(order);
                     break;
 
                 case R.id.liftMyRightArm:
-                    order=Orders.LIFT_MY_RIGHT_ARM;
+//                    order=Orders.LIFT_MY_RIGHT_ARM;
+                    order=Orders.generateOrder(63);
                     writeOption(order);
                     break;
 
                 case R.id.wavingYourLeftArm:
-                    order=Orders.WAVING_YOU_LEFT_ARM;
+//                    order=Orders.WAVING_YOU_LEFT_ARM;
+                    order=Orders.generateOrder(64);
                     writeOption(order);
                     break;
 
                 case R.id.wavingYouRightArm:
-                    order=Orders.WAVING_YOU_RIGHT_ARM;
+//                    order=Orders.WAVING_YOU_RIGHT_ARM;
+                    order=Orders.generateOrder(65);
                     writeOption(order);
                     break;
 
 
                 case R.id.stretchYouLeftArm:
-                    order=Orders.STRETCH_YOU_LEFT_ARM;
+//                    order=Orders.STRETCH_YOU_LEFT_ARM;
+                    order=Orders.generateOrder(66);
                     writeOption(order);
                     break;
 
                 case R.id.stretchYouRightArm:
-                    order=Orders.STRETCH_YOU_RIGHT_ARM;
+//                    order=Orders.STRETCH_YOU_RIGHT_ARM;
+                    order=Orders.generateOrder(67);
                     writeOption(order);
                     break;
 
                 case R.id.playBasketball:
-                    order=Orders.PLAY_BASKETBALL;
+//                    order=Orders.PLAY_BASKETBALL;
+                    order=Orders.generateOrder(121);
                     writeOption(order);
                     break;
 
@@ -566,70 +603,86 @@ public class Communicate extends AppCompatActivity {
 
                     break;
 
+                case R.id.testFromSittingToStanding:
+//                    order=Orders.FROM_SITTING_TO_STANDING;
+                    order=Orders.generateOrder(9);
+                    writeOption(order);
+                    break;
+
                 case R.id.playApple:
                     Log.d(TAG, "onClick: playApple");
-                    order=Orders.PLAY_APPLE;
+//                    order=Orders.PLAY_APPLE;
+                    order=Orders.generateOrder(123);
                     preparePlayMusic("小苹果");
                     writeOption(order);
                     break;
 
                 case R.id.playRobot:
                     Log.d(TAG, "onClick: PlayRobot");
-                    order=Orders.PLAY_ROBOT;
+//                    order=Orders.PLAY_ROBOT;
+                    order=Orders.generateOrder(124);
                     preparePlayMusic("机器人");
                     writeOption(order);
                     break;
 
                 case R.id.playRomance:
                     Log.d(TAG, "onClick: playRomance");
-                    order=Orders.PLAY_BAD_ROMANCE;
+//                    order=Orders.PLAY_BAD_ROMANCE;
+                    order=Orders.generateOrder(125);
                     preparePlayMusic("Romance");
                     writeOption(order);
                     break;
                 case R.id.playBeatIt:
                     Log.d(TAG, "onClick: playBeatIt");
-                    order=Orders.PLAY_BEAT_IT;
+//                    order=Orders.PLAY_BEAT_IT;
+                    order=Orders.generateOrder(126);
                     preparePlayMusic("Beat");
                     writeOption(order);
                     break;
 
                 case R.id.playPonytail:
                     Log.d(TAG, "onClick: playPonytail");
-                    order=Orders.PLAY_PONYTAIL;
+//                    order=Orders.PLAY_PONYTAIL;
+                    order=Orders.generateOrder(127);
                     preparePlayMusic("ponytail");
                     writeOption(order);
                     break;
                 case R.id.playPpap:
                     Log.d(TAG, "onClick: playPpap");
-                    order=Orders.PLAY_PPAP;
+//                    order=Orders.PLAY_PPAP;
+                    order=Orders.generateOrder(128);
                     preparePlayMusic("ppap");
                     writeOption(order);
 
                     break;
                 case R.id.playZalababa:
                     Log.d(TAG, "onClick: playZalababa");
-                    order=Orders.PLAY_ZALABABA;
+//                    order=Orders.PLAY_ZALABABA;
+                    order=Orders.generateOrder(129);
                     preparePlayMusic("zalababa");
                     writeOption(order);
                     break;
 
                 case R.id.playFelicitate:
                     Log.d(TAG, "onClick: PlayFelicitate");
-                    order=Orders.PLAY_FELICITATE;
+//                    order=Orders.PLAY_FELICITATE;
+                    order=Orders.generateOrder(130);
                     preparePlayMusic("恭喜发财");
                     writeOption(order);
                     break;
 
                 case R.id.playBirthday:
                     Log.d(TAG, "onClick: playBirthday");
-                    order=Orders.PLAY_BIRTHDAY_SONG;
+//                    order=Orders.PLAY_BIRTHDAY_SONG;
+                    order=Orders.generateOrder(131);
                     preparePlayMusic("生日歌");
                     writeOption(order);
                     break;
 
                 case R.id.playChristmas:
                     Log.d(TAG, "onClick: playChristmas");
-                    order=Orders.PLAY_CHRISTMAS;
+//                    order=Orders.PLAY_CHRISTMAS;
+                    order=Orders.generateOrder(132);
                     preparePlayMusic("圣诞歌");
                     writeOption(order);
                     break;

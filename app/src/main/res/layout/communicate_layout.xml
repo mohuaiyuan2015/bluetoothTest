@@ -457,6 +457,36 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:visibility="gone"
+                >
+                <Button
+                    android:id="@+id/testFromSittingToStanding"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/from_sitting_to_standing"
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+                    />
+
+                <Button
+                    android:id="@+id/toBeContinue"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/to_be_continue"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+                    android:visibility="invisible"
+
+                    />
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 >
 
                 <Button

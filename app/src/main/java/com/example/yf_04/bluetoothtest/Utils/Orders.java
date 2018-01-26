@@ -6,6 +6,79 @@ package com.example.yf_04.bluetoothtest.Utils;
 
 public class Orders {
 
+    /**
+     * 生成指令
+     * @param actionCode：指令id ，最大255
+     * @return
+     */
+    public static String generateOrder(int actionCode) {
+        String order = null;
+
+        byte[] puchMsg = { 0x01, 0x10, 0x20, 0x00, 0x00, 0x07, 0x0E, 0x00,
+                0x00, 0x00, (byte) 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, };
+
+
+        puchMsg[10] = (byte) actionCode;
+
+        int result=getCrc16(puchMsg);
+        String hexString=Integer.toHexString(result).toUpperCase();
+
+        System.out.println("result:"+result);
+        System.out.println("hexString:"+hexString);
+
+        String crcString=hexString.substring(2,hexString.length())+hexString.substring(0,2);
+        System.out.println("crcString:"+crcString);
+
+        order=byteArrayToHexStr(puchMsg)+crcString;
+
+        return order;
+    }
+
+    public static String byteArrayToHexStr(byte[] byteArray) {
+        if (byteArray == null){
+            return null;
+        }
+        char[] hexArray = "0123456789ABCDEF".toCharArray();
+        char[] hexChars = new char[byteArray.length * 2];
+        for (int j = 0; j < byteArray.length; j++) {
+            int v = byteArray[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
+    /**
+     * modbus crc16 java 实现
+     *
+     * @param arr_buff
+     * @return
+     */
+    public static int getCrc16(byte[] arr_buff) {
+        int len = arr_buff.length;
+
+        // 预置 1 个 16 位的寄存器为十六进制FFFF, 称此寄存器为 CRC寄存器。
+        int crc = 0xFFFF;
+        int i, j;
+        for (i = 0; i < len; i++) {
+            // 把第一个 8 位二进制数据 与 16 位的 CRC寄存器的低 8 位相异或, 把结果放于 CRC寄存器
+            crc = ((crc & 0xFF00) | (crc & 0x00FF) ^ (arr_buff[i] & 0xFF));
+            for (j = 0; j < 8; j++) {
+                // 把 CRC 寄存器的内容右移一位( 朝低位)用 0 填补最高位, 并检查右移后的移出位
+                if ((crc & 0x0001) > 0) {
+                    // 如果移出位为 1, CRC寄存器与多项式A001进行异或
+                    crc = crc >> 1;
+                    crc = crc ^ 0xA001;
+                } else{
+                    // 如果移出位为 0,再次右移一位
+                    crc = crc >> 1;
+                }
+
+            }
+        }
+        return crc;
+    }
 
     /**
      *  1 Stand in situ
