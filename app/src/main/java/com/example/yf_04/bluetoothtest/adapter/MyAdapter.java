@@ -12,10 +12,10 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.bluetoothtest.newVersion.R;
 import com.example.yf_04.bluetoothtest.Communicate;
 import com.example.yf_04.bluetoothtest.bean.MDevice;
 
-import com.example.yf_04.bluetoothtest.R;
 
 import java.util.List;
 

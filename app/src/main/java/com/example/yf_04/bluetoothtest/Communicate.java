@@ -14,8 +14,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.bluetoothtest.newVersion.R;
 import com.example.yf_04.bluetoothtest.BlueToothLeService.BluetoothLeService;
 import com.example.yf_04.bluetoothtest.Utils.Constants;
 import com.example.yf_04.bluetoothtest.Utils.GattAttributes;
@@ -83,9 +85,25 @@ public class Communicate extends AppCompatActivity {
     private Button stretchYouRightArm;
     private Button playBasketball;
     private Button btnNotify;
+
+    //舞蹈
     private Button playApple;
     private Button playRobot;
+    private Button playRomance;
+    private Button playBeatIt;
 
+    private Button playPonytail;
+    private Button playPpap;
+    private Button playZalababa;
+    private Button playFelicitate;
+
+    private Button playBirthday;
+    private Button playChristmas;
+
+    private EditText actionCodeEditText;
+    private Button sendActionCodeBtn;
+
+    private Button testFromSittingToStanding;
 
 
     private Boolean isSquatDown=false;
@@ -253,8 +271,21 @@ public class Communicate extends AppCompatActivity {
         stretchYouRightArm.setOnClickListener(myOnClickListener);
         playBasketball.setOnClickListener(myOnClickListener);
         btnNotify.setOnClickListener(myOnClickListener);
+
         playApple.setOnClickListener(myOnClickListener);
         playRobot.setOnClickListener(myOnClickListener);
+        playRomance.setOnClickListener(myOnClickListener);
+        playBeatIt.setOnClickListener(myOnClickListener);
+
+        playPonytail.setOnClickListener(myOnClickListener);
+        playPpap.setOnClickListener(myOnClickListener);
+        playZalababa.setOnClickListener(myOnClickListener);
+        playFelicitate.setOnClickListener(myOnClickListener);
+
+        playBirthday.setOnClickListener(myOnClickListener);
+        playChristmas.setOnClickListener(myOnClickListener);
+
+        testFromSittingToStanding.setOnClickListener(myOnClickListener);
 
         mediaPlayerManager.setMyPreparedListener(new MediaPlayerManager.MyPreparedListener() {
             @Override
@@ -265,6 +296,37 @@ public class Communicate extends AppCompatActivity {
             }
         });
 
+        sendActionCodeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "sendActionCodeBtn onClick: ");
+                String actionCodeString=actionCodeEditText.getText().toString();
+
+                if(actionCodeString==null || actionCodeString.trim().length()<1){
+                    Toast.makeText(context,"输入有误，请重新输入",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Integer actionCode=0;
+                try {
+                    actionCode=Integer.valueOf(actionCodeString);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(context,"输入有误，请重新输入",Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                    return;
+                }
+                if (actionCode>0 && actionCode<=255){
+                    order=Orders.generateOrder(actionCode);
+                    writeOption(order);
+                }else {
+                    Toast.makeText(context,"输入有误，请重新输入",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Toast.makeText(context,"已经发送动作！",Toast.LENGTH_SHORT).show();
+                actionCodeEditText.setText("");
+
+            }
+        });
 
     }
 
@@ -310,8 +372,24 @@ public class Communicate extends AppCompatActivity {
         stretchYouRightArm=(Button) findViewById(R.id.stretchYouRightArm);
         playBasketball=(Button) findViewById(R.id.playBasketball);
         btnNotify=(Button) findViewById(R.id.btnNotify);
+
         playApple=(Button) findViewById(R.id.playApple);
-        playRobot=(Button) findViewById(R.id.PlayRobot);
+        playRobot=(Button) findViewById(R.id.playRobot);
+        playRomance=(Button) findViewById(R.id.playRomance);
+        playBeatIt=(Button) findViewById(R.id.playBeatIt);
+
+        playPonytail=(Button) findViewById(R.id.playPonytail);
+        playPpap=(Button) findViewById(R.id.playPpap);
+        playZalababa=(Button) findViewById(R.id.playZalababa);
+        playFelicitate= (Button) findViewById(R.id.playFelicitate);
+
+        playBirthday=(Button) findViewById(R.id.playBirthday);
+        playChristmas=(Button) findViewById(R.id.playChristmas);
+
+        actionCodeEditText= (EditText) findViewById(R.id.actionCodeEditText);
+        sendActionCodeBtn= (Button) findViewById(R.id.sendActionCodeBtn);
+
+        testFromSittingToStanding= (Button) findViewById(R.id.testFromSittingToStanding);
 
     }
 
@@ -342,28 +420,33 @@ public class Communicate extends AppCompatActivity {
             switch (v.getId()){
 
                 case R.id.standInSitu:
-                    order=Orders.STAND_IN_SITU;
+//                    order=Orders.STAND_IN_SITU;
+                    order=Orders.generateOrder(1);
                     writeOption(order);
                     break;
 
                 case R.id.treadOnTheGround:
-                    order=Orders.TREAD_ON_THE_GROUND;
+//                    order=Orders.TREAD_ON_THE_GROUND;
+                    order=Orders.generateOrder(2);
                     writeOption(order);
                     break;
 
                 case R.id.walkForward:
-                    order=Orders.WALK_FORWARD;
+//                    order=Orders.WALK_FORWARD;
+                    order=Orders.generateOrder(3);
                     writeOption(order);
                     break;
 
                 case R.id.walkBackwards:
-                    order=Orders.WALK_BACKWARDS;
+//                    order=Orders.WALK_BACKWARDS;
+                    order=Orders.generateOrder(4);
                     writeOption(order);
                     break;
 
 
                 case R.id.theSideWalk:
-                    order=Orders.THE_SIDE_WALK;
+//                    order=Orders.THE_SIDE_WALK;
+                    order=Orders.generateOrder(5);
                     writeOption(order);
                     break;
 
@@ -371,10 +454,12 @@ public class Communicate extends AppCompatActivity {
                     isSquatDown=!isSquatDown;
                     if(isSquatDown){
                         inSituSquatDown.setText(R.string.from_squat_down_to_stand);
-                        order=Orders.IN_SITU_SQUAT_DOWN;
+//                        order=Orders.IN_SITU_SQUAT_DOWN;
+                        order=Orders.generateOrder(6);
                     }else{
                         inSituSquatDown.setText(R.string.in_situ_squat_down);
-                        order=Orders.FROM_SQAT_DOWN_TO_STAND;
+//                        order=Orders.FROM_SQAT_DOWN_TO_STAND;
+                        order=Orders.generateOrder(7);
                     }
                     writeOption(order);
                     break;
@@ -387,10 +472,12 @@ public class Communicate extends AppCompatActivity {
                     isSitDown=!isSitDown;
                     if(isSitDown){
                         placeToSitDown.setText(R.string.from_sitting_to_standing);
-                        order=Orders.PLACE_TO_SIT_DOWN;
+//                        order=Orders.PLACE_TO_SIT_DOWN;
+                        order=Orders.generateOrder(8);
                     }else {
                         placeToSitDown.setText(R.string.place_to_sit_down);
-                        order=Orders.FROM_SITTING_TO_STANDING;
+//                        order=Orders.FROM_SITTING_TO_STANDING;
+                        order=Orders.generateOrder(9);
                     }
                     writeOption(order);
                     break;
@@ -404,10 +491,12 @@ public class Communicate extends AppCompatActivity {
                     isLieDown=!isLieDown;
                     if(isLieDown){
                         placeToLieDown.setText(R.string.from_lie_down_to_stand);
-                        order=Orders.PLACE_TO_LIE_DOWN;
+//                        order=Orders.PLACE_TO_LIE_DOWN;
+                        order=Orders.generateOrder(10);
                     }else {
                         placeToLieDown.setText(R.string.place_to_lie_down);
-                        order=Orders.FROM_LIE_DOWN_TO_STAND;
+//                        order=Orders.FROM_LIE_DOWN_TO_STAND;
+                        order=Orders.generateOrder(11);
                     }
                     writeOption(order);
                     break;
@@ -420,10 +509,12 @@ public class Communicate extends AppCompatActivity {
                     isPutDown=!isPutDown;
                     if(isPutDown){
                         putDown.setText(R.string.from_the_ground_to_the_station);
-                        order=Orders.PUT_DOWN;
+//                        order=Orders.PUT_DOWN;
+                        order=Orders.generateOrder(12);
                     }else {
                         putDown.setText(R.string.put_down);
-                        order=Orders.FROM_THE_GROUND_TO_THE_STATION;
+//                        order=Orders.FROM_THE_GROUND_TO_THE_STATION;
+                        order=Orders.generateOrder(13);
                     }
                     writeOption(order);
                     break;
@@ -434,96 +525,114 @@ public class Communicate extends AppCompatActivity {
 //                    break;
 
                 case R.id.bowOnesHead:
-                    order=Orders.BOW_ONES_HEAD;
+//                    order=Orders.BOW_ONES_HEAD;
+                    order=Orders.generateOrder(21);
                     writeOption(order);
                     break;
 
                 case R.id.aWordHorse:
-                    order=Orders.A_WORD_HORSE;
+//                    order=Orders.A_WORD_HORSE;
+                    order=Orders.generateOrder(28);
                     writeOption(order);
                     break;
 
                 case R.id.stance:
-                    order=Orders.STANCE;
+//                    order=Orders.STANCE;
+                    order=Orders.generateOrder(30);
                     writeOption(order);
                     break;
 
 
                 case R.id.beforeTheLegPress:
-                    order=Orders.BEFORE_THE_LEG_PRESS;
+//                    order=Orders.BEFORE_THE_LEG_PRESS;
+                    order=Orders.generateOrder(31);
                     writeOption(order);
                     break;
 
                 case R.id.sideLegPress:
-                    order=Orders.SIDE_LEG_PRESS;
+//                    order=Orders.SIDE_LEG_PRESS;
+                    order=Orders.generateOrder(32);
                     writeOption(order);
                     break;
 
                 case R.id.chestOut:
-                    order=Orders.CHEST_OUT;
+//                    order=Orders.CHEST_OUT;
+                    order=Orders.generateOrder(40);
                     writeOption(order);
                     break;
 
                 case R.id.stoop:
-                    order=Orders.STOOP;
+//                    order=Orders.STOOP;
+                    order=Orders.generateOrder(41);
                     writeOption(order);
                     break;
 
 
                 case R.id.lookUp:
-                    order=Orders.LOOK_UP;
+//                    order=Orders.LOOK_UP;
+                    order=Orders.generateOrder(53);
                     writeOption(order);
                     break;
 
                 case R.id.inSituTurning:
-                    order=Orders.IN_SITU_TURNING;
+//                    order=Orders.IN_SITU_TURNING;
+                    order=Orders.generateOrder(56);
                     writeOption(order);
                     break;
 
                 case R.id.takeARightTurn:
-                    order=Orders.TAKE_A_RIGHT_TURN;
+//                    order=Orders.TAKE_A_RIGHT_TURN;
+                    order=Orders.generateOrder(57);
                     writeOption(order);
                     break;
 
                 case R.id.lieOnYourStomachAndDoPushUps:
-                    order=Orders.LIE_ON_YOU_STOMACH_AND_DO_PUSH_UPS;
+//                    order=Orders.LIE_ON_YOU_STOMACH_AND_DO_PUSH_UPS;
+                    order=Orders.generateOrder(58);
                     writeOption(order);
                     break;
 
 
                 case R.id.liftMyLeftArm:
-                    order=Orders.LIFT_MY_LEFT_ARM;
+//                    order=Orders.LIFT_MY_LEFT_ARM;
+                    order=Orders.generateOrder(62);
                     writeOption(order);
                     break;
 
                 case R.id.liftMyRightArm:
-                    order=Orders.LIFT_MY_RIGHT_ARM;
+//                    order=Orders.LIFT_MY_RIGHT_ARM;
+                    order=Orders.generateOrder(63);
                     writeOption(order);
                     break;
 
                 case R.id.wavingYourLeftArm:
-                    order=Orders.WAVING_YOU_LEFT_ARM;
+//                    order=Orders.WAVING_YOU_LEFT_ARM;
+                    order=Orders.generateOrder(64);
                     writeOption(order);
                     break;
 
                 case R.id.wavingYouRightArm:
-                    order=Orders.WAVING_YOU_RIGHT_ARM;
+//                    order=Orders.WAVING_YOU_RIGHT_ARM;
+                    order=Orders.generateOrder(65);
                     writeOption(order);
                     break;
 
 
                 case R.id.stretchYouLeftArm:
-                    order=Orders.STRETCH_YOU_LEFT_ARM;
+//                    order=Orders.STRETCH_YOU_LEFT_ARM;
+                    order=Orders.generateOrder(66);
                     writeOption(order);
                     break;
 
                 case R.id.stretchYouRightArm:
-                    order=Orders.STRETCH_YOU_RIGHT_ARM;
+//                    order=Orders.STRETCH_YOU_RIGHT_ARM;
+                    order=Orders.generateOrder(67);
                     writeOption(order);
                     break;
 
                 case R.id.playBasketball:
-                    order=Orders.PLAY_BASKETBALL;
+//                    order=Orders.PLAY_BASKETBALL;
+                    order=Orders.generateOrder(121);
                     writeOption(order);
                     break;
 
@@ -532,17 +641,87 @@ public class Communicate extends AppCompatActivity {
 
                     break;
 
-                case R.id.playApple:
-                    Log.d(TAG, "onClick: playApple");
-                    order=Orders.PLAY_APPLE;
-                    playMusic(0);
+                case R.id.testFromSittingToStanding:
+//                    order=Orders.FROM_SITTING_TO_STANDING;
+                    order=Orders.generateOrder(9);
                     writeOption(order);
                     break;
 
-                case R.id.PlayRobot:
+                case R.id.playApple:
+                    Log.d(TAG, "onClick: playApple");
+//                    order=Orders.PLAY_APPLE;
+                    order=Orders.generateOrder(196);
+                    preparePlayMusic("小苹果");
+                    writeOption(order);
+                    break;
+
+                case R.id.playRobot:
                     Log.d(TAG, "onClick: PlayRobot");
-                    order=Orders.PLAY_ROBOT;
-                    playMusic(1);
+//                    order=Orders.PLAY_ROBOT;
+                    order=Orders.generateOrder(197);
+                    preparePlayMusic("机器人");
+                    writeOption(order);
+                    break;
+
+                case R.id.playRomance:
+                    Log.d(TAG, "onClick: playRomance");
+//                    order=Orders.PLAY_BAD_ROMANCE;
+                    order=Orders.generateOrder(198);
+                    preparePlayMusic("Romance");
+                    writeOption(order);
+                    break;
+                case R.id.playBeatIt:
+                    Log.d(TAG, "onClick: playBeatIt");
+//                    order=Orders.PLAY_BEAT_IT;
+                    order=Orders.generateOrder(199);
+                    preparePlayMusic("Beat");
+                    writeOption(order);
+                    break;
+
+                case R.id.playPonytail:
+                    Log.d(TAG, "onClick: playPonytail");
+//                    order=Orders.PLAY_PONYTAIL;
+                    order=Orders.generateOrder(200);
+                    preparePlayMusic("ponytail");
+                    writeOption(order);
+                    break;
+                case R.id.playPpap:
+                    Log.d(TAG, "onClick: playPpap");
+//                    order=Orders.PLAY_PPAP;
+                    order=Orders.generateOrder(201);
+                    preparePlayMusic("ppap");
+                    writeOption(order);
+
+                    break;
+                case R.id.playZalababa:
+                    Log.d(TAG, "onClick: playZalababa");
+//                    order=Orders.PLAY_ZALABABA;
+                    order=Orders.generateOrder(202);
+                    preparePlayMusic("zalababa");
+                    writeOption(order);
+                    break;
+
+                case R.id.playFelicitate:
+                    Log.d(TAG, "onClick: PlayFelicitate");
+//                    order=Orders.PLAY_FELICITATE;
+                    order=Orders.generateOrder(203);
+                    preparePlayMusic("恭喜发财");
+                    writeOption(order);
+                    break;
+
+                case R.id.playBirthday:
+                    Log.d(TAG, "onClick: playBirthday");
+//                    order=Orders.PLAY_BIRTHDAY_SONG;
+                    order=Orders.generateOrder(204);
+                    preparePlayMusic("生日歌");
+                    writeOption(order);
+                    break;
+
+                case R.id.playChristmas:
+                    Log.d(TAG, "onClick: playChristmas");
+//                    order=Orders.PLAY_CHRISTMAS;
+                    order=Orders.generateOrder(205);
+                    preparePlayMusic("圣诞歌");
                     writeOption(order);
                     break;
 
@@ -553,6 +732,30 @@ public class Communicate extends AppCompatActivity {
         }
 
     };
+
+    private List<String>musicNameList;
+    private void preparePlayMusic(String songName){
+        Log.d(TAG, "preparePlayMusic: ");
+       if (musicNameList==null){
+           musicNameList= mediaPlayerManager.getMusicNames();
+       }
+       int index=-1;
+        for (int i=0;i<musicNameList.size();i++){
+            String name=musicNameList.get(i);
+            if (name.contains(songName) || songName.contains(name)){
+                index=i;
+                break;
+            }
+        }
+        if (index!=-1){
+            playMusic(index);
+
+        }else {
+//            throw Exception("");
+            Log.e(TAG, "preparePlayMusic: " );
+        }
+
+    }
 
     private void playMusic(int position) {
         Log.d(TAG, "playMusic: ");

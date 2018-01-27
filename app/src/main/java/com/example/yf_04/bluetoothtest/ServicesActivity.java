@@ -21,6 +21,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.bluetoothtest.newVersion.R;
 import com.example.yf_04.bluetoothtest.Utils.AnimateUtils;
 import com.example.yf_04.bluetoothtest.Utils.GattAttributes;
 import com.example.yf_04.bluetoothtest.Utils.Utils;

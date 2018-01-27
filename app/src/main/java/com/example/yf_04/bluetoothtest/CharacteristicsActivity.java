@@ -13,6 +13,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.example.bluetoothtest.newVersion.R;
 import com.example.yf_04.bluetoothtest.Utils.GattAttributes;
 import com.example.yf_04.bluetoothtest.adapter.CharacteristicsAdapter;
 

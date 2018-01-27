@@ -187,6 +187,13 @@ public class MediaPlayerManager {
         return null == obj || "".equals(obj.toString().trim());
     }
 
+    public List<String> getMusicNames() {
+        return musicNames;
+    }
+
+    public void setMusicNames(List<String> musicNames) {
+        this.musicNames = musicNames;
+    }
 
     public interface  MyPreparedListener{
         public void onPrepared(MediaPlayer mp);

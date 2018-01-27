@@ -49,8 +49,8 @@ import android.os.Environment;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.bluetoothtest.newVersion.R;
 import com.example.yf_04.bluetoothtest.BlueToothLeService.BluetoothLeService;
-import com.example.yf_04.bluetoothtest.R;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

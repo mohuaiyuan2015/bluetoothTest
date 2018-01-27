@@ -199,11 +199,23 @@
     <string name="stretch_you_left_arm">Stretch you left arm</string>
     <string name="stretch_you_right_arm">Stretch you right arm</string>
     <string name="play_basketball">Play basketball</string>
+    <string name="to_be_continue">To be continue</string>
+
     <string name="dance">dance</string>
     <string name="dance_apple">Play Small Apple</string>
     <string name="dance_robot">Play Robot</string>
+    <string name="dance_romance">Play Romance</string>
+    <string name="dance_beat_it">Play Beat It</string>
 
-    <string name="to_be_continue">To be continue</string>
+    <string name="dance_ponytail">Play Ponytail</string>
+    <string name="dance_ppap">Play Ppap</string>
+    <string name="dance_zalababa">Play Zalababa</string>
+    <string name="dance_felicitate">Play Felicitate</string>
+
+    <string name="dance_birthday">Play Birthday</string>
+    <string name="dance_christmas">Play Christmas</string>
+
+
     <string name="read_characteristic">Read characteristic</string>
     <string name="notify">Notify</string>
     <string name="stop_notify">Stop Notify</string>

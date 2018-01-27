@@ -19,6 +19,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginTop="@dimen/btnMargin"
+                android:visibility="gone"
                 >
                 <Button
                     android:id="@+id/standInSitu"
@@ -45,6 +46,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:visibility="gone"
                 >
                 <Button
                     android:id="@+id/walkForward"
@@ -72,15 +74,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:visibility="gone"
                 >
+
                 <Button
                     android:id="@+id/theSideWalk"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/btnMargin"
                     android:layout_weight="1"
                     android:text="@string/the_side_walk"
                     android:textSize="@dimen/textSize"
-                    android:layout_margin="@dimen/btnMargin"
 
                     />
 
@@ -88,11 +92,10 @@
                     android:id="@+id/inSituSquatDown"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/btnMargin"
                     android:layout_weight="1"
                     android:text="@string/in_situ_squat_down"
-                    android:textSize="@dimen/textSize"
-                    android:layout_margin="@dimen/btnMargin"
-                    />
+                    android:textSize="@dimen/textSize" />
 
             </LinearLayout>
             <!--<LinearLayout
@@ -125,6 +128,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:visibility="gone"
                 >
                <!-- <Button
                     android:id="@+id/fromSittingToStanding"
@@ -186,6 +190,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:visibility="gone"
                 >
                <!-- <Button
                     android:id="@+id/fromTheGroundToTheStation"
@@ -221,6 +226,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:visibility="gone"
                 >
                 <Button
                     android:id="@+id/aWordHorse"
@@ -247,6 +253,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:visibility="gone"
                 >
                 <Button
                     android:id="@+id/beforeTheLegPress"
@@ -273,6 +280,7 @@
                 android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                android:visibility="gone"
                     >
                 <Button
                     android:id="@+id/chestOut"
@@ -297,9 +305,10 @@
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    >
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                >
                 <Button
                     android:id="@+id/lookUp"
                     android:layout_width="0dip"
@@ -325,6 +334,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:visibility="gone"
                 >
                 <Button
                     android:id="@+id/takeARightTurn"
@@ -351,6 +361,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:visibility="gone"
                     >
                     <Button
                         android:id="@+id/liftMyLeftArm"
@@ -377,6 +388,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:visibility="gone"
                 >
                 <Button
                     android:id="@+id/wavingYourLeftArm"
@@ -403,6 +415,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:visibility="gone"
                 >
                 <Button
                     android:id="@+id/stretchYouLeftArm"
@@ -429,6 +442,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:visibility="gone"
                 >
                 <Button
                     android:id="@+id/playBasketball"
@@ -458,30 +472,222 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:visibility="gone"
                 >
+                <Button
+                    android:id="@+id/testFromSittingToStanding"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/from_sitting_to_standing"
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+                    />
+
+                <Button
+                    android:id="@+id/toBeContinue"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/to_be_continue"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+                    android:visibility="invisible"
+
+                    />
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+
                 <Button
                     android:id="@+id/playApple"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/btnMargin"
                     android:layout_weight="1"
                     android:text="@string/dance_apple"
+                    android:textAllCaps="false"
                     android:textSize="@dimen/textSize"
-                    android:layout_margin="@dimen/btnMargin"
 
                     />
 
                 <Button
-                    android:id="@+id/PlayRobot"
+                    android:id="@+id/playRobot"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/dance_robot"
+                    android:textAllCaps="false"
                     android:textSize="@dimen/textSize"
                     android:layout_margin="@dimen/btnMargin"
 
                     />
 
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <Button
+                    android:id="@+id/playRomance"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_romance"
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+                <Button
+                    android:id="@+id/playBeatIt"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_beat_it"
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <Button
+                    android:id="@+id/playPonytail"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_ponytail"
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+                <Button
+                    android:id="@+id/playPpap"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_ppap"
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <Button
+                    android:id="@+id/playZalababa"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_zalababa"
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+                <Button
+                    android:id="@+id/playFelicitate"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_felicitate"
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <Button
+                    android:id="@+id/playBirthday"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_birthday"
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+                <Button
+                    android:id="@+id/playChristmas"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dance_christmas"
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:text="动作id:"
+                        />
+
+                    <EditText
+                        android:id="@+id/actionCodeEditText"
+                        android:layout_width="0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:hint="请输入动作id，1-255" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <Button
+                        android:id="@+id/sendActionCodeBtn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="发送动作"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
 
         </LinearLayout>
 

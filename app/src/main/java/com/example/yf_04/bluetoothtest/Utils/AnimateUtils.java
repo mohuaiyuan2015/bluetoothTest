@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 
-import com.example.yf_04.bluetoothtest.R;
+import com.example.bluetoothtest.newVersion.R;
 
 
 /**

@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.example.yf_04.bluetoothtest.R;
+import com.example.bluetoothtest.newVersion.R;
 import com.example.yf_04.bluetoothtest.Utils.Utils;
 import com.example.yf_04.bluetoothtest.bean.BasicAction;
 

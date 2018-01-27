@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.yf_04.bluetoothtest.R;
+import com.example.bluetoothtest.newVersion.R;
 import com.example.yf_04.bluetoothtest.bean.Message;
 
 import java.util.List;
