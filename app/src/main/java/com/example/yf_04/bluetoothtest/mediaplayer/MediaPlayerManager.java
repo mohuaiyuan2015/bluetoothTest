@@ -199,4 +199,10 @@ public class MediaPlayerManager {
         public void onPrepared(MediaPlayer mp);
     }
 
+    public void stopMusic(){
+        if (mediaPlayer!=null){
+            mediaPlayer.stop();
+        }
+    }
+
 }

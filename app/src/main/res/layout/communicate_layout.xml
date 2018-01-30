@@ -649,6 +649,37 @@
                     />
 
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <Button
+                    android:id="@+id/interruptAction"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/interrupt_action"
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+
+                    />
+
+                <Button
+                    android:id="@+id/toBeContinueTest"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text=""
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/textSize"
+                    android:layout_margin="@dimen/btnMargin"
+                    android:visibility="invisible"
+
+                    />
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

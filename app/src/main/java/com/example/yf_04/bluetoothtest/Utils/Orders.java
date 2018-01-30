@@ -24,6 +24,20 @@ public class Orders {
         int result=getCrc16(puchMsg);
         String hexString=Integer.toHexString(result).toUpperCase();
 
+        String preString="";
+        int length=hexString.length();
+        if(length<4){
+            int count=4-length;
+            for(int i=0;i<count;i++){
+                preString+="0";
+            }
+        }
+        System.out.println("preString:"+preString);
+
+        if(!preString.isEmpty()){
+            hexString=preString+hexString;
+        }
+
         System.out.println("result:"+result);
         System.out.println("hexString:"+hexString);
 
@@ -267,6 +281,10 @@ public class Orders {
      */
     public static final  String PLAY_CHRISTMAS="01 10 20 00 00 07 0E 00 00 00 84 00 01 00 00 00 00 00 00 00 00 3F CA ";
 
+    /**
+     * 打断动作
+     */
+    public static final String INTERRUPT_ACTION="01 10 20 00 00 03 06 00 00 00 01 40 5A AD 7B ";
 
 
 

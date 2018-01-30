@@ -100,6 +100,8 @@ public class Communicate extends AppCompatActivity {
     private Button playBirthday;
     private Button playChristmas;
 
+    private Button interruptAction;
+
     private EditText actionCodeEditText;
     private Button sendActionCodeBtn;
 
@@ -296,6 +298,17 @@ public class Communicate extends AppCompatActivity {
             }
         });
 
+        interruptAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "interruptAction onClick: ");
+                order=Orders.INTERRUPT_ACTION;
+                writeOption(order);
+                mediaPlayerManager.stopMusic();
+                Toast.makeText(context, "已经发送 动作打断指令", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         sendActionCodeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -385,6 +398,8 @@ public class Communicate extends AppCompatActivity {
 
         playBirthday=(Button) findViewById(R.id.playBirthday);
         playChristmas=(Button) findViewById(R.id.playChristmas);
+
+        interruptAction= (Button) findViewById(R.id.interruptAction);
 
         actionCodeEditText= (EditText) findViewById(R.id.actionCodeEditText);
         sendActionCodeBtn= (Button) findViewById(R.id.sendActionCodeBtn);

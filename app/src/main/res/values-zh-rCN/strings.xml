@@ -215,6 +215,8 @@
     <string name="dance_birthday">舞蹈:生日歌</string>
     <string name="dance_christmas">舞蹈:圣诞歌</string>
 
+    <string name="interrupt_action">打断动作</string>
+
 
 
     <string name="to_be_continue">To be continue</string>

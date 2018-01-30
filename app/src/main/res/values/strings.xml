@@ -215,6 +215,8 @@
     <string name="dance_birthday">Play Birthday</string>
     <string name="dance_christmas">Play Christmas</string>
 
+    <string name="interrupt_action">Interrupt Action</string>
+
 
     <string name="read_characteristic">Read characteristic</string>
     <string name="notify">Notify</string>
